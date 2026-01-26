@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@stratos/auth/server";
 import type { Locale } from "../../../i18n/config";
 
 interface AppLayoutProps {
@@ -15,41 +14,19 @@ interface AppLayoutProps {
 export default async function AppLayout({ children, params }: AppLayoutProps) {
   const { locale } = await params;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Server-side auth check
+  const supabase = await createServerClient();
 
-  // If Supabase not configured, allow access (demo mode)
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return <>{children}</>;
+  if (!supabase) {
+    // Supabase not configured, redirect to landing
+    redirect(`/${locale}`);
   }
 
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          );
-        } catch {
-          // Ignore - called from server component
-        }
-      },
-    },
-  });
-
-  // Use getUser() instead of getSession() for server-side validation
-  // getUser() validates the JWT with Supabase Auth server
   const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (error || !user) {
+  if (!session) {
     // Not authenticated, redirect to login
     redirect(`/${locale}/login`);
   }

@@ -1,8 +1,6 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@stratos/auth/server";
 import type { Locale } from "../../../i18n/config";
-import { TopNav } from "@/components/TopNav";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -19,54 +17,32 @@ export default async function AdminLayout({
 }: AdminLayoutProps) {
   const { locale } = await params;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Server-side auth check
+  const supabase = await createServerClient();
 
-  // If Supabase not configured, allow access (demo mode)
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return (
-      <>
-        <TopNav />
-        {children}
-      </>
-    );
+  if (!supabase) {
+    redirect(`/${locale}`);
   }
 
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          );
-        } catch {
-          // Ignore - called from server component
-        }
-      },
-    },
-  });
-
-  // Use getUser() instead of getSession() for server-side validation
   const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (error || !user) {
+  if (!session) {
     redirect(`/${locale}/login`);
   }
 
-  // For MVP, skip admin role check - allow all authenticated users
+  // Check for admin role
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .single();
 
-  return (
-    <>
-      <TopNav />
-      {children}
-    </>
-  );
+  if (profile?.role !== "admin") {
+    // Not an admin, redirect to app
+    redirect(`/${locale}/app`);
+  }
+
+  return <>{children}</>;
 }
