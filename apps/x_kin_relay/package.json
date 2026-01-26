@@ -1,0 +1,41 @@
+{
+	"name": "@stratos/kinrelay",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@stratos/auth": "workspace:*",
+		"@stratos/marketing": "workspace:*",
+		"@stratos/ui": "workspace:*",
+		"@stratos/utils": "workspace:*",
+		"@supabase/ssr": "^0.6.1",
+		"@supabase/supabase-js": "^2.56.0",
+		"@types/leaflet": "^1.9.20",
+		"eslint-config-next": "^15.5.0",
+		"leaflet": "^1.9.4",
+		"lucide-react": "^0.543.0",
+		"next": "^15.5.0",
+		"next-intl": "^4.3.5",
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1",
+		"zod": "^4.1.1"
+	},
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start -p 3000",
+		"lint": "next lint",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b",
+	"devDependencies": {
+		"@testing-library/jest-dom": "^6.4.8",
+		"@testing-library/react": "^16.0.0",
+		"@testing-library/user-event": "^14.5.2",
+		"@types/react": "^19.1.11",
+		"@types/react-dom": "^19.1.7",
+		"jsdom": "^24.1.0",
+		"typescript": "^5.6.3",
+		"vitest": "^2.0.5"
+	}
+}

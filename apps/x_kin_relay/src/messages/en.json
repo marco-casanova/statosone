@@ -1,0 +1,139 @@
+{
+  "nav": { "home": "Home", "investors": "Investor Deck" },
+  "hero": {
+    "title": "Simple care handovers",
+    "subtitle": "Daily care logs and one-tap PDF for families and carers",
+    "cta": "Join the pilot"
+  },
+  "lead": { "name": "Name", "email": "Email", "agree": "I agree to the privacy policy", "submit": "Notify me" },
+  "footer": { "rights": "© Care Bridge" },
+  "landing": {
+    "top": {
+      "services": "Services",
+      "contact": "Contact",
+      "qa": "Q&A"
+    },
+    "hero": {
+      "title": "Care coordination for everyday life",
+      "lead_line1": "Log activities, share handover notes, set reminders.",
+      "lead_line2": "Keep families & carers connected.",
+      "cta": "See our services"
+    },
+    "problems": {
+      "title": "Problems We Solve",
+      "intro": "Kin Relay addresses the real-world pain points faced by families, informal caregivers, and professional care teams:",
+      "items": {
+        "fragmented": {
+          "title": "Fragmented Communication",
+          "text": "Care teams and families often rely on WhatsApp, paper notes, or memory, leading to missed information, duplicated tasks, and confusion during handovers."
+        },
+        "missed": {
+          "title": "Missed Medications & Tasks",
+          "text": "Without structured reminders and logs, medication doses, meals, or important care tasks are easily forgotten, risking well-being."
+        },
+        "burnout": {
+          "title": "Burnout for Informal Carers",
+          "text": "Family caregivers experience stress and burnout due to lack of coordination, unclear responsibilities, and no easy way to share updates or ask for help."
+        },
+        "handover": {
+          "title": "Unstructured Handover",
+          "text": "Shift changes are prone to errors when information isn't transferred clearly—leading to missed incidents, hydration gaps, or incomplete records."
+        },
+        "privacy": {
+          "title": "Privacy & Compliance Risks",
+          "text": "Generic chat apps or paper logs expose sensitive data to privacy breaches and non-compliance."
+        },
+        "language": {
+          "title": "Language Barriers",
+          "text": "Multilingual teams struggle when tools aren't available in their preferred language."
+        }
+      },
+      "outro": "Kin Relay solves these with structured, privacy-first logging, one-tap handover reports, reminders, multilingual support, and secure EU-based data handling."
+    },
+    "services": {
+      "title": "What Kin Relay offers",
+      "web": { "title": "Web App", "text": "Log care, view handovers, manage roles, and export reports." },
+      "android": { "title": "Android App", "text": "Quick logging, reminders, and shift handover for carers on the go." },
+      "admin": { "title": "Admin Dashboard", "text": "Manage clients, branches, and analytics in a secure dashboard." },
+      "multi": { "title": "Multilingual Support", "text": "Available in multiple languages for diverse care teams." },
+      "privacy": { "title": "Privacy & Compliance", "text": "EU hosting, consent flows, and regulatory compliance." },
+      "handover": { "title": "One-tap Handover Reports", "text": "Generate daily or shift reports as PDF or email." }
+    },
+    "qa": {
+      "title": "Q&A",
+      "getting_started": "Sign up, invite your care circle, and start logging.",
+      "items": {
+        "what": { "q": "What is Kin Relay?", "a": "Kin Relay is a care coordination platform for families and professional carers, offering web, Android, and admin tools." },
+        "who": { "q": "Who can use Kin Relay?", "a": "Families, informal caregivers, professional care teams and providers." },
+        "medical": { "q": "Is Kin Relay a medical device?", "a": "No. It focuses on documentation, reminders and handovers—not diagnostics or treatment." },
+        "privacy": { "q": "Is my data private and secure?", "a": "Yes. EU hosting, explicit consent flows and GDPR/TDDDG compliance." },
+        "platforms": { "q": "What platforms are supported?", "a": "Web app, Android app and an admin dashboard." },
+        "export": { "q": "Can I export handover reports?", "a": "Yes. Generate daily or shift PDFs or send by email." },
+        "languages": { "q": "Is it available in my language?", "a": "Multiple languages with more coming." },
+        "invite": { "q": "How do I invite others?", "a": "Invite by email inside the app and assign roles." },
+        "android": { "q": "What does the Android app do?", "a": "Log activities, set reminders and complete handovers on the go." },
+        "difference": { "q": "How is it different from chat apps?", "a": "Structured logs, privacy controls and one‑tap reports vs unstructured chat." },
+        "multiple": { "q": "Multiple care circles?", "a": "Yes. Switch between circles easily." },
+        "free": { "q": "Is there a free version?", "a": "Yes. A free family tier is available." },
+        "support": { "q": "How do I get support?", "a": "Via in‑app support or the contact form." },
+  "accessibility": { "q": "Accessibility features?", "a": "High contrast, fluid type and reduced motion options." },
+  "getting_started": { "q": "How do I get started?", "a": "Sign up, invite your circle and start logging right away." }
+      }
+    },
+    "contact": { "title": "Get in touch", "thanks": "Thanks! We will contact you soon.", "send": "Send", "name": "Your name", "message": "Message (optional)" }
+  },
+  "common": {
+    "language": "Language",
+    "back": "Back",
+    "home": "Home"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "join_now": "Join now",
+    "forgot": "Forgot password?",
+    "no_account": "Don't have an account? Sign up",
+    "reset_request_title": "Reset your password",
+    "reset_request_sub": "Enter your email and we'll send a reset link.",
+    "send_link": "Send reset link",
+    "sending": "Sending…",
+    "reset_link_sent": "If the email exists, a reset link was sent.",
+    "new_password": "New password",
+    "confirm_password": "Confirm password",
+    "reset_password": "Reset password",
+    "password_updated": "Password updated. You can sign in now.",
+    "password_mismatch": "Passwords do not match",
+    "session_expired": "Session expired. Please login again."
+  },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+  "role_label": "Account type",
+  "role_patient": "Patient",
+  "role_carer": "Carer",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  }
+}

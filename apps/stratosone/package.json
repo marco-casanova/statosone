@@ -1,0 +1,24 @@
+{
+  "name": "@stratos/stratosone-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3006",
+    "build": "next build",
+    "start": "next start --port 3006",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@stratos/marketing": "workspace:*",
+    "@stratos/config": "workspace:*",
+    "next": "^15.5.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "lucide-react": "^0.543.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.7"
+  }
+}

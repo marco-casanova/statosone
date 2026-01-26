@@ -1,0 +1,6 @@
+id,name_display,active_substance,atc_code,category,prescription_type,country,source,verified,evidence_count
+,Azelastine,Azelastine,R01AC03,allergy,unknown,DE,manual,False,6
+,Bilastine,Bilastine,R06AX29,allergy,unknown,DE,manual,False,3
+,Cetirizine,Cetirizine,R06AE07,allergy,unknown,DE,manual,False,55
+,Loratadine,Loratadine,R06AX13,allergy,unknown,DE,manual,False,18
+,Mometasone,Mometasone,R01AD09,allergy,unknown,DE,manual,False,10

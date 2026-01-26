@@ -1,0 +1,120 @@
+{
+  "nav": { "home": "Startseite", "investors": "Investorenpräsentation" },
+  "hero": {
+    "title": "Einfache Pflegeübergaben",
+    "subtitle": "Tägliche Pflegeprotokolle und PDF mit einem Tipp für Familien und Pflegekräfte",
+    "cta": "Am Pilot teilnehmen"
+  },
+  "lead": { "name": "Name", "email": "E-Mail", "agree": "Ich stimme der Datenschutzerklärung zu", "submit": "Benachrichtige mich" },
+  "footer": { "rights": "© Care Bridge" },
+  "landing": {
+    "top": { "services": "Leistungen", "contact": "Kontakt", "qa": "FAQ" },
+    "hero": {
+      "title": "Pflegekoordination für den Alltag",
+      "lead_line1": "Aktivitäten protokollieren, Übergaben teilen, Erinnerungen setzen.",
+      "lead_line2": "Familien und Pflegekräfte vernetzt halten.",
+      "cta": "Unsere Leistungen ansehen"
+    },
+    "problems": {
+      "title": "Die Probleme, die wir lösen",
+      "intro": "Kin Relay adressiert die realen Herausforderungen von Familien, informellen Pflegepersonen und professionellen Pflegeteams:",
+      "items": {
+        "fragmented": {
+          "title": "Zersplitterte Kommunikation",
+          "text": "Teams und Familien verlassen sich auf WhatsApp, Zettel oder das Gedächtnis – Informationen gehen verloren, Aufgaben werden doppelt erledigt und Übergaben werden chaotisch."
+        },
+        "missed": {
+          "title": "Verpasste Medikamente & Aufgaben",
+          "text": "Ohne strukturierte Erinnerungen und Protokolle werden Dosen, Mahlzeiten oder wichtige Pflegeschritte leicht vergessen – mit Risiken für das Wohlbefinden."
+        },
+        "burnout": {
+          "title": "Burnout bei informellen Pflegepersonen",
+          "text": "Angehörige erleiden Stress und Überlastung durch fehlende Koordination, unklare Verantwortlichkeiten und fehlende einfache Wege zur Entlastung."
+        },
+        "handover": {
+          "title": "Unstrukturierte Übergabe",
+            "text": "Schichtwechsel führen zu Fehlern, wenn Informationen nicht klar übergeben werden – Vorfälle, Flüssigkeitszufuhr oder Einträge bleiben unvollständig."
+        },
+        "privacy": {
+          "title": "Datenschutz- & Compliance-Risiken",
+          "text": "Allgemeine Chat-Apps oder Papierzettel gefährden sensible Daten und verstoßen leicht gegen Datenschutzvorgaben."
+        },
+        "language": {
+          "title": "Sprachbarrieren",
+          "text": "Mehrsprachige Teams haben Mühe, wenn Werkzeuge nicht in ihrer bevorzugten Sprache verfügbar sind."
+        }
+      },
+      "outro": "Kin Relay löst dies mit strukturierter, datenschutzorientierter Dokumentation, Ein-Klick-Übergabeberichten, Erinnerungen, Mehrsprachigkeit und sicherem EU-Hosting."
+    },
+    "services": {
+      "title": "Was Kin Relay bietet",
+      "web": { "title": "Web-App", "text": "Pflege protokollieren, Übergaben ansehen, Rollen verwalten und Berichte exportieren." },
+      "android": { "title": "Android-App", "text": "Schnelles Protokollieren, Erinnerungen und Übergaben für unterwegs." },
+      "admin": { "title": "Admin-Dashboard", "text": "Klienten, Standorte und Auswertungen sicher verwalten." },
+      "multi": { "title": "Mehrsprachige Unterstützung", "text": "In mehreren Sprachen für vielfältige Teams verfügbar." },
+      "privacy": { "title": "Datenschutz & Compliance", "text": "EU-Hosting, Einwilligungsflüsse und regulatorische Sicherheit." },
+      "handover": { "title": "Übergabeberichte mit einem Tipp", "text": "Tägliche oder Schichtberichte als PDF oder E-Mail erzeugen." }
+    },
+    "qa": {
+      "title": "FAQ",
+      "getting_started": "Registrieren, Pflegekreis einladen und sofort starten.",
+      "items": {
+        "what": { "q": "Was ist Kin Relay?", "a": "Kin Relay ist eine Plattform zur Pflegekoordination für Familien und professionelle Teams (Web, Android, Admin)." },
+        "who": { "q": "Wer kann Kin Relay nutzen?", "a": "Familien, informelle Pflegepersonen, professionelle Pflegeteams und Anbieter." },
+        "medical": { "q": "Ist Kin Relay ein Medizinprodukt?", "a": "Nein. Fokus auf Dokumentation, Erinnerungen und Übergaben – keine Diagnostik oder Therapie." },
+        "privacy": { "q": "Sind meine Daten sicher?", "a": "Ja. EU‑Hosting, explizite Einwilligungen und DSGVO/TDDDG‑Konformität." },
+        "platforms": { "q": "Welche Plattformen werden unterstützt?", "a": "Web‑App, Android‑App und Admin‑Dashboard." },
+        "export": { "q": "Kann ich Übergaben exportieren?", "a": "Ja, tägliche oder Schichtberichte als PDF oder E‑Mail." },
+        "languages": { "q": "Verfügbar in meiner Sprache?", "a": "Mehrere Sprachen, laufend erweitert." },
+        "invite": { "q": "Wie lade ich andere ein?", "a": "Im Produkt per E‑Mail einladen und Rollen vergeben." },
+        "android": { "q": "Was kann die Android‑App?", "a": "Aktivitäten protokollieren, Erinnerungen setzen, Übergaben unterwegs abschließen." },
+        "difference": { "q": "Unterschied zu Chat‑Apps?", "a": "Strukturierte Protokolle, Datenschutzkontrollen, Ein‑Klick‑Berichte statt ungeordneter Chats." },
+        "multiple": { "q": "Mehrere Pflegekreise?", "a": "Ja, einfach zwischen Kreisen wechseln." },
+        "free": { "q": "Gibt es eine Gratisversion?", "a": "Ja, eine kostenlose Familien-Stufe." },
+        "support": { "q": "Wie erhalte ich Support?", "a": "Über die App oder das Kontaktformular." },
+        "accessibility": { "q": "Barrierefreiheitsfunktionen?", "a": "Hoher Kontrast, flexible Typografie, reduziertes Bewegungslayout." },
+        "getting_started": { "q": "Wie starte ich?", "a": "Registrieren, Kreis einladen und sofort protokollieren." }
+      }
+    },
+    "contact": { "title": "Kontakt aufnehmen", "thanks": "Danke! Wir melden uns bald.", "send": "Senden", "name": "Ihr Name", "message": "Nachricht (optional)" }
+  },
+  "auth": {
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "join_now": "Jetzt beitreten"
+  },
+  "common": {
+    "language": "Sprache"
+  },
+  "register": {
+    "title": "Erstelle dein Konto",
+    "subtitle": "Gib grundlegende Daten und (optional) Adresse ein.",
+  "role_label": "Kontotyp",
+  "role_patient": "Patient",
+  "role_carer": "Pflegekraft",
+    "full_name": "Vollständiger Name",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "address_line1": "Adresszeile 1",
+    "address_line2": "Adresszeile 2",
+    "city": "Stadt",
+    "region": "Region / Bundesland",
+    "postal_code": "PLZ",
+    "country_code": "Ländercode (ISO2)",
+    "submit": "Registrieren",
+    "registering": "Registriere…",
+    "success": "Registriert. Prüfe deine E-Mail zur Bestätigung (falls aktiviert).",
+    "disabled": "Registrierung deaktiviert: Supabase nicht konfiguriert.",
+    "strength_0": "Sehr schwach",
+    "strength_1": "Schwach",
+    "strength_2": "Mittel",
+    "strength_3": "Gut",
+    "strength_4": "Stark"
+  },
+  "error": {
+    "name_required": "Name erforderlich",
+    "email_invalid": "Gültige E-Mail erforderlich",
+    "password_short": "Passwort min. 6 Zeichen",
+    "unknown": "Unbekannter Fehler"
+  }
+}

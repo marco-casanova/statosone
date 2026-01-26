@@ -1,0 +1,44 @@
+{
+  "nav": { "home": "Ana sayfa", "investors": "Yatırımcı sunumu" },
+  "hero": {
+    "title": "Basit bakım devirleri",
+    "subtitle": "Aileler ve bakıcılar için günlük bakım kayıtları ve tek dokunuşla PDF",
+    "cta": "Pilota katıl"
+  },
+  "lead": { "name": "İsim", "email": "E-posta", "agree": "Gizlilik politikasını kabul ediyorum", "submit": "Beni bilgilendir" },
+  "footer": { "rights": "© Care Bridge" },
+  "landing": { "top": { "services": "Hizmetler", "contact": "İletişim", "qa": "Sorular" }, "hero": { "title": "Günlük yaşam için bakım koordinasyonu", "lead_line1": "Etkinlikleri kaydet, not paylaş, hatırlatıcı kur.", "lead_line2": "Aileleri ve bakıcıları bağlı tut.", "cta": "Hizmetleri gör" }, "problems": { "title": "Çözdüğümüz sorunlar", "intro": "Kin Relay aile ve ekiplerin gerçek sorunlarını çözer:", "items": { "fragmented": { "title": "Parçalı iletişim", "text": "Farklı kanallar bilgi kaybı yaratır." }, "missed": { "title": "Atlanan görevler", "text": "Yapı olmazsa ilaç ve görevler unutulur." }, "burnout": { "title": "Tükenmişlik", "text": "Koordinasyon eksikliği strese yol açar." }, "handover": { "title": "Düzensiz devir", "text": "Net aktarım yoksa vardiya hataları olur." }, "privacy": { "title": "Gizlilik riskleri", "text": "Genel sohbet uygulamaları veriyi açığa çıkarır." }, "language": { "title": "Dil engelleri", "text": "Araç dil desteği olmayınca zorluk." } }, "outro": "Kin Relay yapılandırılmış kayıtlar ve raporlar sunar." }, "services": { "title": "Kin Relay ne sunar", "web": { "title": "Web Uygulaması", "text": "Kayıtlar, roller, raporlar." }, "android": { "title": "Android", "text": "Hızlı kayıt ve devir." }, "admin": { "title": "Yönetim Paneli", "text": "Müşteri ve analiz." }, "multi": { "title": "Çok dilli", "text": "Birden çok dil." }, "privacy": { "title": "Gizlilik", "text": "AB barındırma." }, "handover": { "title": "Devir raporları", "text": "PDF/e‑posta tek dokunuş." } }, "qa": { "title": "Sorular", "getting_started": "Kayıt ol ve başla.", "items": { "what": { "q": "Kin Relay nedir?", "a": "Bakım koordinasyon platformu." }, "who": { "q": "Kimler kullanabilir?", "a": "Aileler ve ekipler." }, "medical": { "q": "Tıbbi cihaz mı?", "a": "Hayır." }, "privacy": { "q": "Veriler güvenli mi?", "a": "Evet AB barındırma." }, "platforms": { "q": "Platformlar?", "a": "Web, Android." }, "export": { "q": "Rapor dışa aktarım?", "a": "Evet." }, "languages": { "q": "Diller?", "a": "Birçok dil." }, "invite": { "q": "Nasıl davet ederim?", "a": "Uygulamada e‑posta." }, "android": { "q": "Android uygulaması?", "a": "Mobil kayıt." }, "difference": { "q": "Sohbetten farkı?", "a": "Yapı ve gizlilik." }, "multiple": { "q": "Birden çok çevre?", "a": "Evet." }, "free": { "q": "Ücretsiz sürüm?", "a": "Evet." }, "support": { "q": "Destek?", "a": "Uygulamada." }, "accessibility": { "q": "Erişilebilirlik?", "a": "Yüksek kontrast." }, "getting_started": { "q": "Nasıl başlarım?", "a": "Kayıt ol giriş yap." } } }, "contact": { "title": "İletişim", "thanks": "Teşekkürler! Yakında.", "send": "Gönder", "name": "Adınız", "message": "Mesaj (opsiyonel)" } },
+  "auth": { "login": "Login", "signup": "Sign Up", "join_now": "Hemen katıl" },
+  "common": { "language": "Dil" },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+  "role_label": "Hesap türü",
+  "role_patient": "Hasta",
+  "role_carer": "Bakıcı",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  }
+}

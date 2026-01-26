@@ -1,0 +1,44 @@
+{
+  "nav": { "home": "Главная", "investors": "Презентация для инвесторов" },
+  "hero": {
+    "title": "Простые передачи ухода",
+    "subtitle": "Ежедневные журналы ухода и PDF в один клик для семей и сиделок",
+    "cta": "Присоединиться к пилоту"
+  },
+  "lead": { "name": "Имя", "email": "Эл. почта", "agree": "Я согласен с политикой конфиденциальности", "submit": "Сообщите мне" },
+  "footer": { "rights": "© Care Bridge" },
+  "landing": { "top": { "services": "Сервисы", "contact": "Контакт", "qa": "Вопросы" }, "hero": { "title": "Координация ухода на каждый день", "lead_line1": "Фиксируйте действия, делитесь заметками, ставьте напоминания.", "lead_line2": "Соединяйте семьи и сиделок.", "cta": "Наши сервисы" }, "problems": { "title": "Проблемы которые мы решаем", "intro": "Kin Relay решает реальные боли семей и команд ухода:", "items": { "fragmented": { "title": "Фрагментированная коммуникация", "text": "Разные каналы ведут к потере информации." }, "missed": { "title": "Пропущенные задачи", "text": "Без структуры забывают лекарства и процедуры." }, "burnout": { "title": "Выгорание опекунов", "text": "Стресс из-за отсутствия координации." }, "handover": { "title": "Неструктурная передача", "text": "Ошибки при сменах без четкой передачи данных." }, "privacy": { "title": "Риски конфиденциальности", "text": "Чаты раскрывают чувствительные данные." }, "language": { "title": "Языковые барьеры", "text": "Нет нужного языка – хуже взаимодействие." } }, "outro": "Kin Relay предлагает структурированные журналы и отчеты." }, "services": { "title": "Что предлагает Kin Relay", "web": { "title": "Веб‑приложение", "text": "Журналы, роли, отчеты." }, "android": { "title": "Android", "text": "Быстрые записи и смены." }, "admin": { "title": "Админ‑панель", "text": "Клиенты и аналитика." }, "multi": { "title": "Мультиязычность", "text": "Несколько языков." }, "privacy": { "title": "Конфиденциальность", "text": "EU hosting и соответствие." }, "handover": { "title": "Отчеты смен", "text": "PDF / e‑mail одним кликом." } }, "qa": { "title": "Вопросы", "getting_started": "Зарегистрируйтесь и начните.", "items": { "what": { "q": "Что такое Kin Relay?", "a": "Платформа координации ухода (Web, Android, Admin)." }, "who": { "q": "Кто может использовать?", "a": "Семьи, опекуны, команды, провайдеры." }, "medical": { "q": "Медицинское изделие?", "a": "Нет, только документация и напоминания." }, "privacy": { "q": "Данные безопасны?", "a": "Да, EU hosting." }, "platforms": { "q": "Поддерживаемые платформы?", "a": "Web, Android, панель." }, "export": { "q": "Экспорт отчётов?", "a": "Да, PDF/email." }, "languages": { "q": "Языки?", "a": "Несколько языков." }, "invite": { "q": "Как пригласить?", "a": "Приглашение по email." }, "android": { "q": "Android приложение?", "a": "Записи и напоминания в пути." }, "difference": { "q": "Отличие от чата?", "a": "Структура и приватность." }, "multiple": { "q": "Несколько кругов?", "a": "Да." }, "free": { "q": "Бесплатная версия?", "a": "Да." }, "support": { "q": "Поддержка?", "a": "В приложении или форма." }, "accessibility": { "q": "Доступность?", "a": "Высокий контраст." }, "getting_started": { "q": "Как начать?", "a": "Регистрация и журналы." } } }, "contact": { "title": "Связаться", "thanks": "Спасибо! Напишем скоро.", "send": "Отправить", "name": "Ваше имя", "message": "Сообщение (необяз.)" } },
+  "auth": { "login": "Login", "signup": "Sign Up", "join_now": "Присоединиться" },
+  "common": { "language": "Язык" },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+  "role_label": "Тип аккаунта",
+  "role_patient": "Пациент",
+  "role_carer": "Уход (карер)",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  }
+}

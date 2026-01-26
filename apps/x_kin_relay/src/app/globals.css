@@ -1,0 +1,478 @@
+/* ============================================
+   KINRELAY DESIGN SYSTEM
+   Healthcare-Optimized Dark Theme
+   ============================================ */
+
+:root {
+  color-scheme: dark;
+  
+  /* ---- Base UI Colors ---- */
+  --kr-bg-main: #0E1117;
+  --kr-bg-surface: #141A23;
+  --kr-bg-surface-hover: #1C2330;
+  --kr-bg-elevated: #1F2937;
+  --kr-border: #2A3342;
+  --kr-border-subtle: rgba(255, 255, 255, 0.08);
+  
+  /* ---- Primary Brand (Calm Indigo) ---- */
+  --kr-primary: #6C7CFF;
+  --kr-primary-hover: #7F8CFF;
+  --kr-primary-active: #5B6CFF;
+  --kr-primary-muted: rgba(108, 124, 255, 0.15);
+  
+  /* ---- Text Colors ---- */
+  --kr-text-primary: #FFFFFF;
+  --kr-text-secondary: #B6C0D1;
+  --kr-text-muted: #7A8599;
+  --kr-text-disabled: #4B5563;
+  
+  /* ---- Semantic Category Colors ---- */
+  --kr-safety: #F97316;
+  --kr-safety-bg: rgba(249, 115, 22, 0.18);
+  
+  --kr-health: #2DD4BF;
+  --kr-health-bg: rgba(45, 212, 191, 0.18);
+  
+  --kr-adl: #60A5FA;
+  --kr-adl-bg: rgba(96, 165, 250, 0.18);
+  
+  --kr-environment: #34D399;
+  --kr-environment-bg: rgba(52, 211, 153, 0.18);
+  
+  --kr-service: #FBBF24;
+  --kr-service-bg: rgba(251, 191, 36, 0.18);
+  
+  --kr-engagement: #C084FC;
+  --kr-engagement-bg: rgba(192, 132, 252, 0.18);
+  
+  /* ---- Quick Action Colors ---- */
+  --kr-hydration: #60A5FA;
+  --kr-fall: #F97316;
+  --kr-medication: #6C7CFF;
+  --kr-mood: #C084FC;
+  
+  /* ---- Feedback Colors ---- */
+  --kr-success: #22C55E;
+  --kr-warning: #F59E0B;
+  --kr-error: #EF4444;
+  --kr-info: #3B82F6;
+  
+  /* ---- Spacing ---- */
+  --kr-space-xs: 4px;
+  --kr-space-sm: 8px;
+  --kr-space-md: 16px;
+  --kr-space-lg: 24px;
+  --kr-space-xl: 32px;
+  
+  /* ---- Border Radius ---- */
+  --kr-radius-sm: 8px;
+  --kr-radius-md: 12px;
+  --kr-radius-lg: 16px;
+  --kr-radius-xl: 20px;
+  
+  /* ---- Shadows ---- */
+  --kr-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --kr-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --kr-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
+  
+  /* ---- Touch Targets (Accessibility) ---- */
+  --kr-touch-min: 44px;
+}
+
+/* ---- Global Reset ---- */
+* { box-sizing: border-box; }
+
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  background: var(--kr-bg-main);
+  color: var(--kr-text-primary);
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Focus Styles (Accessibility) ---- */
+:focus-visible {
+  outline: 2px solid var(--kr-primary);
+  outline-offset: 2px;
+}
+
+/* ---- Card Components ---- */
+.kr-card {
+  background: var(--kr-bg-surface);
+  border: 1px solid var(--kr-border-subtle);
+  border-radius: var(--kr-radius-lg);
+  padding: var(--kr-space-lg);
+  transition: all 0.2s ease;
+}
+
+.kr-card:hover {
+  background: var(--kr-bg-surface-hover);
+}
+
+.kr-card--elevated {
+  box-shadow: var(--kr-shadow-md);
+}
+
+/* ---- Category Card Base ---- */
+.kr-category-card {
+  background: var(--kr-bg-surface);
+  border: 2px solid transparent;
+  border-radius: var(--kr-radius-lg);
+  padding: var(--kr-space-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: var(--kr-touch-min);
+  display: flex;
+  flex-direction: column;
+  gap: var(--kr-space-xs);
+}
+
+.kr-category-card:hover {
+  background: var(--kr-bg-surface-hover);
+  border-color: var(--kr-border);
+}
+
+/* ---- Category-Specific Selected States ---- */
+.kr-category-card--safety.selected {
+  background: var(--kr-safety-bg);
+  border-color: var(--kr-safety);
+}
+
+.kr-category-card--health.selected {
+  background: var(--kr-health-bg);
+  border-color: var(--kr-health);
+}
+
+.kr-category-card--adl.selected {
+  background: var(--kr-adl-bg);
+  border-color: var(--kr-adl);
+}
+
+.kr-category-card--environment.selected {
+  background: var(--kr-environment-bg);
+  border-color: var(--kr-environment);
+}
+
+.kr-category-card--service.selected {
+  background: var(--kr-service-bg);
+  border-color: var(--kr-service);
+}
+
+.kr-category-card--engagement.selected {
+  background: var(--kr-engagement-bg);
+  border-color: var(--kr-engagement);
+}
+
+/* ---- Quick Action Cards (Larger, More Prominent) ---- */
+.kr-quick-card {
+  background: var(--kr-bg-surface);
+  border: 2px solid var(--kr-border);
+  border-radius: var(--kr-radius-xl);
+  padding: var(--kr-space-lg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  gap: var(--kr-space-md);
+}
+
+.kr-quick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--kr-shadow-md);
+}
+
+.kr-quick-card:active {
+  transform: translateY(0);
+}
+
+/* Quick Action Variants */
+.kr-quick-card--hydration {
+  border-color: var(--kr-hydration);
+}
+.kr-quick-card--hydration:hover {
+  background: rgba(96, 165, 250, 0.12);
+}
+
+.kr-quick-card--fall {
+  border-color: var(--kr-fall);
+}
+.kr-quick-card--fall:hover {
+  background: rgba(249, 115, 22, 0.12);
+}
+
+.kr-quick-card--medication {
+  border-color: var(--kr-medication);
+}
+.kr-quick-card--medication:hover {
+  background: rgba(108, 124, 255, 0.12);
+}
+
+.kr-quick-card--mood {
+  border-color: var(--kr-mood);
+}
+.kr-quick-card--mood:hover {
+  background: rgba(192, 132, 252, 0.12);
+}
+
+/* ---- Icon Badge ---- */
+.kr-icon-badge {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border-radius: var(--kr-radius-md);
+  flex-shrink: 0;
+}
+
+.kr-icon-badge--safety { background: var(--kr-safety-bg); color: var(--kr-safety); }
+.kr-icon-badge--health { background: var(--kr-health-bg); color: var(--kr-health); }
+.kr-icon-badge--adl { background: var(--kr-adl-bg); color: var(--kr-adl); }
+.kr-icon-badge--environment { background: var(--kr-environment-bg); color: var(--kr-environment); }
+.kr-icon-badge--service { background: var(--kr-service-bg); color: var(--kr-service); }
+.kr-icon-badge--engagement { background: var(--kr-engagement-bg); color: var(--kr-engagement); }
+
+/* ---- Buttons ---- */
+.kr-btn {
+  min-height: var(--kr-touch-min);
+  padding: var(--kr-space-sm) var(--kr-space-md);
+  border-radius: var(--kr-radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kr-space-sm);
+}
+
+.kr-btn--primary {
+  background: var(--kr-primary);
+  color: white;
+}
+.kr-btn--primary:hover {
+  background: var(--kr-primary-hover);
+}
+.kr-btn--primary:active {
+  background: var(--kr-primary-active);
+}
+
+.kr-btn--secondary {
+  background: var(--kr-bg-surface);
+  color: var(--kr-text-secondary);
+  border: 1px solid var(--kr-border);
+}
+.kr-btn--secondary:hover {
+  background: var(--kr-bg-surface-hover);
+  color: var(--kr-text-primary);
+}
+
+.kr-btn--success {
+  background: var(--kr-success);
+  color: white;
+}
+
+.kr-btn--danger {
+  background: var(--kr-error);
+  color: white;
+}
+
+/* ---- Inputs ---- */
+.kr-input {
+  min-height: var(--kr-touch-min);
+  padding: var(--kr-space-sm) var(--kr-space-md);
+  background: var(--kr-bg-surface);
+  border: 1px solid var(--kr-border);
+  border-radius: var(--kr-radius-md);
+  color: var(--kr-text-primary);
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.kr-input:focus {
+  border-color: var(--kr-primary);
+  outline: none;
+}
+
+.kr-input::placeholder {
+  color: var(--kr-text-muted);
+}
+
+/* ---- Tabs ---- */
+.kr-tabs {
+  display: flex;
+  gap: var(--kr-space-xs);
+  background: var(--kr-bg-surface);
+  padding: var(--kr-space-xs);
+  border-radius: var(--kr-radius-md);
+  overflow-x: auto;
+}
+
+.kr-tab {
+  min-height: var(--kr-touch-min);
+  padding: var(--kr-space-sm) var(--kr-space-md);
+  border-radius: var(--kr-radius-sm);
+  background: transparent;
+  color: var(--kr-text-muted);
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.kr-tab:hover {
+  color: var(--kr-text-secondary);
+  background: var(--kr-bg-surface-hover);
+}
+
+.kr-tab--active {
+  background: var(--kr-primary);
+  color: white;
+}
+
+/* ---- Section Labels ---- */
+.kr-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--kr-text-muted);
+  margin-bottom: var(--kr-space-sm);
+  font-weight: 600;
+}
+
+/* ---- Grid Layouts ---- */
+.kr-grid {
+  display: grid;
+  gap: var(--kr-space-md);
+}
+
+.kr-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.kr-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.kr-grid--4 { grid-template-columns: repeat(4, 1fr); }
+.kr-grid--auto { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+
+@media (max-width: 640px) {
+  .kr-grid--2, .kr-grid--3, .kr-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---- Shell Container ---- */
+.kr-shell {
+  background: var(--kr-bg-surface);
+  border: 1px solid var(--kr-border-subtle);
+  border-radius: var(--kr-radius-xl);
+  padding: var(--kr-space-lg);
+}
+
+/* ---- Status Pills ---- */
+.kr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kr-space-xs);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.kr-pill--safety { background: var(--kr-safety-bg); color: var(--kr-safety); }
+.kr-pill--health { background: var(--kr-health-bg); color: var(--kr-health); }
+.kr-pill--adl { background: var(--kr-adl-bg); color: var(--kr-adl); }
+.kr-pill--environment { background: var(--kr-environment-bg); color: var(--kr-environment); }
+.kr-pill--service { background: var(--kr-service-bg); color: var(--kr-service); }
+.kr-pill--engagement { background: var(--kr-engagement-bg); color: var(--kr-engagement); }
+
+/* ---- Responsive Table Styles ---- */
+table th,
+table td {
+  padding: clamp(8px, 1.5vw, 12px) clamp(6px, 1vw, 10px);
+  text-align: left;
+  vertical-align: middle;
+}
+
+table th {
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--kr-text-secondary);
+  border-bottom: 1px solid var(--kr-border-subtle);
+}
+
+table td {
+  border-bottom: 1px solid var(--kr-border-subtle);
+}
+
+table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ---- Responsive Breakpoints ---- */
+@media (max-width: 1024px) {
+  table th,
+  table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  table th,
+  table td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+  
+  /* Stack action buttons on mobile */
+  table td:last-child {
+    white-space: nowrap;
+  }
+  
+  table td button {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  table th,
+  table td {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+}
+
+/* ---- Animations ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .kr-card, .kr-category-card, .kr-quick-card, .kr-btn {
+    transition: all 0.15s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

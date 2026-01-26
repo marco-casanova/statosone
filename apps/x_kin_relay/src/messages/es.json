@@ -1,0 +1,44 @@
+{
+	"nav": { "home": "Inicio", "investors": "Presentación para inversores" },
+	"hero": {
+		"title": "Entregas de cuidado simples",
+		"subtitle": "Registros diarios de cuidado y PDF con un toque para familias y cuidadores",
+		"cta": "Únete al piloto"
+	},
+	"lead": { "name": "Nombre", "email": "Correo electrónico", "agree": "Acepto la política de privacidad", "submit": "Avísame" },
+	"footer": { "rights": "© Care Bridge" },
+	"landing": { "top": { "services": "Servicios", "contact": "Contacto", "qa": "Preguntas" }, "hero": { "title": "Coordinación de cuidados para la vida diaria", "lead_line1": "Registra actividades, comparte notas de relevo, crea recordatorios.", "lead_line2": "Mantén conectadas a familias y cuidadores.", "cta": "Ver nuestros servicios" }, "problems": { "title": "Problemas que resolvemos", "intro": "Kin Relay aborda los retos reales que enfrentan familias, cuidadores informales y equipos profesionales:", "items": { "fragmented": { "title": "Comunicación fragmentada", "text": "Los equipos y familias dependen de WhatsApp, notas o memoria; se pierde información y se duplican tareas." }, "missed": { "title": "Dosis y tareas omitidas", "text": "Sin recordatorios estructurados se olvidan medicamentos, comidas o tareas críticas." }, "burnout": { "title": "Agotamiento del cuidador", "text": "Estrés y burnout por falta de coordinación y responsabilidades poco claras." }, "handover": { "title": "Relevo no estructurado", "text": "Los cambios de turno fallan cuando la información no se transfiere claramente." }, "privacy": { "title": "Riesgos de privacidad", "text": "Chats genéricos exponen datos sensibles y comprometen el cumplimiento." }, "language": { "title": "Barreras idiomáticas", "text": "Equipos multilingües luchan si la herramienta no está en su idioma preferido." } }, "outro": "Kin Relay lo soluciona con registros estructurados, informes de relevo, recordatorios y soporte multilingüe seguro en la UE." }, "services": { "title": "Qué ofrece Kin Relay", "web": { "title": "Aplicación Web", "text": "Registra cuidados, ve relevos, gestiona roles y exporta informes." }, "android": { "title": "App Android", "text": "Registro rápido, recordatorios y relevo móvil." }, "admin": { "title": "Panel Admin", "text": "Gestiona clientes, sedes y analítica." }, "multi": { "title": "Soporte multilingüe", "text": "Disponible en varios idiomas." }, "privacy": { "title": "Privacidad y cumplimiento", "text": "Alojamiento UE y cumplimiento normativo." }, "handover": { "title": "Informes de relevo", "text": "Genera informes diarios o de turno en PDF o e‑mail." } }, "qa": { "title": "Preguntas", "getting_started": "Regístrate, invita a tu círculo y comienza.", "items": { "what": { "q": "¿Qué es Kin Relay?", "a": "Plataforma de coordinación de cuidados (Web, Android, Admin)." }, "who": { "q": "¿Quién puede usarlo?", "a": "Familias, cuidadores informales, equipos y proveedores." }, "medical": { "q": "¿Es un dispositivo médico?", "a": "No, se centra en documentación y recordatorios." }, "privacy": { "q": "¿Mis datos son seguros?", "a": "Sí, alojamiento UE y cumplimiento GDPR." }, "platforms": { "q": "Plataformas soportadas?", "a": "Web, Android y panel administrador." }, "export": { "q": "¿Exportar relevos?", "a": "Sí, PDF o correo." }, "languages": { "q": "Idiomas disponibles?", "a": "Varios idiomas y más en camino." }, "invite": { "q": "¿Cómo invito a otros?", "a": "Invita por correo y asigna roles." }, "android": { "q": "¿Qué hace la app Android?", "a": "Registrar, recordar y cerrar relevos en movilidad." }, "difference": { "q": "¿Diferencia con un chat?", "a": "Registros estructurados y privacidad vs chat genérico." }, "multiple": { "q": "¿Varios círculos?", "a": "Sí, alterna fácilmente." }, "free": { "q": "¿Versión gratuita?", "a": "Sí, plan familiar gratuito." }, "support": { "q": "¿Soporte?", "a": "En la app o formulario de contacto." }, "accessibility": { "q": "¿Accesibilidad?", "a": "Alto contraste y tipografía fluida." }, "getting_started": { "q": "¿Cómo empiezo?", "a": "Regístrate e invita a tu círculo." } } }, "contact": { "title": "Contacto", "thanks": "¡Gracias! Te contactaremos pronto.", "send": "Enviar", "name": "Tu nombre", "message": "Mensaje (opcional)" } },
+	"auth": { "login": "Login", "signup": "Sign Up", "join_now": "Únete ahora" },
+	"common": { "language": "Idioma" },
+	"register": {
+		"title": "Create your account",
+		"subtitle": "Enter basic details and (optional) address.",
+		"role_label": "Tipo de cuenta",
+		"role_patient": "Paciente",
+		"role_carer": "Cuidador",
+		"full_name": "Full name",
+		"email": "Email",
+		"password": "Password",
+		"address_line1": "Address line 1",
+		"address_line2": "Address line 2",
+		"city": "City",
+		"region": "Region / State",
+		"postal_code": "Postal code",
+		"country_code": "Country code (ISO2)",
+		"submit": "Register",
+		"registering": "Registering…",
+		"success": "Registered. Check your email for confirmation (if enabled).",
+		"disabled": "Registration disabled: Supabase env vars not configured.",
+		"strength_0": "Very weak",
+		"strength_1": "Weak",
+		"strength_2": "Fair",
+		"strength_3": "Good",
+		"strength_4": "Strong"
+	},
+	"error": {
+		"name_required": "Name required",
+		"email_invalid": "Valid email required",
+		"password_short": "Password min 6 characters",
+		"unknown": "Unknown error"
+	}
+}

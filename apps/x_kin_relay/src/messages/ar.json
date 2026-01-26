@@ -1,0 +1,44 @@
+{
+  "nav": { "home": "الصفحة الرئيسية", "investors": "عرض المستثمرين" },
+  "hero": {
+    "title": "عمليات تسليم رعاية بسيطة",
+    "subtitle": "سجلات رعاية يومية وملف PDF بضغطة واحدة للعائلات ومقدمي الرعاية",
+    "cta": "انضم إلى البرنامج التجريبي"
+  },
+  "lead": { "name": "الاسم", "email": "البريد الإلكتروني", "agree": "أوافق على سياسة الخصوصية", "submit": "أبلغني" },
+  "footer": { "rights": "© Care Bridge" },
+  "landing": { "top": { "services": "الخدمات", "contact": "تواصل", "qa": "الأسئلة" }, "hero": { "title": "تنسيق الرعاية للحياة اليومية", "lead_line1": "سجّل الأنشطة وشارك ملاحظات التسليم واضبط التذكيرات.", "lead_line2": "حافظ على تواصل العائلات ومقدمي الرعاية.", "cta": "عرض خدماتنا" }, "problems": { "title": "المشكلات التي نحلها", "intro": "تعالج Kin Relay التحديات الواقعية للأسر ومقدمي الرعاية غير الرسميين والفرق المهنية:", "items": { "fragmented": { "title": "اتصال مجزأ", "text": "الاعتماد على الواتساب أو الملاحظات يؤدي لفقدان المعلومات." }, "missed": { "title": "جرعات ومهام فائتة", "text": "بدون تذكيرات منظمة تُنسى الأدوية والوجبات والمهام." }, "burnout": { "title": "إجهاد مقدمي الرعاية", "text": "ضغط وإرهاق بسبب ضعف التنسيق وغموض المسؤوليات." }, "handover": { "title": "تسليم غير منظم", "text": "تحدث أخطاء عند تغيير النوبات دون نقل واضح للمعلومات." }, "privacy": { "title": "مخاطر الخصوصية", "text": "تطبيقات الدردشة العامة تعرض البيانات الحساسة للمخاطر." }, "language": { "title": "حواجز اللغة", "text": "تعاني الفرق المتعددة اللغات إذا لم تدعم الأداة لغتهم." } }, "outro": "تقدم Kin Relay سجلات منظمة وخصوصية وتذكيرات ودعمًا متعدد اللغات واستضافة أوروبية." }, "services": { "title": "ماذا تقدم Kin Relay", "web": { "title": "تطبيق الويب", "text": "سجل الرعاية واطلع على التسليم وأدر الأدوار وصدّر التقارير." }, "android": { "title": "تطبيق أندرويد", "text": "تسجيل سريع وتذكيرات وتسليم أثناء التنقل." }, "admin": { "title": "لوحة الإدارة", "text": "إدارة العملاء والفروع والتحليلات." }, "multi": { "title": "دعم متعدد اللغات", "text": "متاح بعدة لغات." }, "privacy": { "title": "الخصوصية والامتثال", "text": "استضافة أوروبية والتزام باللوائح." }, "handover": { "title": "تقارير التسليم", "text": "إنشاء تقارير يومية أو حسب النوبة PDF أو بريد." } }, "qa": { "title": "الأسئلة", "getting_started": "سجّل وادعُ دائرتك وابدأ فورًا.", "items": { "what": { "q": "ما هي Kin Relay؟", "a": "منصة تنسيق رعاية (ويب، أندرويد، إدارة)." }, "who": { "q": "من يمكنه استخدامها؟", "a": "الأسر، مقدمو الرعاية، الفرق والمزودون." }, "medical": { "q": "هل هي جهاز طبي؟", "a": "لا، تركز على التوثيق والتذكيرات." }, "privacy": { "q": "هل بياناتي آمنة؟", "a": "نعم، استضافة أوروبية وامتثال." }, "platforms": { "q": "المنصات المدعومة؟", "a": "ويب وأندرويد ولوحة إدارة." }, "export": { "q": "تصدير التقارير؟", "a": "نعم PDF أو بريد." }, "languages": { "q": "اللغات؟", "a": "عدة لغات مع المزيد قريبًا." }, "invite": { "q": "كيف أدعو الآخرين؟", "a": "دعوة بالبريد داخل التطبيق." }, "android": { "q": "ماذا يفعل تطبيق أندرويد؟", "a": "سجلات وتذكيرات وتسليم متحرك." }, "difference": { "q": "الفرق عن الدردشة؟", "a": "سجلات منظمة وخصوصية." }, "multiple": { "q": "دوائر متعددة؟", "a": "نعم، تبديل سهل." }, "free": { "q": "إصدار مجاني؟", "a": "نعم خطة عائلية مجانية." }, "support": { "q": "الدعم؟", "a": "داخل التطبيق أو النموذج." }, "accessibility": { "q": "إمكانية الوصول؟", "a": "تباين عالٍ وخط مرن." }, "getting_started": { "q": "كيف أبدأ؟", "a": "سجّل وابدأ مباشرة." } } }, "contact": { "title": "تواصل معنا", "thanks": "شكرًا! سنتواصل قريبًا.", "send": "إرسال", "name": "اسمك", "message": "رسالة (اختياري)" } },
+  "auth": { "login": "Login", "signup": "Sign Up", "join_now": "انضم الآن" },
+  "common": { "language": "اللغة" },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+  "role_label": "نوع الحساب",
+  "role_patient": "مريض",
+  "role_carer": "مقدم رعاية",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  }
+}

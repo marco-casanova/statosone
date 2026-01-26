@@ -1,0 +1,26 @@
+{
+  "name": "stratosone-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stratos multi-product monorepo",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck",
+    "dev:kinrelay": "turbo dev --filter=@stratos/kinrelay",
+    "dev:talent": "turbo dev --filter=@stratos/stratostalent",
+    "dev:dreamnest": "turbo dev --filter=@stratos/dreamnest",
+    "dev:kellersharer": "turbo dev --filter=@stratos/kellersharer",
+    "dev:home": "turbo dev --filter=@stratos/stratoshome",
+    "dev:one": "turbo dev --filter=@stratos/stratosone-app"
+  },
+  "keywords": ["stratos", "monorepo", "nextjs"],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.26.2",
+  "devDependencies": {
+    "turbo": "^2.7.2"
+  }
+}

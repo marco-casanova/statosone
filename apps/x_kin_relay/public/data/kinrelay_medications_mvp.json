@@ -1,0 +1,57 @@
+[
+  {
+    "name_display": "Azelastine",
+    "active_substance": "Azelastine",
+    "atc_code": "R01AC03",
+    "category": "allergy",
+    "prescription_type": "unknown",
+    "country": "DE",
+    "source": "manual",
+    "verified": "False",
+    "evidence_count": 6
+  },
+  {
+    "name_display": "Bilastine",
+    "active_substance": "Bilastine",
+    "atc_code": "R06AX29",
+    "category": "allergy",
+    "prescription_type": "unknown",
+    "country": "DE",
+    "source": "manual",
+    "verified": "False",
+    "evidence_count": 3
+  },
+  {
+    "name_display": "Cetirizine",
+    "active_substance": "Cetirizine",
+    "atc_code": "R06AE07",
+    "category": "allergy",
+    "prescription_type": "unknown",
+    "country": "DE",
+    "source": "manual",
+    "verified": "False",
+    "evidence_count": 55
+  },
+  {
+    "name_display": "Loratadine",
+    "active_substance": "Loratadine",
+    "atc_code": "R06AX13",
+    "category": "allergy",
+    "prescription_type": "unknown",
+    "country": "DE",
+    "source": "manual",
+    "verified": "False",
+    "evidence_count": 18
+  },
+  {
+    "name_display": "Mometasone",
+    "active_substance": "Mometasone",
+    "atc_code": "R01AD09",
+    "category": "allergy",
+    "prescription_type": "unknown",
+    "country": "DE",
+    "source": "manual",
+    "verified": "False",
+    "evidence_count": 10
+  }
+]

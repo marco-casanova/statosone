@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Environment Variables
+.env
+.env.local
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# Build Outputs
+.next
+out
+dist
+build
+*.tsbuildinfo
+
+# Turbo
+.turbo
+
+# Testing & Coverage
+coverage
+.nyc_output
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS Files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.sublime-workspace
+*.sublime-project
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv
+.venv
+env
+ENV
+
+# Optional: Scraped/Generated Data (uncomment if needed)
+# *.csv
+# apps/x_kin_relay/scraper/*.csv
