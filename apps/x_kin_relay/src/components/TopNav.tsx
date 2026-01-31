@@ -64,9 +64,9 @@ export function TopNav() {
       <div style={left}>
         <Link
           href={`/${locale}/app`}
-          style={{ textDecoration: "none", color: "#fff" }}
+          style={{ textDecoration: "none", color: "#1A1A1A" }}
         >
-          <strong style={{ fontSize: 18 }}>Kin Relay</strong>
+          <strong style={{ fontSize: 16, fontWeight: 700 }}>Kin Relay</strong>
         </Link>
         {session && (
           <nav style={nav}>
@@ -93,7 +93,7 @@ export function TopNav() {
       </div>
       {session && (
         <div style={sessionBox}>
-          <span style={{ fontSize: 12, opacity: 0.7 }}>
+          <span style={{ fontSize: 12, color: "#4A4A4A" }}>
             {session.user.email}
           </span>
           <button onClick={handleLogout} style={logoutBtn}>
@@ -116,51 +116,53 @@ const bar: React.CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "6px 20px",
+  padding: "8px 16px",
   backdropFilter: "blur(10px)",
-  background: "rgba(15,15,22,0.7)",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(136, 185, 176, 0.95)",
+  borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
   zIndex: 70,
 };
 const left: React.CSSProperties = {
   display: "flex",
-  gap: 24,
+  gap: 16,
   alignItems: "center",
 };
 const nav: React.CSSProperties = { display: "flex", gap: 8 };
 const tab: React.CSSProperties = {
-  background: "rgba(255,255,255,0.08)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.15)",
+  background: "rgba(0, 0, 0, 0.1)",
+  color: "#1A1A1A",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
   padding: "6px 14px",
   borderRadius: 20,
   cursor: "pointer",
-  fontSize: 13,
+  fontSize: 12,
+  fontWeight: 500,
 };
 const tabActive: React.CSSProperties = {
   ...tab,
-  background: "linear-gradient(90deg,#6366f1,#8b5cf6)",
-  border: "1px solid #6366f1",
-  boxShadow: "0 0 0 1px rgba(255,255,255,0.1)",
+  background: "#F5D547",
+  border: "1px solid #F5D547",
+  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
 };
 const linkTab: React.CSSProperties = {
-  background: "rgba(255,255,255,0.05)",
-  color: "#94a3b8",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(0, 0, 0, 0.05)",
+  color: "#4A4A4A",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
   padding: "6px 14px",
   borderRadius: 20,
   cursor: "pointer",
-  fontSize: 13,
+  fontSize: 12,
+  fontWeight: 500,
   textDecoration: "none",
   display: "flex",
   alignItems: "center",
   gap: 4,
 };
 const linkTabActive: React.CSSProperties = {
-  background: "linear-gradient(90deg,#6366f1,#8b5cf6)",
-  color: "#fff",
-  border: "1px solid #6366f1",
-  boxShadow: "0 0 0 1px rgba(255,255,255,0.1)",
+  background: "#F5D547",
+  color: "#1A1A1A",
+  border: "1px solid #F5D547",
+  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
 };
 const form: React.CSSProperties = {
   display: "flex",
@@ -168,22 +170,23 @@ const form: React.CSSProperties = {
   alignItems: "center",
 };
 const input: React.CSSProperties = {
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.15)",
+  background: "rgba(255, 255, 255, 0.9)",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
   padding: "6px 10px",
   borderRadius: 6,
-  color: "#fff",
+  color: "#1A1A1A",
   fontSize: 13,
   width: 140,
 };
 const loginBtn: React.CSSProperties = {
-  background: "linear-gradient(90deg,#2563eb,#7c3aed)",
-  color: "#fff",
+  background: "#F5D547",
+  color: "#1A1A1A",
   border: "none",
   padding: "6px 14px",
   borderRadius: 6,
   cursor: "pointer",
   fontSize: 13,
+  fontWeight: 600,
 };
 const sessionBox: React.CSSProperties = {
   display: "flex",
@@ -191,11 +194,12 @@ const sessionBox: React.CSSProperties = {
   alignItems: "center",
 };
 const logoutBtn: React.CSSProperties = {
-  background: "rgba(255,255,255,0.1)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.2)",
+  background: "rgba(0, 0, 0, 0.1)",
+  color: "#1A1A1A",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
   padding: "4px 10px",
   borderRadius: 6,
   cursor: "pointer",
   fontSize: 12,
+  fontWeight: 500,
 };

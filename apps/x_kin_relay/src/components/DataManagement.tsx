@@ -13,9 +13,9 @@ function ClientSelector({
   value: string | undefined;
   onChange: (val: string) => void;
 }) {
-  const [clients, setClients] = useState<{ id: string; display_name: string }[]>(
-    []
-  );
+  const [clients, setClients] = useState<
+    { id: string; display_name: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,12 +55,12 @@ function ClientSelector({
         onClick={() => setIsOpen(!isOpen)}
         disabled={loading}
         style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.12)",
+          background: "rgba(255, 255, 255, 0.95)",
+          border: "1px solid rgba(209, 213, 219, 0.6)",
           borderRadius: 8,
-          padding: "8px 12px",
-          color: "#fff",
-          fontSize: 13,
+          padding: "10px 14px",
+          color: "#1A1A1A",
+          fontSize: 14,
           width: "100%",
           textAlign: "left",
           cursor: "pointer",
@@ -84,7 +84,9 @@ function ClientSelector({
               : `${selectedNames.length} clients selected`
             : "— Select Clients —"}
         </span>
-        <span style={{ opacity: 0.5 }}>{isOpen ? "▲" : "▼"}</span>
+        <span style={{ opacity: 0.5, color: "#6B7280" }}>
+          {isOpen ? "▲" : "▼"}
+        </span>
       </button>
       {isOpen && (
         <div
@@ -93,18 +95,25 @@ function ClientSelector({
             top: "100%",
             left: 0,
             right: 0,
-            background: "#1e2030",
-            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255, 255, 255, 0.98)",
+            border: "1px solid rgba(209, 213, 219, 0.5)",
             borderRadius: 8,
             marginTop: 4,
             maxHeight: 200,
             overflowY: "auto",
             zIndex: 100,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
           }}
         >
           {clients.length === 0 ? (
-            <div style={{ padding: 12, opacity: 0.6, fontSize: 12 }}>
+            <div
+              style={{
+                padding: 12,
+                opacity: 0.6,
+                fontSize: 13,
+                color: "#6B7280",
+              }}
+            >
               No clients found. Add clients first.
             </div>
           ) : (
@@ -117,19 +126,20 @@ function ClientSelector({
                   gap: 10,
                   padding: "10px 12px",
                   cursor: "pointer",
-                  borderBottom: "1px solid rgba(255,255,255,0.05)",
+                  borderBottom: "1px solid rgba(209, 213, 219, 0.2)",
                   background: selectedIds.includes(c.id)
-                    ? "rgba(99, 102, 241, 0.15)"
+                    ? "rgba(245, 213, 71, 0.15)"
                     : "transparent",
+                  color: "#1A1A1A",
                 }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.background = selectedIds.includes(c.id)
-                    ? "rgba(99, 102, 241, 0.25)"
-                    : "rgba(255,255,255,0.05)")
+                    ? "rgba(245, 213, 71, 0.25)"
+                    : "rgba(136, 185, 176, 0.1)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = selectedIds.includes(c.id)
-                    ? "rgba(99, 102, 241, 0.15)"
+                    ? "rgba(245, 213, 71, 0.15)"
                     : "transparent")
                 }
               >
@@ -137,9 +147,9 @@ function ClientSelector({
                   type="checkbox"
                   checked={selectedIds.includes(c.id)}
                   onChange={() => toggleClient(c.id)}
-                  style={{ accentColor: "#6366f1" }}
+                  style={{ accentColor: "#F5D547" }}
                 />
-                <span style={{ fontSize: 13 }}>{c.display_name}</span>
+                <span style={{ fontSize: 14 }}>{c.display_name}</span>
               </label>
             ))
           )}
@@ -159,11 +169,16 @@ const TABS = [
 ];
 
 const TAB_DESCRIPTIONS: Record<string, string> = {
-  review: "Review and edit all logged activities. Filter, search, and make corrections.",
-  kr_care_circles: "Care coordination groups. Create circles to organize caregivers around a client.",
-  kr_clients: "People receiving care. Add and manage client profiles and care requirements.",
-  kr_medications: "Medication management. Track prescriptions, dosages, and schedules.",
-  kr_activities: "Full activity log database. View, filter, and export all care activities.",
+  review:
+    "Review and edit all logged activities. Filter, search, and make corrections.",
+  kr_care_circles:
+    "Care coordination groups. Create circles to organize caregivers around a client.",
+  kr_clients:
+    "People receiving care. Add and manage client profiles and care requirements.",
+  kr_medications:
+    "Medication management. Track prescriptions, dosages, and schedules.",
+  kr_activities:
+    "Full activity log database. View, filter, and export all care activities.",
 };
 
 function SectionHeader({ tabKey }: { tabKey: string }) {
@@ -202,7 +217,9 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
         <div style={headerRow}>
           <div>
             <h1 style={pageTitle}>Data Management</h1>
-            <p style={subtitle}>Manage clients, medications, care circles and activity logs</p>
+            <p style={subtitle}>
+              Manage clients, medications, care circles and activity logs
+            </p>
           </div>
         </div>
       )}
@@ -246,8 +263,16 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
                     label: "Type",
                     options: [
                       { value: "family", color: "rgba(96,165,250,0.25)" },
-                      { value: "senior_wg", label: "Senior WG", color: "rgba(167,139,250,0.25)" },
-                      { value: "ambulant_service", label: "Ambulant", color: "rgba(125,211,252,0.25)" },
+                      {
+                        value: "senior_wg",
+                        label: "Senior WG",
+                        color: "rgba(167,139,250,0.25)",
+                      },
+                      {
+                        value: "ambulant_service",
+                        label: "Ambulant",
+                        color: "rgba(125,211,252,0.25)",
+                      },
                     ],
                     sortable: true,
                   },
@@ -315,12 +340,32 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
                   {
                     key: "form",
                     label: "Form",
-                    options: ["tablet", "capsule", "liquid", "patch", "cream", "inhaler", "drops", "other"],
+                    options: [
+                      "tablet",
+                      "capsule",
+                      "liquid",
+                      "patch",
+                      "cream",
+                      "inhaler",
+                      "drops",
+                      "other",
+                    ],
                   },
                   {
                     key: "route",
                     label: "Route",
-                    options: ["oral", "sublingual", "topical", "transdermal", "inhalation", "ocular", "otic", "nasal", "rectal", "other"],
+                    options: [
+                      "oral",
+                      "sublingual",
+                      "topical",
+                      "transdermal",
+                      "inhalation",
+                      "ocular",
+                      "otic",
+                      "nasal",
+                      "rectal",
+                      "other",
+                    ],
                   },
                   { key: "dose", label: "Dose" },
                   { key: "unit", label: "Unit" },
@@ -328,8 +373,16 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
                     key: "active",
                     label: "Active",
                     options: [
-                      { value: "true", label: "Yes", color: "rgba(16,185,129,0.35)" },
-                      { value: "false", label: "No", color: "rgba(239,68,68,0.35)" },
+                      {
+                        value: "true",
+                        label: "Yes",
+                        color: "rgba(16,185,129,0.35)",
+                      },
+                      {
+                        value: "false",
+                        label: "No",
+                        color: "rgba(239,68,68,0.35)",
+                      },
                     ],
                   },
                   { key: "created_at", label: "Created", editable: false },
@@ -353,7 +406,11 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
                     label: "Category",
                     options: [
                       { value: "adl", color: "rgba(96,165,250,0.3)" },
-                      { value: "health_observation", label: "Health", color: "rgba(45,212,191,0.3)" },
+                      {
+                        value: "health_observation",
+                        label: "Health",
+                        color: "rgba(45,212,191,0.3)",
+                      },
                       { value: "safety", color: "rgba(249,115,22,0.3)" },
                       { value: "engagement", color: "rgba(167,139,250,0.3)" },
                       { value: "service", color: "rgba(251,191,36,0.3)" },
@@ -410,14 +467,17 @@ const layoutContainer: React.CSSProperties = {
 const sidebar: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 4,
-  background: "rgba(20, 26, 35, 0.8)",
+  gap: 6,
+  background: "rgba(255, 255, 255, 0.92)",
+  backdropFilter: "blur(16px)",
   borderRadius: 16,
-  padding: 8,
-  minWidth: 200,
+  padding: 10,
+  minWidth: 220,
   height: "fit-content",
   position: "sticky",
   top: 100,
+  border: "1px solid rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
 };
 
 const sidebarBtn: React.CSSProperties = {
@@ -427,9 +487,10 @@ const sidebarBtn: React.CSSProperties = {
   padding: "12px 16px",
   background: "transparent",
   border: "none",
-  borderRadius: 10,
-  color: "#94a3b8",
-  fontSize: 14,
+  borderLeft: "3px solid transparent",
+  borderRadius: 0,
+  color: "#374151",
+  fontSize: 15,
   fontWeight: 500,
   cursor: "pointer",
   textAlign: "left",
@@ -438,9 +499,10 @@ const sidebarBtn: React.CSSProperties = {
 
 const sidebarBtnActive: React.CSSProperties = {
   ...sidebarBtn,
-  background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2))",
-  color: "#fff",
-  boxShadow: "inset 0 0 0 1px rgba(99, 102, 241, 0.3)",
+  background: "rgba(245, 213, 71, 0.2)",
+  borderLeft: "3px solid #F5D547",
+  color: "#1A1A1A",
+  fontWeight: 600,
 };
 
 const contentArea: React.CSSProperties = {
@@ -459,7 +521,7 @@ const sectionTitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: 22,
   fontWeight: 600,
-  color: "#FFFFFF",
+  color: "#1A1A1A",
 };
 
 const helpIcon: React.CSSProperties = {
@@ -470,27 +532,27 @@ const helpIcon: React.CSSProperties = {
   justifyContent: "center",
   fontSize: 13,
   fontWeight: 700,
-  background: "rgba(108, 124, 255, 0.25)",
-  color: "#6C7CFF",
+  background: "rgba(136, 185, 176, 0.3)",
+  color: "#6DA19A",
   borderRadius: "50%",
   cursor: "help",
-  border: "2px solid rgba(108, 124, 255, 0.5)",
+  border: "2px solid rgba(136, 185, 176, 0.5)",
 };
 
 const tooltipBox: React.CSSProperties = {
   position: "absolute",
   top: "calc(100% + 10px)",
   left: 0,
-  background: "#1E2530",
-  border: "1px solid rgba(108, 124, 255, 0.3)",
+  background: "rgba(255, 255, 255, 0.98)",
+  border: "1px solid rgba(209, 213, 219, 0.5)",
   borderRadius: 12,
   padding: "14px 16px",
   minWidth: 260,
   maxWidth: 320,
   zIndex: 1000,
-  boxShadow: "0 8px 28px rgba(0,0,0,0.45)",
-  fontSize: 13,
+  boxShadow: "0 8px 28px rgba(0, 0, 0, 0.12)",
+  fontSize: 14,
   lineHeight: 1.6,
-  color: "#B6C0D1",
+  color: "#374151",
   whiteSpace: "normal",
 };

@@ -91,7 +91,7 @@ export function ActivityReviewList() {
 
   function labelFor(r: ActivityRow) {
     const sub = Object.keys(r).find(
-      (k) => k.startsWith("subtype_") && r[k] && typeof r[k] === "string"
+      (k) => k.startsWith("subtype_") && r[k] && typeof r[k] === "string",
     );
     return (sub && r[sub]) || r.category;
   }
@@ -154,7 +154,7 @@ export function ActivityReviewList() {
                   {g.items.map((r) => {
                     const open = openActivity === r.id;
                     const sub = Object.keys(r).find(
-                      (k) => k.startsWith("subtype_") && r[k]
+                      (k) => k.startsWith("subtype_") && r[k],
                     );
                     const icon = iconFor(r.category, sub ? r[sub] : undefined);
                     return (
@@ -175,7 +175,7 @@ export function ActivityReviewList() {
                               role="img"
                               aria-label={a11yLabel(
                                 r.category,
-                                sub ? r[sub] : undefined
+                                sub ? r[sub] : undefined,
                               )}
                             >
                               {icon}
@@ -223,14 +223,15 @@ function todayLocal() {
 
 // Styles - Design System
 const wrap: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid rgba(255,255,255,0.08)",
-  padding: 24,
+  background: "rgba(255, 255, 255, 0.95)",
+  backdropFilter: "blur(24px)",
+  border: "1px solid rgba(255, 255, 255, 0.6)",
+  padding: 28,
   borderRadius: 20,
-  boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)",
   display: "flex",
   flexDirection: "column",
-  gap: 18,
+  gap: 20,
 };
 const bar: React.CSSProperties = {
   display: "flex",
@@ -239,25 +240,30 @@ const bar: React.CSSProperties = {
   flexWrap: "wrap",
 };
 const select: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  color: "#fff",
-  padding: "10px 14px",
+  background: "rgba(255, 255, 255, 0.95)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  color: "#1A1A1A",
+  padding: "12px 16px",
   borderRadius: 12,
-  fontSize: 14,
-  minHeight: 44,
+  fontSize: 15,
+  fontWeight: 500,
+  minHeight: 48,
+  transition: "all 0.2s ease",
 };
 const dateInput: React.CSSProperties = { ...select };
 const reloadBtn: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  padding: "10px 16px",
+  background: "rgba(255, 255, 255, 0.9)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  padding: "12px 18px",
   borderRadius: 12,
-  color: "#B6C0D1",
+  color: "#1A1A1A",
   cursor: "pointer",
-  fontSize: 13,
-  fontWeight: 500,
-  minHeight: 44,
+  fontSize: 14,
+  fontWeight: 600,
+  minHeight: 48,
+  transition: "all 0.2s ease",
 };
 const err: React.CSSProperties = {
   background: "rgba(239,68,68,0.15)",
@@ -268,8 +274,9 @@ const err: React.CSSProperties = {
   color: "#EF4444",
 };
 const groupBox: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(249, 250, 251, 0.85)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(0, 0, 0, 0.08)",
   borderRadius: 16,
   overflow: "hidden",
 };

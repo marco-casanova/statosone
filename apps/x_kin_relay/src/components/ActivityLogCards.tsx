@@ -83,7 +83,7 @@ export function ActivityLogCards() {
   useEffect(() => {
     if (!hasSupabase || !supabase) return;
     const recipientIds = Array.from(
-      new Set(activities.map((a) => a.recipient_id).filter(Boolean))
+      new Set(activities.map((a) => a.recipient_id).filter(Boolean)),
     );
     if (!recipientIds.length) return;
     supabase
@@ -103,7 +103,7 @@ export function ActivityLogCards() {
 
   const subtypeKeyFor = (a: ActivityRow) => {
     const k = Object.keys(a).find(
-      (k) => k.startsWith("subtype_") && a[k] && typeof a[k] === "string"
+      (k) => k.startsWith("subtype_") && a[k] && typeof a[k] === "string",
     );
     return k;
   };
@@ -256,7 +256,7 @@ export function ActivityLogCards() {
             .map((k) => a[k]);
           const icon = iconFor(
             a.category,
-            subtypesAll[0] as string | undefined
+            subtypesAll[0] as string | undefined,
           );
           const colors = CATEGORY_COLORS[a.category] || {
             color: "#6C7CFF",
@@ -291,7 +291,7 @@ export function ActivityLogCards() {
                     role="img"
                     aria-label={a11yLabel(
                       a.category,
-                      subtypesAll[0] as string | undefined
+                      subtypesAll[0] as string | undefined,
                     )}
                   >
                     {icon}
@@ -374,50 +374,57 @@ export function ActivityLogCards() {
 }
 
 const searchBox: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  padding: "10px 14px",
+  background: "rgba(255, 255, 255, 0.95)",
+  backdropFilter: "blur(16px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  padding: "14px 18px",
   borderRadius: 12,
-  color: "#fff",
-  minWidth: 260,
+  color: "#1A1A1A",
+  minWidth: 280,
   outline: "none",
-  fontSize: 14,
-  minHeight: 44,
+  fontSize: 15,
+  fontWeight: 500,
+  minHeight: 48,
+  transition: "all 0.2s ease",
 };
 const suggestList: React.CSSProperties = {
   position: "absolute",
   top: "105%",
   left: 0,
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  borderRadius: 12,
-  padding: 6,
+  background: "rgba(255, 255, 255, 0.98)",
+  backdropFilter: "blur(24px)",
+  border: "2px solid rgba(0, 0, 0, 0.1)",
+  borderRadius: 14,
+  padding: 8,
   zIndex: 40,
   width: "100%",
-  maxHeight: 260,
+  maxHeight: 280,
   overflowY: "auto",
-  boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
+  boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
 };
 const suggestItem: React.CSSProperties = {
-  padding: "8px 10px",
-  borderRadius: 8,
+  padding: "10px 12px",
+  borderRadius: 10,
   cursor: "pointer",
-  fontSize: 13,
-  color: "#B6C0D1",
+  fontSize: 15,
+  fontWeight: 500,
+  color: "#1A1A1A",
 };
 Object.assign(suggestItem, {
-  ["--hover-bg"]: "rgba(255,255,255,0.08)",
+  ["--hover-bg"]: "rgba(0,0,0,0.06)",
 });
 const smallBtn: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  padding: "10px 16px",
+  background: "rgba(255, 255, 255, 0.9)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  padding: "12px 18px",
   borderRadius: 12,
-  color: "#B6C0D1",
-  fontSize: 13,
+  color: "#1A1A1A",
+  fontSize: 14,
   cursor: "pointer",
-  fontWeight: 500,
-  minHeight: 44,
+  fontWeight: 600,
+  minHeight: 48,
+  transition: "all 0.2s ease",
 };
 const card: React.CSSProperties = {
   position: "relative",

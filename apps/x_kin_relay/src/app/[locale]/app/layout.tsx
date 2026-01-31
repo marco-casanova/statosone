@@ -1,17 +1,17 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@stratos/auth/server";
-import type { Locale } from "../../../i18n/config";
-
-interface AppLayoutProps {
-  children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
-}
 
 /**
  * App Layout with server-side authentication guard
  * Redirects unauthenticated users to /login
  */
-export default async function AppLayout({ children, params }: AppLayoutProps) {
+export default async function AppLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
 
   // Server-side auth check

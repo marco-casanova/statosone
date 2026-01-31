@@ -69,7 +69,7 @@ export function QuickActionsManager({
 
   function addAction(category: IncidentCategory, subtype: string) {
     const exists = actions.some(
-      (a) => a.category === category && a.subtype === subtype
+      (a) => a.category === category && a.subtype === subtype,
     );
     if (exists) return;
     const newAction: QuickAction = {
@@ -213,7 +213,7 @@ export function QuickActionsManager({
                       style={{
                         ...catBtn,
                         background: isSelected ? colors.color : colors.bg,
-                        color: isSelected ? "#fff" : colors.color,
+                        color: isSelected ? "#1A1A1A" : colors.color,
                         borderColor: colors.color,
                       }}
                     >
@@ -232,7 +232,8 @@ export function QuickActionsManager({
                       (sub) => {
                         const alreadyAdded = actions.some(
                           (a) =>
-                            a.category === selectedCategory && a.subtype === sub
+                            a.category === selectedCategory &&
+                            a.subtype === sub,
                         );
                         const colors = categoryColors[selectedCategory] || {
                           color: "#6C7CFF",
@@ -245,9 +246,11 @@ export function QuickActionsManager({
                             disabled={alreadyAdded}
                             style={{
                               ...subBtn,
-                              background: alreadyAdded ? "#1E2530" : colors.bg,
-                              color: alreadyAdded ? "#666" : colors.color,
-                              borderColor: alreadyAdded ? "#333" : colors.color,
+                              background: alreadyAdded ? "#E5E7EB" : colors.bg,
+                              color: alreadyAdded ? "#9CA3AF" : colors.color,
+                              borderColor: alreadyAdded
+                                ? "#D1D5DB"
+                                : colors.color,
                               opacity: alreadyAdded ? 0.5 : 1,
                               cursor: alreadyAdded ? "not-allowed" : "pointer",
                             }}
@@ -259,7 +262,7 @@ export function QuickActionsManager({
                             )}
                           </button>
                         );
-                      }
+                      },
                     )}
                   </div>
                 </>
@@ -298,7 +301,7 @@ const overlay: React.CSSProperties = {
   left: 0,
   right: 0,
   bottom: 0,
-  background: "rgba(0,0,0,0.7)",
+  background: "rgba(0,0,0,0.5)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -307,36 +310,38 @@ const overlay: React.CSSProperties = {
 };
 
 const modal: React.CSSProperties = {
-  background: "#141A23",
-  borderRadius: 18,
+  background: "rgba(255, 255, 255, 0.98)",
+  backdropFilter: "blur(28px)",
+  borderRadius: 24,
   width: "100%",
-  maxWidth: 600,
+  maxWidth: 640,
   maxHeight: "90vh",
   display: "flex",
   flexDirection: "column",
-  border: "1px solid #2A3342",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 24px 64px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.1)",
 };
 
 const header: React.CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "20px 24px",
-  borderBottom: "1px solid #2A3342",
+  padding: "24px 28px",
+  borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
 };
 
 const title: React.CSSProperties = {
   margin: 0,
-  fontSize: 20,
-  fontWeight: 600,
-  color: "#fff",
+  fontSize: 22,
+  fontWeight: 700,
+  color: "#1A1A1A",
+  letterSpacing: "-0.02em",
 };
 
 const closeBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  color: "#B6C0D1",
+  color: "#6B7280",
   fontSize: 28,
   cursor: "pointer",
   padding: 0,
@@ -350,16 +355,16 @@ const content: React.CSSProperties = {
 };
 
 const sectionLabel: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 600,
-  color: "#B6C0D1",
-  marginBottom: 12,
+  fontSize: 12,
+  fontWeight: 700,
+  color: "#4A4A4A",
+  marginBottom: 14,
   textTransform: "uppercase",
-  letterSpacing: 0.5,
+  letterSpacing: 1.5,
 };
 
 const emptyMsg: React.CSSProperties = {
-  color: "#666",
+  color: "#6B7280",
   fontSize: 15,
   padding: "20px 0",
   textAlign: "center",
@@ -368,45 +373,46 @@ const emptyMsg: React.CSSProperties = {
 const actionsList: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 10,
+  gap: 12,
   marginBottom: 20,
 };
 
 const actionItem: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: 14,
-  padding: "14px 16px",
+  gap: 16,
+  padding: "16px 18px",
   borderRadius: 14,
   border: "2px solid",
 };
 
 const iconBadge: React.CSSProperties = {
-  width: 40,
-  height: 40,
-  borderRadius: 10,
+  width: 44,
+  height: 44,
+  borderRadius: 12,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  fontSize: 20,
+  fontSize: 22,
 };
 
 const actionInfo: React.CSSProperties = {
   flex: 1,
   display: "flex",
   flexDirection: "column",
-  gap: 2,
+  gap: 3,
 };
 
 const actionLabel: React.CSSProperties = {
-  fontSize: 16,
+  fontSize: 17,
   fontWeight: 600,
-  color: "#fff",
+  color: "#1A1A1A",
 };
 
 const actionCat: React.CSSProperties = {
-  fontSize: 13,
-  color: "#B6C0D1",
+  fontSize: 14,
+  color: "#4A4A4A",
+  fontWeight: 500,
 };
 
 const actionBtns: React.CSSProperties = {
@@ -415,27 +421,30 @@ const actionBtns: React.CSSProperties = {
 };
 
 const orderBtn: React.CSSProperties = {
-  width: 32,
-  height: 32,
-  borderRadius: 8,
-  background: "#1E2530",
-  border: "1px solid #2A3342",
-  color: "#B6C0D1",
-  fontSize: 16,
+  width: 36,
+  height: 36,
+  borderRadius: 10,
+  background: "rgba(255, 255, 255, 0.9)",
+  backdropFilter: "blur(10px)",
+  border: "2px solid rgba(0, 0, 0, 0.12)",
+  color: "#1A1A1A",
+  fontSize: 17,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  transition: "all 0.2s ease",
 };
 
 const removeBtn: React.CSSProperties = {
-  width: 32,
-  height: 32,
-  borderRadius: 8,
-  background: "rgba(239, 68, 68, 0.2)",
-  border: "1px solid rgba(239, 68, 68, 0.4)",
-  color: "#EF4444",
-  fontSize: 18,
+  width: 36,
+  height: 36,
+  borderRadius: 10,
+  background: "rgba(239, 68, 68, 0.15)",
+  border: "2px solid rgba(239, 68, 68, 0.4)",
+  color: "#DC2626",
+  fontSize: 20,
+  fontWeight: 700,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
@@ -444,22 +453,26 @@ const removeBtn: React.CSSProperties = {
 
 const addBtn: React.CSSProperties = {
   width: "100%",
-  padding: "16px",
+  padding: "18px",
   borderRadius: 14,
-  background: "#1E2530",
-  border: "2px dashed #2A3342",
-  color: "#6C7CFF",
-  fontSize: 16,
-  fontWeight: 600,
+  background: "rgba(245, 213, 71, 0.2)",
+  backdropFilter: "blur(10px)",
+  border: "2px dashed rgba(245, 213, 71, 0.6)",
+  color: "#92751F",
+  fontSize: 17,
+  fontWeight: 700,
   cursor: "pointer",
-  marginTop: 10,
+  marginTop: 12,
+  transition: "all 0.2s ease",
 };
 
 const addSection: React.CSSProperties = {
-  marginTop: 20,
-  padding: 20,
-  background: "#1E2530",
-  borderRadius: 14,
+  marginTop: 24,
+  padding: 24,
+  background: "rgba(249, 250, 251, 0.8)",
+  backdropFilter: "blur(10px)",
+  borderRadius: 16,
+  border: "1px solid rgba(0, 0, 0, 0.08)",
 };
 
 const catGrid: React.CSSProperties = {
@@ -514,8 +527,8 @@ const cancelBtn: React.CSSProperties = {
   padding: "12px",
   borderRadius: 10,
   background: "transparent",
-  border: "1px solid #2A3342",
-  color: "#B6C0D1",
+  border: "1px solid #D1D5DB",
+  color: "#6B7280",
   fontSize: 14,
   cursor: "pointer",
   marginTop: 10,
@@ -523,31 +536,35 @@ const cancelBtn: React.CSSProperties = {
 
 const footer: React.CSSProperties = {
   display: "flex",
-  gap: 12,
-  padding: "16px 24px",
-  borderTop: "1px solid #2A3342",
+  gap: 14,
+  padding: "20px 28px",
+  borderTop: "1px solid rgba(0, 0, 0, 0.08)",
 };
 
 const cancelBtnFooter: React.CSSProperties = {
   flex: 1,
-  padding: "14px",
-  borderRadius: 12,
-  background: "#1E2530",
-  border: "1px solid #2A3342",
-  color: "#B6C0D1",
-  fontSize: 16,
-  fontWeight: 500,
+  padding: "16px",
+  borderRadius: 14,
+  background: "rgba(255, 255, 255, 0.9)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  color: "#1A1A1A",
+  fontSize: 17,
+  fontWeight: 600,
   cursor: "pointer",
+  transition: "all 0.2s ease",
 };
 
 const saveBtn: React.CSSProperties = {
   flex: 1,
-  padding: "14px",
-  borderRadius: 12,
-  background: "#6C7CFF",
+  padding: "16px",
+  borderRadius: 14,
+  background: "#F5D547",
   border: "none",
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: 600,
+  color: "#1A1A1A",
+  fontSize: 17,
+  fontWeight: 700,
   cursor: "pointer",
+  boxShadow: "0 6px 16px rgba(245, 213, 71, 0.4)",
+  transition: "all 0.2s ease",
 };

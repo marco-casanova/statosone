@@ -1,11 +1,5 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@stratos/auth/server";
-import type { Locale } from "../../../i18n/config";
-
-interface AdminLayoutProps {
-  children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
-}
 
 /**
  * Admin Layout with server-side authentication + role guard
@@ -14,7 +8,10 @@ interface AdminLayoutProps {
 export default async function AdminLayout({
   children,
   params,
-}: AdminLayoutProps) {
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
 
   // Server-side auth check

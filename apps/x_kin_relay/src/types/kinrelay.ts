@@ -1,8 +1,6 @@
 // KinRelay TypeScript Types
 // Generated from Supabase schema
 
-import { Database } from "./db";
-
 // ============================================
 // ENUMS
 // ============================================
@@ -220,8 +218,7 @@ export interface MedicationAdministration {
   created_at: string;
 }
 
-export interface MedicationAdministrationWithDetails
-  extends MedicationAdministration {
+export interface MedicationAdministrationWithDetails extends MedicationAdministration {
   medication: Medication;
   client: Client;
   administrator?: Profile;

@@ -195,11 +195,11 @@ export default function MedicationSearch({
               width: dropdownPos.width,
               maxHeight: 320,
               overflowY: "auto",
-              background: "#0f172a",
-              border: "1px solid rgba(99, 102, 241, 0.5)",
+              background: "rgba(255, 255, 255, 0.98)",
+              border: "1px solid rgba(209, 213, 219, 0.5)",
               borderRadius: 12,
               padding: 8,
-              boxShadow: "0 12px 40px rgba(0, 0, 0, 0.7)",
+              boxShadow: "0 12px 40px rgba(0, 0, 0, 0.15)",
               zIndex: 9999,
               display: "grid",
               gap: 4,
@@ -212,34 +212,33 @@ export default function MedicationSearch({
                 onClick={() => handleSelect(product)}
                 style={{
                   textAlign: "left",
-                  border: "1px solid rgba(148, 163, 184, 0.3)",
-                  background:
-                    "linear-gradient(120deg, #0b1220, #0f172a 60%, #111827)",
-                  color: "#e2e8f0",
+                  border: "1px solid rgba(209, 213, 219, 0.4)",
+                  background: "rgba(255, 255, 255, 0.95)",
+                  color: "#1A1A1A",
                   borderRadius: 8,
-                  padding: "10px 12px",
+                  padding: "12px 14px",
                   cursor: "pointer",
                   transition: "border-color 0.15s ease, background 0.15s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#7c90ff";
-                  e.currentTarget.style.background = "#111a2e";
+                  e.currentTarget.style.borderColor = "#F5D547";
+                  e.currentTarget.style.background = "rgba(245, 213, 71, 0.1)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor =
-                    "rgba(148, 163, 184, 0.3)";
+                    "rgba(209, 213, 219, 0.4)";
                   e.currentTarget.style.background =
-                    "linear-gradient(120deg, #0b1220, #0f172a 60%, #111827)";
+                    "rgba(255, 255, 255, 0.95)";
                 }}
               >
                 <div
-                  style={{ fontWeight: 600, fontSize: 14, color: "#f8fafc" }}
+                  style={{ fontWeight: 600, fontSize: 15, color: "#1A1A1A" }}
                 >
                   {product.name_display}
                 </div>
-                <div style={{ color: "#cbd5e1", fontSize: 12, marginTop: 4 }}>
+                <div style={{ color: "#374151", fontSize: 13, marginTop: 4 }}>
                   {product.active_substance && (
-                    <span style={{ color: "#a5b4fc", fontWeight: 500 }}>
+                    <span style={{ color: "#6DA19A", fontWeight: 500 }}>
                       {product.active_substance}
                     </span>
                   )}
@@ -305,52 +304,54 @@ export default function MedicationSearch({
           display: flex;
           flex-direction: column;
           gap: 4px;
-          color: #e2e8f0;
+          color: #1a1a1a;
           width: 100%;
           position: relative;
         }
         .search-label {
           font-weight: 600;
-          font-size: 13px;
-          color: #cbd5e1;
+          font-size: 14px;
+          color: #374151;
           margin-bottom: 2px;
         }
         .search-input {
-          padding: 8px 10px;
-          border: 1px solid rgba(226, 232, 240, 0.25);
+          padding: 10px 12px;
+          border: 1px solid rgba(209, 213, 219, 0.6);
           border-radius: 8px;
-          font-size: 13px;
-          background: rgba(255, 255, 255, 0.08);
-          color: #f8fafc;
+          font-size: 14px;
+          background: rgba(255, 255, 255, 0.95);
+          color: #1a1a1a;
           outline: none;
           box-sizing: border-box;
         }
         .search-input:focus {
-          border-color: rgba(99, 102, 241, 0.5);
+          border-color: #f5d547;
+          box-shadow: 0 0 0 2px rgba(245, 213, 71, 0.2);
         }
         .muted {
-          color: #94a3b8;
-          font-size: 11px;
+          color: #6b7280;
+          font-size: 12px;
           padding: 2px 0;
         }
         .error {
-          color: #f87171;
-          font-size: 11px;
+          color: #dc2626;
+          font-size: 12px;
         }
         .create-btn {
           align-self: flex-start;
           margin-top: 6px;
-          padding: 6px 10px;
+          padding: 8px 12px;
           border-radius: 6px;
-          border: 1px solid rgba(74, 222, 128, 0.4);
-          background: linear-gradient(120deg, #0b1220, #0f172a);
-          color: #4ade80;
+          border: 1px solid rgba(34, 197, 94, 0.4);
+          background: rgba(255, 255, 255, 0.95);
+          color: #16a34a;
           cursor: pointer;
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: 500;
         }
         .create-btn:hover {
-          border-color: #4ade80;
-          background: rgba(74, 222, 128, 0.1);
+          border-color: #22c55e;
+          background: rgba(34, 197, 94, 0.1);
         }
       `}</style>
     </div>

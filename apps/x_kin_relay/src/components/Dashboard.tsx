@@ -55,6 +55,8 @@ const mainContainer: React.CSSProperties = {
   maxWidth: "95vw",
   margin: "0 auto",
   boxSizing: "border-box",
+  background: "#88B9B0",
+  minHeight: "100vh",
 };
 
 const headerRow: React.CSSProperties = {
@@ -69,12 +71,13 @@ const pageTitle: React.CSSProperties = {
   margin: 0,
   fontSize: "clamp(24px, 4vw, 32px)",
   fontWeight: 700,
+  color: "#1A1A1A",
 };
 
 const tabsContainer: React.CSSProperties = {
   display: "flex",
   gap: 4,
-  background: "rgba(20, 26, 35, 0.8)",
+  background: "rgba(0, 0, 0, 0.1)",
   padding: 4,
   borderRadius: 10,
 };
@@ -82,7 +85,7 @@ const tabsContainer: React.CSSProperties = {
 const tabBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  color: "#94a3b8",
+  color: "#4A4A4A",
   padding: "8px 16px",
   borderRadius: 8,
   fontSize: 14,
@@ -93,6 +96,6 @@ const tabBtn: React.CSSProperties = {
 
 const tabBtnActive: React.CSSProperties = {
   ...tabBtn,
-  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-  color: "#fff",
+  background: "#F5D547",
+  color: "#1A1A1A",
 };

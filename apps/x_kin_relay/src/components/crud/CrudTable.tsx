@@ -329,7 +329,7 @@ export function CrudTable({
           >
             {[10, 25, 50, 100].map((n) => (
               <option key={n} value={n}>
-                {n}/p
+                {n} per page
               </option>
             ))}
           </select>
@@ -337,14 +337,14 @@ export function CrudTable({
             Refresh
           </button>
           <button onClick={startCreate} style={btnPrimary}>
-            New
+            + New
           </button>
         </div>
       </div>
       {error && <div style={errBox}>{error}</div>}
       <div style={tableContainer}>
         <table style={tableStyle}>
-          <thead>
+          <thead style={theadStyle}>
             <tr>
               {columns
                 .filter((c) => visibleCols.includes(c.key))
@@ -352,6 +352,7 @@ export function CrudTable({
                   <th
                     key={c.key}
                     style={{
+                      ...thStyle,
                       width: c.width,
                       minWidth: c.width ? undefined : 80,
                       cursor: c.sortable === false ? "default" : "pointer",
@@ -362,18 +363,18 @@ export function CrudTable({
                   >
                     {c.label}
                     {sortKey === c.key && (
-                      <span style={{ fontSize: 10, marginLeft: 4 }}>
+                      <span style={{ fontSize: 11, marginLeft: 4 }}>
                         {sortAsc ? "▲" : "▼"}
                       </span>
                     )}
                   </th>
                 ))}
-              <th style={{ width: 160 }}>Actions</th>
+              <th style={{ ...thStyle, width: 160 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {creating && (
-              <tr style={{ background: "rgba(59,130,246,0.08)" }}>
+              <tr style={{ background: "rgba(136, 185, 176, 0.15)" }}>
                 {columns
                   .filter((c) => visibleCols.includes(c.key))
                   .map((c) => (
@@ -593,19 +594,19 @@ export function CrudTable({
                       display = highlight(display, debouncedSearch);
                     }
                     return (
-                      <td key={c.key} style={{ fontSize: 12, lineHeight: 1.2 }}>
+                      <td key={c.key} style={tdStyle}>
                         {display ?? ""}
                       </td>
                     );
                   })}
-                <td>
+                <td style={tdStyle}>
                   {!r.__editing && (
                     <>
                       <button onClick={() => editRow(r.id)} style={btnSm}>
                         Edit
                       </button>
                       <button onClick={() => remove(r.id)} style={btnDanger}>
-                        Del
+                        Delete
                       </button>
                     </>
                   )}
@@ -683,16 +684,17 @@ export function CrudTable({
 }
 
 const wrap: React.CSSProperties = {
-  background: "linear-gradient(145deg,rgba(30,41,59,0.75),rgba(15,23,42,0.85))",
-  padding: "clamp(12px, 3vw, 24px)",
-  borderRadius: "clamp(12px, 2vw, 22px)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  backdropFilter: "blur(18px) saturate(140%)",
+  background: "rgba(255, 255, 255, 0.95)",
+  padding: "clamp(16px, 3vw, 24px)",
+  borderRadius: "clamp(12px, 2vw, 20px)",
+  border: "1px solid rgba(209, 213, 219, 0.4)",
+  backdropFilter: "blur(20px) saturate(140%)",
   marginBottom: 32,
-  boxShadow: "0 12px 42px -12px rgba(0,0,0,0.55),0 2px 8px rgba(0,0,0,0.35)",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
   width: "100%",
   boxSizing: "border-box",
   overflow: "hidden",
+  color: "#1A1A1A",
 };
 const headRow: React.CSSProperties = {
   display: "flex",
@@ -706,8 +708,29 @@ const tableStyle: React.CSSProperties = {
   width: "100%",
   borderCollapse: "separate",
   borderSpacing: 0,
-  fontSize: "clamp(11px, 1.5vw, 13px)",
+  fontSize: "clamp(13px, 1.5vw, 15px)",
   tableLayout: "auto",
+  color: "#1A1A1A",
+};
+const theadStyle: React.CSSProperties = {
+  background: "rgba(55, 65, 81, 0.95)",
+  color: "#F9FAFB",
+};
+const thStyle: React.CSSProperties = {
+  padding: "14px 12px",
+  textAlign: "left",
+  fontWeight: 600,
+  fontSize: "clamp(12px, 1.4vw, 14px)",
+  letterSpacing: "0.02em",
+  borderBottom: "2px solid rgba(209, 213, 219, 0.3)",
+  color: "#F9FAFB",
+};
+const tdStyle: React.CSSProperties = {
+  padding: "12px",
+  fontSize: "clamp(13px, 1.4vw, 15px)",
+  lineHeight: 1.4,
+  borderBottom: "1px solid rgba(209, 213, 219, 0.25)",
+  color: "#1A1A1A",
 };
 const tableContainer: React.CSSProperties = {
   overflowX: "auto",
@@ -715,109 +738,116 @@ const tableContainer: React.CSSProperties = {
   margin: "0 -4px",
   padding: "0 4px",
   scrollbarWidth: "thin",
+  background: "rgba(255, 255, 255, 0.5)",
+  borderRadius: 12,
 };
 const input: React.CSSProperties = {
   width: "100%",
   minWidth: 60,
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.18)",
-  color: "#fff",
-  padding: "8px 10px",
+  background: "rgba(255, 255, 255, 0.95)",
+  border: "1px solid rgba(209, 213, 219, 0.6)",
+  color: "#1A1A1A",
+  padding: "10px 12px",
   borderRadius: 8,
-  fontSize: "clamp(11px, 1.5vw, 13px)",
+  fontSize: "clamp(13px, 1.5vw, 15px)",
   outline: "none",
   boxSizing: "border-box",
 };
 const btnBase: React.CSSProperties = {
   border: "none",
   cursor: "pointer",
-  padding: "8px 12px",
+  padding: "10px 16px",
   borderRadius: 8,
-  fontSize: "clamp(11px, 1.5vw, 12px)",
+  fontSize: "clamp(13px, 1.5vw, 14px)",
   fontWeight: 600,
-  minHeight: 36,
+  minHeight: 40,
   touchAction: "manipulation",
+  transition: "all 0.2s ease",
 };
 const btnSm: React.CSSProperties = {
   ...btnBase,
-  background: "rgba(255,255,255,0.14)",
-  color: "#fff",
+  background: "rgba(255, 255, 255, 0.9)",
+  color: "#374151",
+  border: "1px solid rgba(209, 213, 219, 0.6)",
   backdropFilter: "blur(4px)",
 };
 const btnPrimary: React.CSSProperties = {
   ...btnBase,
-  background: "linear-gradient(100deg,#6366f1,#8b5cf6 60%,#0ea5e9)",
-  color: "#fff",
-  boxShadow: "0 4px 18px -4px rgba(99,102,241,0.5)",
+  background: "#F5D547",
+  color: "#1A1A1A",
+  boxShadow: "0 2px 8px rgba(245, 213, 71, 0.3)",
 };
 const btnDanger: React.CSSProperties = {
   ...btnBase,
-  background: "linear-gradient(90deg,#dc2626,#ef4444)",
-  color: "#fff",
+  background: "#DC2626",
+  color: "#FFFFFF",
+  padding: "10px 14px",
 };
 const errBox: React.CSSProperties = {
-  background: "rgba(220,38,38,0.18)",
-  border: "1px solid rgba(220,38,38,0.4)",
-  padding: "10px 14px",
+  background: "rgba(220, 38, 38, 0.1)",
+  border: "1px solid rgba(220, 38, 38, 0.3)",
+  padding: "12px 16px",
   borderRadius: 10,
-  fontSize: 12,
+  fontSize: 14,
   marginBottom: 14,
+  color: "#B91C1C",
 };
 const footerBar: React.CSSProperties = {
   marginTop: 16,
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
+  color: "#374151",
 };
 const btnPager: React.CSSProperties = {
   ...btnSm,
-  padding: "4px 10px",
+  padding: "6px 12px",
   fontSize: 14,
 };
 const searchInput: React.CSSProperties = {
   ...input,
-  width: "clamp(120px, 25vw, 200px)",
-  padding: "8px 30px 8px 12px",
+  width: "clamp(140px, 25vw, 220px)",
+  padding: "10px 32px 10px 14px",
 };
 const clearSearchBtn: React.CSSProperties = {
   position: "absolute",
-  top: 2,
-  right: 2,
+  top: 4,
+  right: 4,
   background: "transparent",
   border: "none",
-  color: "#fff",
+  color: "#6B7280",
   cursor: "pointer",
-  fontSize: 16,
+  fontSize: 18,
   lineHeight: 1,
-  padding: "2px 6px",
+  padding: "4px 8px",
 };
 const selectMini: React.CSSProperties = {
   ...input,
-  width: 80,
-  padding: "6px 6px",
+  width: 110,
+  padding: "8px 10px",
 };
 const colPicker: React.CSSProperties = {
   position: "absolute",
   top: "110%",
   right: 0,
-  background: "rgba(30,41,59,0.95)",
-  border: "1px solid rgba(255,255,255,0.15)",
+  background: "rgba(255, 255, 255, 0.98)",
+  border: "1px solid rgba(209, 213, 219, 0.5)",
   borderRadius: 12,
-  padding: "10px 14px",
+  padding: "12px 16px",
   display: "flex",
   flexDirection: "column",
-  gap: 4,
+  gap: 6,
   zIndex: 30,
-  boxShadow: "0 10px 30px -8px rgba(0,0,0,0.6)",
-  maxHeight: 240,
+  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)",
+  maxHeight: 260,
   overflowY: "auto",
 };
 const colPickerRow: React.CSSProperties = {
   display: "flex",
-  gap: 6,
-  fontSize: 12,
+  gap: 8,
+  fontSize: 14,
   alignItems: "center",
-  color: "#e2e8f0",
+  color: "#374151",
 };
 
 function toLocalDateTime(iso?: string) {

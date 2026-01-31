@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Client, CareCategory, Task, TaskFormData } from "@/types/kinrelay";
+import {
+  CareCategoryWithSubcategories,
+  Task,
+  TaskFormData,
+} from "@/types/kinrelay";
 
 interface TaskManagerProps {
   clientId: string;
@@ -9,14 +13,15 @@ interface TaskManagerProps {
 }
 
 export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
-  const [categories, setCategories] = useState<CareCategory[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<CareCategory | null>(
-    null
+  const [categories, setCategories] = useState<CareCategoryWithSubcategories[]>(
+    [],
   );
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedCategory, setSelectedCategory] =
+    useState<CareCategoryWithSubcategories | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +33,7 @@ export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        "/api/care-categories?include_subcategories=true"
+        "/api/care-categories?include_subcategories=true",
       );
       const result = await response.json();
       if (result.success) {
@@ -43,7 +48,7 @@ export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/tasks?client_id=${clientId}&date=${selectedDate}`
+        `/api/tasks?client_id=${clientId}&date=${selectedDate}`,
       );
       const result = await response.json();
       if (result.success) {
@@ -56,7 +61,7 @@ export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
     }
   };
 
-  const handleCategoryClick = (category: CareCategory) => {
+  const handleCategoryClick = (category: CareCategoryWithSubcategories) => {
     if (expandedCategory === category.id) {
       setExpandedCategory(null);
       setSelectedCategory(null);
@@ -86,7 +91,7 @@ export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
 
   const handleCreateTask = async (
     categoryId: string,
-    subcategoryId?: string
+    subcategoryId?: string,
   ) => {
     try {
       const taskData: TaskFormData = {
@@ -94,7 +99,6 @@ export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
         category_id: categoryId,
         subcategory_id: subcategoryId,
         task_date: selectedDate,
-        status: "pending",
       };
 
       const response = await fetch("/api/tasks", {
@@ -159,7 +163,7 @@ export default function TaskManager({ clientId, userRole }: TaskManagerProps) {
                     <div className="subcategories">
                       {category.subcategories.map((subcategory) => {
                         const subcategoryTasks = categoryTasks.filter(
-                          (t) => t.subcategory_id === subcategory.id
+                          (t) => t.subcategory_id === subcategory.id,
                         );
 
                         return (

@@ -62,7 +62,7 @@ export function KinRelayRegisterForm() {
   const t = useTranslations();
 
   const isSpecialist = ["specialist", "nurse", "caregiver"].includes(
-    values.kr_role
+    values.kr_role,
   );
 
   function update<K extends keyof FormState>(k: K, v: FormState[K]) {
@@ -121,7 +121,7 @@ export function KinRelayRegisterForm() {
           region: values.state || null,
           role: values.kr_role, // Map KinRelay role to profile
         },
-        { onConflict: "id" }
+        { onConflict: "id" },
       );
       if (profileErr) console.warn("Profile upsert warning:", profileErr);
 
@@ -147,7 +147,7 @@ export function KinRelayRegisterForm() {
             languages: values.languages.length > 0 ? values.languages : null,
             is_available_for_hire: isSpecialist,
           },
-          { onConflict: "user_id" }
+          { onConflict: "user_id" },
         );
       if (krProfileErr)
         console.warn("KinRelay profile upsert warning:", krProfileErr);
@@ -161,7 +161,7 @@ export function KinRelayRegisterForm() {
             app_role: values.kr_role,
             is_active: true,
           },
-          { onConflict: "user_id,app_name" }
+          { onConflict: "user_id,app_name" },
         );
       } catch {
         // Ignore if table doesn't exist yet
@@ -194,9 +194,28 @@ export function KinRelayRegisterForm() {
   return (
     <form onSubmit={submit} style={styles.container}>
       <div style={styles.header}>
-        <h2 style={{ margin: 0, color: "#2A7F7F" }}>Join KinRelay</h2>
-        <p style={{ margin: "8px 0 0", opacity: 0.7, fontSize: 14 }}>
-          Connect families with care professionals
+        <h2
+          style={{
+            margin: 0,
+            color: "#1A1A1A",
+            fontSize: 18,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+          }}
+        >
+          Creación de Cuenta
+        </h2>
+        <p
+          style={{
+            margin: "4px 0 0",
+            color: "#1A1A1A",
+            fontSize: 14,
+            fontWeight: 700,
+            textTransform: "uppercase",
+          }}
+        >
+          del Cuidador
         </p>
       </div>
 
@@ -242,7 +261,7 @@ export function KinRelayRegisterForm() {
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </span>
               </label>
-            )
+            ),
           )}
         </div>
       </fieldset>
@@ -383,13 +402,16 @@ export function KinRelayRegisterForm() {
       )}
 
       <button type="submit" disabled={loading} style={styles.submitBtn}>
-        {loading ? "Creating Account..." : "Create KinRelay Account"}
+        {loading ? "..." : "Crear"}
       </button>
 
-      <p style={{ textAlign: "center", fontSize: 14, opacity: 0.7 }}>
-        Already have an account?{" "}
-        <a href={`/${locale}/login`} style={{ color: "#2A7F7F" }}>
-          Sign in
+      <p style={{ textAlign: "center", fontSize: 12, color: "#4A4A4A" }}>
+        ¿Ya tienes cuenta?{" "}
+        <a
+          href={`/${locale}/login`}
+          style={{ color: "#1A1A1A", textDecoration: "underline" }}
+        >
+          Iniciar sesión
         </a>
       </p>
     </form>
@@ -398,50 +420,51 @@ export function KinRelayRegisterForm() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    maxWidth: 600,
+    maxWidth: 400,
     margin: "0 auto",
     padding: 24,
     fontFamily: "system-ui, sans-serif",
-    background: "#fff",
+    background: "transparent",
     borderRadius: 16,
-    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
   },
   header: {
     textAlign: "center",
     marginBottom: 24,
   },
   errorBox: {
-    background: "#fee",
-    border: "1px solid #c00",
+    background: "#FEE2E2",
+    border: "1px solid #DC2626",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
-    color: "#900",
+    color: "#DC2626",
     fontSize: 14,
   },
   successBox: {
-    background: "#efe",
-    border: "1px solid #0a0",
+    background: "#DCFCE7",
+    border: "1px solid #22C55E",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
-    color: "#060",
+    color: "#166534",
     fontSize: 14,
   },
   fieldset: {
-    border: "1px solid #ddd",
-    borderRadius: 8,
-    padding: 16,
+    border: "none",
+    padding: 0,
     marginBottom: 16,
   },
   legend: {
     fontWeight: 600,
-    padding: "0 8px",
-    color: "#2A7F7F",
+    padding: "0 0 8px 0",
+    color: "#1A1A1A",
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
   },
   roleGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(2, 1fr)",
     gap: 12,
   },
   roleOption: {
@@ -451,29 +474,30 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 12,
     borderWidth: 2,
     borderStyle: "solid",
-    borderColor: "#ddd",
+    borderColor: "#D1D5DB",
     borderRadius: 8,
     cursor: "pointer",
     transition: "all 0.2s",
     background: "#fff",
   },
   roleSelected: {
-    borderColor: "#2A7F7F",
-    background: "#f0f9f9",
+    borderColor: "#F5D547",
+    background: "#FFFBEB",
   },
   roleIcon: {
     fontSize: 28,
     marginBottom: 4,
   },
   roleLabel: {
-    fontSize: 12,
-    fontWeight: 500,
-    color: "#333",
+    fontSize: 11,
+    fontWeight: 600,
+    color: "#1A1A1A",
+    textTransform: "uppercase",
   },
   grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: 16,
+    display: "flex",
+    flexDirection: "column",
+    gap: 20,
     marginBottom: 16,
   },
   field: {
@@ -482,25 +506,28 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 4,
   },
   label: {
-    fontSize: 14,
+    fontSize: 10,
     fontWeight: 500,
-    color: "#333",
+    color: "#4A4A4A",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
   },
   required: {
-    color: "#c00",
+    color: "#DC2626",
   },
   input: {
-    padding: "10px 12px",
-    border: "1px solid #ccc",
-    borderRadius: 6,
+    padding: "12px 0",
+    border: "none",
+    borderBottom: "1px solid #D1D5DB",
+    borderRadius: 0,
     fontSize: 14,
     outline: "none",
-    background: "#fff",
-    color: "#333",
+    background: "transparent",
+    color: "#1A1A1A",
   },
   languageGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(2, 1fr)",
     gap: 8,
     marginTop: 8,
   },
@@ -508,20 +535,26 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 4,
-    fontSize: 13,
+    fontSize: 12,
     cursor: "pointer",
+    color: "#4A4A4A",
   },
   submitBtn: {
-    width: "100%",
-    padding: "14px 24px",
-    background: "#2A7F7F",
-    color: "white",
+    width: 64,
+    height: 64,
+    padding: 0,
+    background: "#F5D547",
+    color: "#1A1A1A",
     border: "none",
-    borderRadius: 8,
-    fontSize: 16,
-    fontWeight: 600,
+    borderRadius: "50%",
+    fontSize: 11,
+    fontWeight: 700,
     cursor: "pointer",
     marginBottom: 16,
+    marginLeft: "auto",
+    display: "block",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
+    textTransform: "uppercase",
   },
 };
 

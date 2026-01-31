@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import {
   Client,
-  Task,
-  MedicationAdministration,
+  TaskWithDetails,
+  MedicationAdministrationWithDetails,
   Incident,
   DailyReport,
 } from "@/types/kinrelay";
@@ -20,12 +20,12 @@ export default function ClientReports({
 }: ClientReportsProps) {
   const [client, setClient] = useState<Client | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [medications, setMedications] = useState<MedicationAdministration[]>(
-    []
-  );
+  const [tasks, setTasks] = useState<TaskWithDetails[]>([]);
+  const [medications, setMedications] = useState<
+    MedicationAdministrationWithDetails[]
+  >([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,21 +43,21 @@ export default function ClientReports({
 
       // Fetch tasks for the day
       const tasksRes = await fetch(
-        `/api/tasks?client_id=${clientId}&date=${selectedDate}`
+        `/api/tasks?client_id=${clientId}&date=${selectedDate}`,
       );
       const tasksData = await tasksRes.json();
       if (tasksData.success) setTasks(tasksData.data);
 
       // Fetch medication administrations
       const medsRes = await fetch(
-        `/api/medication-administrations?client_id=${clientId}&date=${selectedDate}`
+        `/api/medication-administrations?client_id=${clientId}&date=${selectedDate}`,
       );
       const medsData = await medsRes.json();
       if (medsData.success) setMedications(medsData.data);
 
       // Fetch incidents
       const incidentsRes = await fetch(
-        `/api/incidents?client_id=${clientId}&date=${selectedDate}`
+        `/api/incidents?client_id=${clientId}&date=${selectedDate}`,
       );
       const incidentsData = await incidentsRes.json();
       if (incidentsData.success) setIncidents(incidentsData.data);

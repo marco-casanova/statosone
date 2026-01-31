@@ -1,4 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { ToastProvider } from "../../components/Toast";
 import { AuthWatcher } from "../../components/AuthWatcher";
 import { notFound } from "next/navigation";
@@ -12,7 +13,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   return {
@@ -32,33 +33,20 @@ export default async function RootLayout({
   children,
   params,
 }: {
-  children: any;
-  params: Promise<{ locale: Locale }>;
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const { locale: localeParam } = await params;
+  const locale = localeParam as Locale;
   if (!locales.includes(locale)) notFound();
 
-  async function loadMessages(l: Locale): Promise<Record<string, unknown>> {
-    try {
-      const mod = await import(`../../messages/${l}.json`);
-      const data = (mod.default ?? {}) as Record<string, unknown>;
-      if (Object.keys(data).length === 0)
-        throw new Error("empty locale messages");
-      return data;
-    } catch {
-      // Fallback to English if specific locale messages are missing or invalid
-      const fallback = await import(`../../messages/en.json`);
-      return (fallback.default ?? {}) as Record<string, unknown>;
-    }
-  }
-
-  const messages = await loadMessages(locale);
+  const messages = await getMessages();
   const dir = rtlLocales.has(locale) ? "rtl" : "ltr";
 
   return (
     <html lang={locale} dir={dir}>
       <body suppressHydrationWarning>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider messages={messages}>
           <ToastProvider>
             <AuthWatcher />
             {children}

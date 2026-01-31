@@ -680,31 +680,33 @@ const quickActionColors: Record<string, { color: string; bg: string }> = {
 };
 
 const shell: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid rgba(255,255,255,0.08)",
-  padding: 32,
+  background: "rgba(255, 255, 255, 0.5)",
+  backdropFilter: "blur(24px)",
+  border: "1px solid rgba(255, 255, 255, 0.6)",
+  padding: 36,
   borderRadius: 24,
   display: "flex",
   flexDirection: "column",
-  gap: 28,
+  gap: 32,
   width: "100%",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)",
 };
 
 const titleH3: React.CSSProperties = {
   margin: 0,
-  fontSize: 26,
-  fontWeight: 600,
-  color: "#FFFFFF",
-  letterSpacing: 0.3,
+  fontSize: 28,
+  fontWeight: 700,
+  color: "#1A1A1A",
+  letterSpacing: "-0.02em",
 };
 
 const sectionLabel: React.CSSProperties = {
-  fontSize: 15,
+  fontSize: 12,
   textTransform: "uppercase",
-  letterSpacing: 1,
-  color: "#7A8599",
-  marginTop: 6,
-  fontWeight: 600,
+  letterSpacing: 1.5,
+  color: "#4A4A4A",
+  marginTop: 8,
+  fontWeight: 700,
 };
 
 const grid: React.CSSProperties = {
@@ -729,20 +731,24 @@ const categoryCard = (
     bg: "rgba(108, 124, 255, 0.18)",
   };
   return {
-    background: isSelected ? colors.bg : "#141A23",
+    background: isSelected ? colors.bg : "rgba(255, 255, 255, 0.85)",
+    backdropFilter: "blur(12px)",
     borderWidth: 2,
     borderStyle: "solid",
-    borderColor: isSelected ? colors.color : "#2A3342",
-    padding: 22,
-    borderRadius: 18,
-    color: "#fff",
+    borderColor: isSelected ? colors.color : "rgba(255, 255, 255, 0.6)",
+    padding: 20,
+    borderRadius: 16,
+    color: "#1A1A1A",
     display: "flex",
     flexDirection: "column",
-    gap: 12,
+    gap: 10,
     textAlign: "left",
     cursor: "pointer",
     minHeight: 64,
-    transition: "all 0.15s ease",
+    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+    boxShadow: isSelected
+      ? "0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1)"
+      : "0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)",
   };
 };
 
@@ -753,20 +759,24 @@ const quickCard = (subtype: string): React.CSSProperties => {
     bg: "rgba(108, 124, 255, 0.12)",
   };
   return {
-    background: "#141A23",
+    background: "rgba(255, 255, 255, 0.92)",
+    backdropFilter: "blur(16px)",
     borderWidth: 2,
     borderStyle: "solid",
     borderColor: colors.color,
-    padding: 26,
-    borderRadius: 22,
-    color: "#fff",
+    padding: 28,
+    borderRadius: 20,
+    color: "#1A1A1A",
     display: "flex",
     alignItems: "center",
     gap: 20,
     textAlign: "left",
     cursor: "pointer",
-    minHeight: 100,
-    transition: "all 0.15s ease",
+    minHeight: 110,
+    fontSize: 16,
+    fontWeight: 600,
+    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+    boxShadow: "0 6px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
   };
 };
 
@@ -792,12 +802,12 @@ const iconBadge = (cat: IncidentCategory): React.CSSProperties => {
 const cardTitle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 600,
-  color: "#FFFFFF",
+  color: "#1A1A1A",
 };
 
 const cardSub: React.CSSProperties = {
   fontSize: 15,
-  color: "#B6C0D1",
+  color: "#4A4A4A",
 };
 
 const miniLabel: React.CSSProperties = {
@@ -860,9 +870,9 @@ const backButton: React.CSSProperties = {
   width: 40,
   height: 40,
   borderRadius: "50%",
-  background: "#141A23",
-  border: "2px solid #2A3342",
-  color: "#B6C0D1",
+  background: "#F5F5F5",
+  border: "2px solid #D1D5DB",
+  color: "#4A4A4A",
   fontSize: 20,
   cursor: "pointer",
   display: "flex",
@@ -887,13 +897,16 @@ const tooltipItem: React.CSSProperties = {
 };
 
 const input: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  color: "#fff",
-  padding: "16px 18px",
+  background: "rgba(255, 255, 255, 0.95)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  color: "#1A1A1A",
+  padding: "18px 20px",
   borderRadius: 14,
-  fontSize: 18,
-  minHeight: 56,
+  fontSize: 17,
+  fontWeight: 500,
+  minHeight: 60,
+  transition: "all 0.2s ease",
 };
 
 const optionGrid: React.CSSProperties = {
@@ -917,27 +930,31 @@ const optionBtn: React.CSSProperties = {
 };
 
 const resetBtn: React.CSSProperties = {
-  background: "#141A23",
-  border: "1px solid #2A3342",
-  color: "#B6C0D1",
-  padding: "16px 26px",
+  background: "rgba(255, 255, 255, 0.9)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.15)",
+  color: "#1A1A1A",
+  padding: "18px 28px",
   borderRadius: 14,
-  fontSize: 18,
-  fontWeight: 500,
+  fontSize: 17,
+  fontWeight: 600,
   cursor: "pointer",
-  minHeight: 56,
+  minHeight: 60,
+  transition: "all 0.2s ease",
 };
 
 const saveBtn: React.CSSProperties = {
-  background: "#6C7CFF",
+  background: "#F5D547",
   border: "none",
-  color: "#fff",
-  padding: "16px 32px",
+  color: "#1A1A1A",
+  padding: "18px 36px",
   borderRadius: 14,
-  fontSize: 18,
-  fontWeight: 600,
+  fontSize: 17,
+  fontWeight: 700,
   cursor: "pointer",
-  minHeight: 56,
+  minHeight: 60,
+  boxShadow: "0 6px 16px rgba(245, 213, 71, 0.4)",
+  transition: "all 0.2s ease",
 };
 
 const settingsBtn: React.CSSProperties = {
