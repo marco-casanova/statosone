@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { ToastProvider } from "../../components/Toast";
 import { AuthWatcher } from "../../components/AuthWatcher";
 import { notFound } from "next/navigation";
@@ -40,13 +40,16 @@ export default async function RootLayout({
   const locale = localeParam as Locale;
   if (!locales.includes(locale)) notFound();
 
+  // Inform next-intl of the active locale when we're not using its middleware
+  setRequestLocale(locale);
+
   const messages = await getMessages();
   const dir = rtlLocales.has(locale) ? "rtl" : "ltr";
 
   return (
     <html lang={locale} dir={dir}>
       <body suppressHydrationWarning>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>
             <AuthWatcher />
             {children}
