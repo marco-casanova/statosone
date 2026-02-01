@@ -678,7 +678,7 @@ function BlockPreview({
       } else if (bgColor.startsWith("rgb") && opacity < 1) {
         // If already rgb/rgba, just replace alpha
         bgColor = bgColor.replace(/rgba?\(([^)]+)\)/, (match, colorVals) => {
-          const parts = colorVals.split(",").map((x) => x.trim());
+          const parts = colorVals.split(",").map((x: string) => x.trim());
           if (parts.length === 3) return `rgba(${parts.join(",")},${opacity})`;
           if (parts.length === 4)
             return `rgba(${parts[0]},${parts[1]},${parts[2]},${opacity})`;

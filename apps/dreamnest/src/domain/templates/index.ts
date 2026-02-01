@@ -104,7 +104,7 @@ export function getTemplate(id: TemplateId): TemplateDefinition | undefined {
  * Get all templates for an age group
  */
 export function getTemplatesByAgeGroup(
-  ageGroup: AgeGroup
+  ageGroup: AgeGroup,
 ): TemplateDefinition[] {
   const { TEMPLATES_BY_AGE_GROUP } = require("./data");
   return TEMPLATES_BY_AGE_GROUP[ageGroup] || [];
@@ -143,12 +143,12 @@ export function getTemplateAgeRange(id: TemplateId): string {
  * Returns the most appropriate primary template based on age
  */
 export function getDefaultTemplate(age: number): TemplateId {
-  if (age <= 1) return "BABY_LOOK_AND_LISTEN";
-  if (age <= 3) return "TODDLER_POINT_AND_NAME";
-  if (age <= 5) return "PRESCHOOL_SIMPLE_STORY";
-  if (age <= 8) return "KIDS_STORY_REEL";
-  if (age <= 10) return "TWEEN_GUIDED_STORY";
-  return "PRETEEN_CHAPTER_SCENE";
+  if (age <= 1) return "LOOK_AND_LISTEN";
+  if (age <= 3) return "POINT_AND_NAME";
+  if (age <= 5) return "STORY_MOMENT";
+  if (age <= 8) return "STORY_REEL";
+  if (age <= 10) return "GUIDED_STORY";
+  return "CHAPTER_SCENE";
 }
 
 // Re-export commonly used template list for convenience
