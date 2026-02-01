@@ -1,12 +1,5 @@
 {
-  "buildCommand": "pnpm run build",
-  "outputDirectory": ".next",
-  "installCommand": "pnpm install --no-frozen-lockfile",
   "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ]
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install --no-frozen-lockfile"
 }
