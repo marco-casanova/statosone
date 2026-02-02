@@ -387,8 +387,9 @@ CREATE INDEX IF NOT EXISTS idx_bookmarks_book_id ON bookmarks(book_id);
 -- ============================================================
 
 -- Books with author info flattened (avoids nested join ambiguity)
--- Note: b.* already includes author_id from books table, so we don't re-select a.id
-CREATE OR REPLACE VIEW books_with_author AS
+-- Drop first to avoid column-name conflicts from previous versions
+DROP VIEW IF EXISTS books_with_author;
+CREATE VIEW books_with_author AS
 SELECT 
   b.*,
   a.user_id AS author_user_id,
@@ -1202,3 +1203,11 @@ CREATE POLICY "Admins can manage all covers"
     bucket_id = 'covers' 
     AND is_admin(auth.uid())
   );
+
+-- Page-level text field for DreamNest pages (idempotent)
+ALTER TABLE IF EXISTS book_pages
+  ADD COLUMN IF NOT EXISTS page_text TEXT DEFAULT 'Add text';
+
+-- Decorative border identifier per page (idempotent)
+ALTER TABLE IF EXISTS book_pages
+  ADD COLUMN IF NOT EXISTS border_frame_id TEXT;

@@ -5,7 +5,7 @@ import { X, Upload } from "lucide-react";
 import { NarrationEditor } from "./narration-editor";
 import { PageTemplateEditor } from "./page-template-editor";
 import { BookTemplateConfigurator } from "./book-template-configurator";
-import { TEMPLATES, type TemplateId, type SlotValue } from "@/domain/templates";
+import { type SlotValue } from "@/domain/templates";
 
 type NarrationMode = "recorded" | "tts";
 
@@ -14,6 +14,10 @@ interface Page {
   layout_mode: "canvas" | "flow";
   background_color: string;
   background_asset_id?: string | null;
+  background_music_asset_id?: string | null;
+  background_music_loop?: boolean | null;
+  border_frame_id?: string | null;
+  page_text?: string | null;
   template_id?: string | null;
   template_slots?: Record<string, SlotValue> | null;
 }
@@ -46,14 +50,9 @@ interface Narration {
 }
 
 interface PropertyPanelProps {
-  book?: Book;
   page?: Page;
-  block?: Block;
   narration?: Narration | null;
-  onBookUpdate?: (updates: Partial<Book>) => void;
   onPageUpdate: (updates: Partial<Page>) => void;
-  onBlockUpdate: (updates: Partial<Block>) => void;
-  onBlockDelete: () => void;
   onNarrationSave?: (data: {
     mode: NarrationMode;
     audio_asset_id?: string | null;
@@ -69,14 +68,9 @@ interface PropertyPanelProps {
 }
 
 export function PropertyPanel({
-  book,
   page,
-  block,
   narration,
-  onBookUpdate,
   onPageUpdate,
-  onBlockUpdate,
-  onBlockDelete,
   onNarrationSave,
   onNarrationDelete,
   onOpenAssetLibrary,
@@ -84,9 +78,9 @@ export function PropertyPanel({
   onOpenNarrationLibrary,
   onClose,
 }: PropertyPanelProps) {
-  const [activeTab, setActiveTab] = useState<
-    "book" | "page" | "block" | "narration" | "template"
-  >(book ? "book" : block ? "block" : "page");
+  const [activeTab, setActiveTab] = useState<"page" | "narration">(
+    page ? "page" : "narration"
+  );
 
   return (
     <div className="h-full flex flex-col">
@@ -103,24 +97,6 @@ export function PropertyPanel({
 
       {/* Tabs */}
       <div className="flex border-b overflow-x-auto">
-        {book && (
-          <button
-            onClick={() => setActiveTab("book")}
-            className={`shrink-0 px-4 py-3 text-sm font-medium transition-colors relative ${
-              activeTab === "book"
-                ? "text-purple-600"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <span className="flex items-center justify-center gap-1">
-              <BookIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Book</span>
-            </span>
-            {activeTab === "book" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
-            )}
-          </button>
-        )}
         <button
           onClick={() => setActiveTab("page")}
           className={`shrink-0 px-4 py-3 text-sm font-medium transition-colors relative ${
@@ -134,41 +110,6 @@ export function PropertyPanel({
             <span className="hidden sm:inline">Page</span>
           </span>
           {activeTab === "page" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab("template")}
-          className={`flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors relative ${
-            activeTab === "template"
-              ? "text-purple-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <span className="flex items-center justify-center gap-1">
-            <TemplateIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">Template</span>
-          </span>
-          {activeTab === "template" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab("block")}
-          disabled={!block}
-          className={`flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors relative ${
-            activeTab === "block"
-              ? "text-purple-600"
-              : block
-              ? "text-gray-500 hover:text-gray-700"
-              : "text-gray-300 cursor-not-allowed"
-          }`}
-        >
-          <span className="flex items-center justify-center gap-1">
-            <BlockIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">Block</span>
-          </span>
-          {activeTab === "block" && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
           )}
         </button>
@@ -291,9 +232,8 @@ function PageProperties({
     type: "image" | "video" | "audio"
   ) => void;
 }) {
-  const template = page.template_id
-    ? TEMPLATES[page.template_id as TemplateId]
-    : null;
+  // Templates are hidden in this simplified view
+  const template = null;
   const presetColors = [
     "#FFFFFF",
     "#F3F4F6",
@@ -308,7 +248,26 @@ function PageProperties({
   ];
 
   return (
-    <div className="space-y-6">
+        <div className="space-y-6">
+      {/* Page Text */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Page Text
+        </label>
+        <textarea
+          value={page.page_text ?? "Add text"}
+          onChange={(e) =>
+            onUpdate({ page_text: e.target.value || "Add text" })
+          }
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none"
+          placeholder="Add text"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Appears on the page immediately; defaults to “Add text”.
+        </p>
+      </div>
+
       {/* Template Slots Section */}
       {template && (
         <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
@@ -324,15 +283,42 @@ function PageProperties({
 
           <p className="text-xs text-purple-700">{template.purpose}</p>
 
+          <TemplateLayoutPreview
+            template={template}
+            slots={page.template_slots || {}}
+            onSlotChange={(slotKey, value, type) => {
+              const newSlots = {
+                ...(page.template_slots || {}),
+                [slotKey]: { slotKey, value, type },
+              };
+              onUpdate({ template_slots: newSlots });
+            }}
+            onOpenAssetLibrary={onOpenAssetLibrary}
+          />
+
           {/* Slot Editors */}
           <div className="space-y-3">
             {Object.entries(template.slots).map(([slotKey, slotDef]) => {
               const slotValue = page.template_slots?.[slotKey];
               const isRequired = !slotDef.optional;
-              const primaryType = Array.isArray(slotDef.type)
-                ? slotDef.type[0]
-                : slotDef.type;
+              const availableTypes = Array.isArray(slotDef.type)
+                ? slotDef.type
+                : [slotDef.type];
+              const chosenType =
+                (slotValue?.type as SlotValueType | undefined) ||
+                (availableTypes[0] as SlotValueType);
               const hasValue = slotValue?.value;
+
+              const icon = (type: string) => {
+                if (type === "string") return "📝";
+                if (type === "image") return "🖼️";
+                if (type === "video" || type === "slow_video") return "🎬";
+                if (type === "audio") return "🎵";
+                return "⬜";
+              };
+
+              const normalizedType =
+                chosenType === "slow_video" ? "video" : chosenType;
 
               return (
                 <div
@@ -342,15 +328,39 @@ function PageProperties({
                   {/* Slot Header */}
                   <div className="flex items-center justify-between mb-2">
                     <label className="flex items-center gap-2 text-xs font-medium text-gray-700">
-                      {primaryType === "string" && <span>📝</span>}
-                      {primaryType === "image" && <span>🖼️</span>}
-                      {primaryType === "video" && <span>🎬</span>}
-                      {primaryType === "audio" && <span>🎵</span>}
+                      <span>{icon(chosenType)}</span>
                       <span className="capitalize">
                         {slotKey.replace(/_/g, " ").replace(/id$/, "")}
                       </span>
                       {isRequired && <span className="text-red-500">*</span>}
                     </label>
+                    {availableTypes.length > 1 && (
+                      <div className="flex gap-1">
+                        {availableTypes.map((t) => (
+                          <button
+                            key={t as string}
+                            className={`px-2 py-1 text-[11px] rounded border ${
+                              chosenType === t
+                                ? "border-purple-400 bg-purple-50 text-purple-700"
+                                : "border-gray-200 text-gray-500"
+                            }`}
+                            onClick={() => {
+                              const newSlots = {
+                                ...(page.template_slots || {}),
+                                [slotKey]: {
+                                  slotKey,
+                                  value: slotValue?.value ?? null,
+                                  type: t as SlotValueType,
+                                },
+                              };
+                              onUpdate({ template_slots: newSlots });
+                            }}
+                          >
+                            {t === "slow_video" ? "Video" : t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {hasValue && (
                       <span className="text-xs text-green-600 flex items-center gap-1">
                         ✓ Set
@@ -359,12 +369,12 @@ function PageProperties({
                   </div>
 
                   {/* Slot Editor */}
-                  {primaryType === "string" ? (
+                  {normalizedType === "string" ? (
                     <textarea
                       value={(slotValue?.value as string) || ""}
                       onChange={(e) => {
                         const newSlots = {
-                          ...page.template_slots,
+                          ...(page.template_slots || {}),
                           [slotKey]: {
                             slotKey,
                             value: e.target.value,
@@ -386,7 +396,7 @@ function PageProperties({
                           </span>
                           <button
                             onClick={() => {
-                              const newSlots = { ...page.template_slots };
+                              const newSlots = { ...(page.template_slots || {}) };
                               delete newSlots[slotKey];
                               onUpdate({ template_slots: newSlots });
                             }}
@@ -400,13 +410,13 @@ function PageProperties({
                           onClick={() =>
                             onOpenAssetLibrary?.(
                               slotKey,
-                              primaryType as "image" | "video" | "audio"
+                              normalizedType as "image" | "video" | "audio"
                             )
                           }
                           className="w-full py-4 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors text-xs text-gray-500 flex flex-col items-center gap-1"
                         >
                           <Upload className="w-4 h-4" />
-                          Upload {primaryType}
+                          Upload {normalizedType}
                         </button>
                       )}
                     </div>
@@ -437,31 +447,14 @@ function PageProperties({
         <div className="flex gap-2">
           <button
             onClick={() => onUpdate({ layout_mode: "canvas" })}
-            className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm transition-all ${
-              page.layout_mode === "canvas"
-                ? "border-purple-500 bg-purple-50 text-purple-700"
-                : "border-gray-200 hover:bg-gray-50 text-gray-600"
-            }`}
+            className="flex-1 py-3 px-4 rounded-xl border-2 text-sm transition-all border-purple-500 bg-purple-50 text-purple-700"
           >
             <CanvasIcon className="w-5 h-5 mx-auto mb-1" />
-            Canvas
-          </button>
-          <button
-            onClick={() => onUpdate({ layout_mode: "flow" })}
-            className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm transition-all ${
-              page.layout_mode === "flow"
-                ? "border-purple-500 bg-purple-50 text-purple-700"
-                : "border-gray-200 hover:bg-gray-50 text-gray-600"
-            }`}
-          >
-            <FlowIcon className="w-5 h-5 mx-auto mb-1" />
-            Flow
+            Canvas (default)
           </button>
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          {page.layout_mode === "canvas"
-            ? "Freely position blocks anywhere on the page"
-            : "Blocks stack vertically like a document"}
+          Canvas is always used. Flow view is removed to keep editing simple.
         </p>
       </div>
 

@@ -165,7 +165,7 @@ export function BookSettingsModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[90vw] max-w-5xl h-[90vh] max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">Book Settings</h2>
@@ -226,7 +226,7 @@ export function BookSettingsModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div className="p-6 overflow-y-auto flex-1">
           {/* General Tab */}
           {activeTab === "general" && (
             <div className="space-y-6">

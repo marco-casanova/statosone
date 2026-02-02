@@ -165,6 +165,8 @@ export interface BookPage {
   layout_mode: PageLayoutMode;
   background_color: string | null;
   background_asset_id: string | null;
+  page_text: string | null;
+  border_frame_id?: string | null;
   auto_advance_delay_ms: number | null;
   // Page template
   template_id: string | null;
@@ -418,6 +420,8 @@ export interface CreatePageInput {
   layout_mode?: PageLayoutMode;
   background_color?: string;
   background_asset_id?: string;
+  border_frame_id?: string | null;
+  page_text?: string | null;
   audio_narration_id?: string;
   auto_advance_delay_ms?: number;
   template_id?: string;
@@ -429,6 +433,8 @@ export interface UpdatePageInput {
   layout_mode?: PageLayoutMode;
   background_color?: string;
   background_asset_id?: string | null;
+  border_frame_id?: string | null;
+  page_text?: string | null;
   audio_narration_id?: string | null;
   auto_advance_delay_ms?: number;
   template_id?: string | null;

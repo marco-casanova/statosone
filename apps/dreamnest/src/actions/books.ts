@@ -353,6 +353,8 @@ export async function createBook(input: CreateBookInput) {
       book_id: book.id,
       page_index: 0,
       layout_mode: "canvas",
+      border_frame_id: null,
+      page_text: "Add text",
     })
     .select()
     .single();

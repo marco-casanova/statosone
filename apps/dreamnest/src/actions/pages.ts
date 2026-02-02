@@ -187,6 +187,8 @@ export async function createPage(input: UpsertPageInput) {
       layout_mode: input.layout_mode || input.mode || "canvas",
       background_color: input.background_color || "#FFFFFF",
       background_asset_id: input.background_asset_id,
+      border_frame_id: input.border_frame_id,
+      page_text: "Add text",
     })
     .select()
     .single();
@@ -244,6 +246,9 @@ export async function updatePage(
     updateFields.background_color = updates.background_color;
   if (updates.background_asset_id !== undefined)
     updateFields.background_asset_id = updates.background_asset_id;
+  if (updates.page_text !== undefined) updateFields.page_text = updates.page_text;
+  if (updates.border_frame_id !== undefined)
+    updateFields.border_frame_id = updates.border_frame_id;
 
   const { data, error } = await supabase
     .from("book_pages")
@@ -432,6 +437,8 @@ export async function duplicatePage(pageId: string) {
       layout_mode: original.layout_mode,
       background_color: original.background_color,
       background_asset_id: original.background_asset_id,
+      border_frame_id: original.border_frame_id,
+      page_text: original.page_text,
     })
     .select()
     .single();

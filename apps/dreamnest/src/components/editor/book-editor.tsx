@@ -75,6 +75,8 @@ interface Page {
   layout_mode: "canvas" | "flow";
   background_color: string;
   background_asset_id?: string | null;
+  page_text?: string | null;
+  border_frame_id?: string | null;
   blocks: Block[];
   template_id?: string | null;
   template_slots?: Record<string, SlotValue> | null;
@@ -184,6 +186,7 @@ export function BookEditor({
             page_index: newPageIndex,
             layout_mode: "canvas",
             background_color: "#ffffff",
+            page_text: "Add text",
             blocks: [],
             template_id: book.primary_template_id || null,
             template_slots: null,
@@ -608,26 +611,13 @@ export function BookEditor({
     async (updates: Partial<Page>) => {
       if (!currentPage) return;
 
-      // Optimistic update
+      // Optimistic update only (no network yet)
       setPages((prev) =>
         prev.map((p) => (p.id === currentPage.id ? { ...p, ...updates } : p))
       );
       setHasChanges(true);
-
-      startTransition(async () => {
-        try {
-          await updatePage(currentPage.id, {
-            layout_mode: updates.layout_mode,
-            background_color: updates.background_color,
-            background_asset_id: updates.background_asset_id ?? undefined,
-          });
-        } catch (error) {
-          console.error("Error updating page:", error);
-          showNotification("error", "Failed to update page");
-        }
-      });
     },
-    [currentPage, showNotification]
+    [currentPage]
   );
 
   // Asset handlers
@@ -699,16 +689,25 @@ export function BookEditor({
 
   // Save handlers
   const handleSave = useCallback(async () => {
+    if (!currentPage) return;
     setIsSaving(true);
     try {
-      // All changes are saved automatically via optimistic updates
-      // This is just a manual trigger for any pending changes
+      // Persist current page fields
+      await updatePage(currentPage.id, {
+        layout_mode: currentPage.layout_mode,
+        background_color: currentPage.background_color,
+        background_asset_id: currentPage.background_asset_id ?? null,
+        page_text: currentPage.page_text ?? "Add text",
+      });
       setHasChanges(false);
-      showNotification("success", "All changes saved");
+      showNotification("success", "Page saved");
+    } catch (error) {
+      console.error("Error saving page:", error);
+      showNotification("error", "Failed to save page");
     } finally {
       setIsSaving(false);
     }
-  }, [showNotification]);
+  }, [currentPage, showNotification]);
 
   const handlePreview = useCallback(() => {
     router.push(`/app/books/${book.id}/read`);

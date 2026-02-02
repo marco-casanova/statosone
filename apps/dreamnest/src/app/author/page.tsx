@@ -245,13 +245,6 @@ export default function AuthorDashboardPage() {
         page_index: index,
         layout_mode: "canvas" as const,
         background_color: "#ffffff",
-        // Store layout metadata for this page
-        metadata: {
-          layoutId: newBookData.pageLayout,
-          layoutName: layoutTemplate.name,
-          structure: layoutTemplate.structure,
-          slots: layoutTemplate.slots,
-        },
       }));
 
       const { error: pageError } = await supabase
@@ -519,11 +512,14 @@ export default function AuthorDashboardPage() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setShowNewBookDialog(false)}
           />
-          <div className="relative bg-white rounded-2xl shadow-xl w-[70%] max-w-6xl p-6 animate-in zoom-in-95 fade-in duration-200">
+          <div className="relative bg-white rounded-2xl shadow-xl w-[90vw] max-w-6xl h-[90vh] max-h-[90vh] p-6 animate-in zoom-in-95 fade-in duration-200 flex flex-col overflow-hidden">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Create New Book
             </h2>
-            <form onSubmit={handleCreateBook} className="space-y-5">
+            <form
+              onSubmit={handleCreateBook}
+              className="space-y-5 flex-1 overflow-y-auto pr-1"
+            >
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Title <span className="text-red-600">*</span>
@@ -750,7 +746,7 @@ export default function AuthorDashboardPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-4 sticky bottom-0 bg-white pb-1">
                 <button
                   type="button"
                   onClick={() => setShowNewBookDialog(false)}

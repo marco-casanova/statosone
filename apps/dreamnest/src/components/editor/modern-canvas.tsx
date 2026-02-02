@@ -17,6 +17,7 @@ interface Page {
   layout_mode: "canvas" | "flow";
   background_color: string;
   background_asset_id?: string | null;
+  page_text?: string | null;
   blocks: Block[];
 }
 
@@ -379,16 +380,11 @@ export function ModernCanvas({
         {page.blocks.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center p-8">
-              <div className="relative">
-                <div className="text-8xl mb-6 animate-float">✨</div>
-                <div className="absolute inset-0 blur-3xl bg-purple-400/20 rounded-full" />
-              </div>
-              <p className="text-xl font-semibold text-gray-500 mb-2">
-                Your canvas awaits!
+              <p className="text-xl font-semibold text-gray-700 mb-2">
+                {page.page_text || "Add text"}
               </p>
               <p className="text-sm text-gray-400 max-w-xs">
-                Drag elements from the palette on the left or click the toolbar
-                buttons to start creating
+                Drag elements or edit the Page Text field to update this copy.
               </p>
             </div>
           </div>
