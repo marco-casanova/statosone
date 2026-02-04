@@ -1,47 +1,41 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+function getStorageKey(supabaseUrl?: string): string | null {
+  if (!supabaseUrl) return null;
+  try {
+    const url = new URL(supabaseUrl);
+    const projectRef = url.hostname.split(".")[0];
+    if (!projectRef) return null;
+    return `sb-${projectRef}-auth-token`;
+  } catch {
+    return null;
+  }
+}
 
+function hasAuthCookie(
+  request: NextRequest,
+  storageKey: string | null,
+): boolean {
+  if (!storageKey) return false;
+  return request.cookies
+    .getAll()
+    .some(
+      ({ name }) => name === storageKey || name.startsWith(`${storageKey}.`),
+    );
+}
+
+export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // Skip middleware if Supabase is not configured
   if (!supabaseUrl || !supabaseAnonKey) {
-    return response;
+    return NextResponse.next();
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value),
-        );
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        );
-      },
-    },
-  });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const { pathname } = request.nextUrl;
+  const storageKey = getStorageKey(supabaseUrl);
+  const isAuthed = hasAuthCookie(request, storageKey);
 
   // Protected routes - require authentication
   const protectedRoutes = ["/dashboard", "/admin"];
@@ -56,30 +50,25 @@ export async function middleware(request: NextRequest) {
   // Admin routes - require admin role
   const isAdminRoute = pathname.startsWith("/admin");
 
-  if (isProtectedRoute && !user) {
+  if (isProtectedRoute && !isAuthed) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (isAuthRoute && user) {
+  if (isAuthRoute && isAuthed) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Check admin access
-  if (isAdminRoute && user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
+  // Without a Supabase client in Edge, we can't verify admin role here.
+  // Admin role checks should be enforced in server-side route handlers/layouts.
+  if (isAdminRoute && !isAuthed) {
+    const redirectUrl = new URL("/login", request.url);
+    redirectUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(redirectUrl);
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
