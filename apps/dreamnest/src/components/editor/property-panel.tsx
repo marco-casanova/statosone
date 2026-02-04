@@ -98,9 +98,7 @@ export function PropertyPanel({
 }: PropertyPanelProps) {
   const [activeTab, setActiveTab] = useState<
     "page" | "narration" | "book" | "template" | "block"
-  >(
-    page ? "page" : "narration"
-  );
+  >(page ? "page" : "narration");
 
   return (
     <div className="h-full flex flex-col">
@@ -254,7 +252,7 @@ function PageProperties({
   onOpenBackgroundLibrary?: () => void;
   onOpenAssetLibrary?: (
     slotKey: string,
-    type: "image" | "video" | "audio"
+    type: "image" | "video" | "audio",
   ) => void;
 }) {
   // Templates are hidden in this simplified view
@@ -273,7 +271,7 @@ function PageProperties({
   ];
 
   return (
-        <div className="space-y-6">
+    <div className="space-y-6">
       {/* Page Text */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -421,7 +419,9 @@ function PageProperties({
                           </span>
                           <button
                             onClick={() => {
-                              const newSlots = { ...(page.template_slots || {}) };
+                              const newSlots = {
+                                ...(page.template_slots || {}),
+                              };
                               delete newSlots[slotKey];
                               onUpdate({ template_slots: newSlots });
                             }}
@@ -435,7 +435,7 @@ function PageProperties({
                           onClick={() =>
                             onOpenAssetLibrary?.(
                               slotKey,
-                              normalizedType as "image" | "video" | "audio"
+                              normalizedType as "image" | "video" | "audio",
                             )
                           }
                           className="w-full py-4 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors text-xs text-gray-500 flex flex-col items-center gap-1"
@@ -509,7 +509,9 @@ function PageProperties({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           {(() => {
-            const asset = assets?.find((a) => a.id === page.background_asset_id);
+            const asset = assets?.find(
+              (a) => a.id === page.background_asset_id,
+            );
             const isVideo =
               asset?.type === "video" ||
               asset?.file_path?.toLowerCase?.().match(/\.(mp4|mov|webm)$/);
@@ -520,11 +522,15 @@ function PageProperties({
           <div className="relative">
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
               {(() => {
-                const asset = assets?.find((a) => a.id === page.background_asset_id);
+                const asset = assets?.find(
+                  (a) => a.id === page.background_asset_id,
+                );
                 const isVideo =
                   asset?.type === "video" ||
                   asset?.file_path?.toLowerCase?.().match(/\.(mp4|mov|webm)$/);
-                const url = asset?.file_path ? getAssetPublicUrl(asset.file_path) : "";
+                const url = asset?.file_path
+                  ? getAssetPublicUrl(asset.file_path)
+                  : "";
                 if (isVideo) {
                   return (
                     <video
@@ -821,7 +827,7 @@ function BlockProperties({
                 onChange={(e) =>
                   updateStyle(
                     "background_opacity",
-                    parseInt(e.target.value) / 100
+                    parseInt(e.target.value) / 100,
                   )
                 }
                 className="flex-1"

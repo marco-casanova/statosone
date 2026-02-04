@@ -100,7 +100,8 @@ export function PageRenderer({
               <p
                 className="text-center leading-relaxed"
                 style={{
-                  fontFamily: "'Nunito', 'Poppins', 'Quicksand', system-ui, sans-serif",
+                  fontFamily:
+                    "'Nunito', 'Poppins', 'Quicksand', system-ui, sans-serif",
                   fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
                   fontWeight: 600,
                   color: "#2B2B2B",
@@ -123,7 +124,7 @@ export function PageRenderer({
 function CanvasBlocks({ blocks }: { blocks: Block[] }) {
   const sortedBlocks = useMemo(
     () => [...blocks].sort((a, b) => a.z_index - b.z_index),
-    [blocks]
+    [blocks],
   );
 
   return (
@@ -165,7 +166,7 @@ function CanvasBlock({ block }: { block: Block }) {
 function FlowBlocks({ blocks }: { blocks: Block[] }) {
   const sortedBlocks = useMemo(
     () => [...blocks].sort((a, b) => a.z_index - b.z_index),
-    [blocks]
+    [blocks],
   );
 
   return (
@@ -187,8 +188,8 @@ function FlowBlock({ block }: { block: Block }) {
         alignment === "left"
           ? "text-left"
           : alignment === "right"
-          ? "text-right"
-          : "text-center"
+            ? "text-right"
+            : "text-center"
       }`}
     >
       <BlockContent block={block} />

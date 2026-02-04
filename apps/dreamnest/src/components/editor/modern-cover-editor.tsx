@@ -127,7 +127,7 @@ export function ModernCoverEditor({
   const [title, setTitle] = useState(book.title);
   const [subtitle, setSubtitle] = useState(book.subtitle || "");
   const [activeTab, setActiveTab] = useState<"style" | "background" | "text">(
-    "style"
+    "style",
   );
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
@@ -157,7 +157,13 @@ export function ModernCoverEditor({
 
   return (
     <div className="flex items-center justify-center h-full w-full p-4 overflow-hidden">
-      <div className="relative flex justify-center items-center h-full w-full" style={{ maxHeight: 'calc(100vh - 200px)', maxWidth: 'calc(100vw - 700px)' }}>
+      <div
+        className="relative flex justify-center items-center h-full w-full"
+        style={{
+          maxHeight: "calc(100vh - 200px)",
+          maxWidth: "calc(100vw - 700px)",
+        }}
+      >
         {/* Book Cover */}
         <div
           className="relative rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-3xl"
@@ -165,101 +171,99 @@ export function ModernCoverEditor({
             background: getCurrentBackground(),
             width: renderWidth,
             height: renderHeight,
-            maxHeight: 'calc(100vh - 220px)',
-            maxWidth: '100%',
+            maxHeight: "calc(100vh - 220px)",
+            maxWidth: "100%",
             minHeight: 400,
           }}
         >
-            {/* Texture Overlay */}
-            <div
-              className="absolute inset-0 opacity-5 pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-              }}
-            />
+          {/* Texture Overlay */}
+          <div
+            className="absolute inset-0 opacity-5 pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            }}
+          />
 
-            {/* Gradient Overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+          {/* Gradient Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-            {/* DreamNest Badge */}
-            <div className="absolute top-6 left-6 flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/30">
-              <span className="text-lg">🌙</span>
-              <span className="text-sm font-semibold text-white">
-                DreamNest
-              </span>
-            </div>
+          {/* DreamNest Badge */}
+          <div className="absolute top-6 left-6 flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/30">
+            <span className="text-lg">🌙</span>
+            <span className="text-sm font-semibold text-white">DreamNest</span>
+          </div>
 
-            {/* Decorative Corner */}
-            <div className="absolute top-6 right-6 text-4xl opacity-60 animate-pulse">
-              ✨
-            </div>
+          {/* Decorative Corner */}
+          <div className="absolute top-6 right-6 text-4xl opacity-60 animate-pulse">
+            ✨
+          </div>
 
-            {/* Title Area */}
-            <div className="absolute inset-x-0 bottom-0 p-8">
-              {isEditingTitle ? (
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full text-4xl font-bold text-center bg-white/10 backdrop-blur-md text-white placeholder-white/50 rounded-xl px-4 py-3 border border-white/30 focus:outline-none focus:border-white/60 focus:ring-2 focus:ring-white/20"
-                    placeholder="Book Title"
-                    autoFocus
-                  />
-                  <input
-                    type="text"
-                    value={subtitle}
-                    onChange={(e) => setSubtitle(e.target.value)}
-                    className="w-full text-xl text-center bg-white/10 backdrop-blur-md text-white placeholder-white/50 rounded-xl px-4 py-2 border border-white/30 focus:outline-none focus:border-white/60"
-                    placeholder="Subtitle (optional)"
-                  />
-                  <div className="flex gap-3 justify-center pt-2">
-                    <button
-                      onClick={handleSaveTitle}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-purple-600 rounded-xl font-semibold hover:bg-white/90 transition-colors shadow-lg"
-                    >
-                      <Check className="w-4 h-4" />
-                      Save
-                    </button>
-                    <button
-                      onClick={() => {
-                        setTitle(book.title);
-                        setSubtitle(book.subtitle || "");
-                        setIsEditingTitle(false);
-                      }}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white/20 text-white rounded-xl font-semibold hover:bg-white/30 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                      Cancel
-                    </button>
-                  </div>
+          {/* Title Area */}
+          <div className="absolute inset-x-0 bottom-0 p-8">
+            {isEditingTitle ? (
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full text-4xl font-bold text-center bg-white/10 backdrop-blur-md text-white placeholder-white/50 rounded-xl px-4 py-3 border border-white/30 focus:outline-none focus:border-white/60 focus:ring-2 focus:ring-white/20"
+                  placeholder="Book Title"
+                  autoFocus
+                />
+                <input
+                  type="text"
+                  value={subtitle}
+                  onChange={(e) => setSubtitle(e.target.value)}
+                  className="w-full text-xl text-center bg-white/10 backdrop-blur-md text-white placeholder-white/50 rounded-xl px-4 py-2 border border-white/30 focus:outline-none focus:border-white/60"
+                  placeholder="Subtitle (optional)"
+                />
+                <div className="flex gap-3 justify-center pt-2">
+                  <button
+                    onClick={handleSaveTitle}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-white text-purple-600 rounded-xl font-semibold hover:bg-white/90 transition-colors shadow-lg"
+                  >
+                    <Check className="w-4 h-4" />
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTitle(book.title);
+                      setSubtitle(book.subtitle || "");
+                      setIsEditingTitle(false);
+                    }}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-white/20 text-white rounded-xl font-semibold hover:bg-white/30 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </button>
                 </div>
-              ) : (
-                <div
-                  className="cursor-pointer group text-center"
-                  onClick={() => setIsEditingTitle(true)}
-                >
-                  <h1 className="text-5xl font-bold text-white drop-shadow-lg mb-2 group-hover:scale-[1.02] transition-transform">
-                    {book.title}
-                  </h1>
-                  {book.subtitle && (
-                    <p className="text-2xl text-white/90 drop-shadow-md mb-3">
-                      {book.subtitle}
-                    </p>
-                  )}
-                  <span className="inline-flex items-center gap-1 text-sm text-white/60 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
-                    <Type className="w-3 h-3" />
-                    Click to edit title
-                  </span>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div
+                className="cursor-pointer group text-center"
+                onClick={() => setIsEditingTitle(true)}
+              >
+                <h1 className="text-5xl font-bold text-white drop-shadow-lg mb-2 group-hover:scale-[1.02] transition-transform">
+                  {book.title}
+                </h1>
+                {book.subtitle && (
+                  <p className="text-2xl text-white/90 drop-shadow-md mb-3">
+                    {book.subtitle}
+                  </p>
+                )}
+                <span className="inline-flex items-center gap-1 text-sm text-white/60 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
+                  <Type className="w-3 h-3" />
+                  Click to edit title
+                </span>
+              </div>
+            )}
+          </div>
 
-            {/* Book Spine Effect */}
-            <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/30 to-transparent" />
+          {/* Book Spine Effect */}
+          <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/30 to-transparent" />
 
-            {/* Page Edge Effect */}
-            <div className="absolute right-0 top-2 bottom-2 w-1 bg-gradient-to-l from-white/20 to-transparent" />
+          {/* Page Edge Effect */}
+          <div className="absolute right-0 top-2 bottom-2 w-1 bg-gradient-to-l from-white/20 to-transparent" />
         </div>
       </div>
     </div>

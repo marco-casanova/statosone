@@ -123,7 +123,9 @@ export const BORDER_FRAME_IDS: BorderFrameId[] = [
 /**
  * Get a border frame by ID
  */
-export function getBorderFrame(id: BorderFrameId | null | undefined): BorderFrame {
+export function getBorderFrame(
+  id: BorderFrameId | null | undefined,
+): BorderFrame {
   if (!id || id === "none") {
     return BORDER_FRAMES.none;
   }
@@ -141,7 +143,7 @@ export function getAllBorderFrames(): BorderFrame[] {
  * Get border frames by category
  */
 export function getBorderFramesByCategory(
-  category: "classic" | "vintage" | "whimsical"
+  category: "classic" | "vintage" | "whimsical",
 ): BorderFrame[] {
   return getAllBorderFrames().filter((frame) => frame.category === category);
 }

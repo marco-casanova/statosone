@@ -416,8 +416,9 @@ export function NarrationEditor({
                   <button
                     onClick={() =>
                       onPageUpdate({
-                        background_music_loop:
-                          !(page?.background_music_loop ?? false),
+                        background_music_loop: !(
+                          page?.background_music_loop ?? false
+                        ),
                       })
                     }
                     className={`relative w-12 h-6 rounded-full transition-colors ${
@@ -460,9 +461,7 @@ export function NarrationEditor({
                 <p className="text-sm font-medium text-gray-700 mb-1">
                   Drop music file here
                 </p>
-                <p className="text-xs text-gray-500 mb-4">
-                  or click to browse
-                </p>
+                <p className="text-xs text-gray-500 mb-4">or click to browse</p>
                 <button
                   onClick={() => {
                     // This would open a music-specific asset library

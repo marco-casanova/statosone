@@ -430,7 +430,8 @@ export function ModernCanvas({
                 <p
                   className="text-center leading-relaxed"
                   style={{
-                    fontFamily: "'Nunito', 'Poppins', 'Quicksand', system-ui, sans-serif",
+                    fontFamily:
+                      "'Nunito', 'Poppins', 'Quicksand', system-ui, sans-serif",
                     fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
                     fontWeight: 600,
                     color: "#2B2B2B",
