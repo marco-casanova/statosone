@@ -81,7 +81,11 @@ export default function AdminCustomRequestsPage() {
 
     setUpdating(true);
 
-    const updateData: any = { status };
+    const updateData: {
+      status: CustomRequestStatus;
+      admin_quote_cents?: number;
+      admin_notes?: string;
+    } = { status };
     if (quoteCents !== undefined) {
       updateData.admin_quote_cents = quoteCents;
     }
