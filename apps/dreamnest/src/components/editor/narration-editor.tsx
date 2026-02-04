@@ -16,6 +16,10 @@ interface Narration {
 interface NarrationEditorProps {
   pageId: string;
   narration: Narration | null;
+  page?: {
+    background_music_asset_id?: string | null;
+    background_music_loop?: boolean | null;
+  };
   onSave: (data: {
     mode: NarrationMode;
     audio_asset_id?: string | null;
@@ -24,6 +28,10 @@ interface NarrationEditorProps {
     duration_ms?: number | null;
   }) => Promise<void>;
   onDelete: () => Promise<void>;
+  onPageUpdate?: (updates: {
+    background_music_asset_id?: string | null;
+    background_music_loop?: boolean | null;
+  }) => void;
   onOpenAssetLibrary: () => void;
   audioUrl?: string;
 }
@@ -65,8 +73,10 @@ const TTS_VOICES = [
 export function NarrationEditor({
   pageId,
   narration,
+  page,
   onSave,
   onDelete,
+  onPageUpdate,
   onOpenAssetLibrary,
   audioUrl,
 }: NarrationEditorProps) {
@@ -365,6 +375,122 @@ export function NarrationEditor({
             </>
           )}
         </button>
+      )}
+
+      {/* Divider */}
+      <div className="border-t border-gray-200 my-6" />
+
+      {/* Background Music Section */}
+      {onPageUpdate && (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Background Music
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              Add ambient music that loops while reading this page
+            </p>
+          </div>
+
+          {page?.background_music_asset_id ? (
+            <div className="space-y-3">
+              {/* Music Player */}
+              <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center">
+                    <span className="text-xl text-white">🎶</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-indigo-700">
+                      Background Music Set
+                    </p>
+                    <p className="text-xs text-indigo-500">
+                      Loops while reading
+                    </p>
+                  </div>
+                </div>
+
+                {/* Loop Toggle */}
+                <div className="flex items-center justify-between p-2 bg-white/50 rounded-lg">
+                  <span className="text-sm text-gray-700">Loop Music</span>
+                  <button
+                    onClick={() =>
+                      onPageUpdate({
+                        background_music_loop:
+                          !(page?.background_music_loop ?? false),
+                      })
+                    }
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      page?.background_music_loop !== false
+                        ? "bg-purple-500"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                        page?.background_music_loop !== false
+                          ? "translate-x-6"
+                          : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Remove Button */}
+              <button
+                onClick={() =>
+                  onPageUpdate({
+                    background_music_asset_id: null,
+                    background_music_loop: null,
+                  })
+                }
+                className="w-full py-2 text-red-600 border border-red-200 rounded-xl font-medium hover:bg-red-50 text-sm"
+              >
+                Remove Background Music
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Upload Interface */}
+              <div className="border-2 border-dashed border-indigo-300 rounded-xl p-6 text-center hover:border-indigo-400 transition-colors">
+                <div className="w-16 h-16 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-3xl">🎵</span>
+                </div>
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  Drop music file here
+                </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  or click to browse
+                </p>
+                <button
+                  onClick={() => {
+                    // This would open a music-specific asset library
+                    // For now, we'll simulate setting the background music
+                    // In production, this would trigger onOpenAssetLibrary
+                    // with a callback to set background_music_asset_id
+                  }}
+                  className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 text-sm"
+                >
+                  Choose Music File
+                </button>
+              </div>
+
+              {/* Music Tips */}
+              <div className="bg-indigo-50 rounded-xl p-3">
+                <p className="text-xs text-indigo-700 font-medium mb-1">
+                  🎵 Background Music Tips
+                </p>
+                <ul className="text-xs text-indigo-600 space-y-0.5">
+                  <li>• Use calm, ambient music</li>
+                  <li>• Keep volume low (20-30%)</li>
+                  <li>• Music loops automatically</li>
+                  <li>• Supported: MP3, WAV, M4A</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

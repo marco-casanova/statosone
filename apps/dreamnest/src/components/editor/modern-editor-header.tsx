@@ -18,7 +18,7 @@ import {
   Undo2,
   Redo2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type BookStatus =
   | "draft"
@@ -111,22 +111,40 @@ export function ModernEditorHeader({
   onOpenShare,
 }: ModernEditorHeaderProps) {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<string>("");
   const statusConfig = STATUS_CONFIG[book.status];
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+  // Format date on client-side only to avoid hydration mismatch
+  useEffect(() => {
+    if (!book.updated_at) {
+      setFormattedDate("Not saved yet");
+      return;
+    }
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
+    const formatDate = () => {
+      const date = new Date(book.updated_at!);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return "Just now";
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return date.toLocaleDateString();
+    };
+
+    setFormattedDate(formatDate());
+
+    // Update every minute
+    const interval = setInterval(() => {
+      setFormattedDate(formatDate());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [book.updated_at]);
 
   return (
     <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-purple-100 flex items-center justify-between px-4 sticky top-0 z-50">
@@ -163,11 +181,7 @@ export function ModernEditorHeader({
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <span>{book.page_count ?? 0} pages</span>
               <span>•</span>
-              <span>
-                {book.updated_at
-                  ? formatDate(book.updated_at)
-                  : "Not saved yet"}
-              </span>
+              <span>{formattedDate || "..."}</span>
             </div>
           </div>
         </div>
@@ -266,8 +280,8 @@ export function ModernEditorHeader({
             {book.status === "published"
               ? "Published"
               : book.status === "in_review"
-              ? "In Review"
-              : "Publish"}
+                ? "In Review"
+                : "Publish"}
           </span>
         </button>
 

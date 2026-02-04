@@ -5,7 +5,13 @@ import { X, Upload } from "lucide-react";
 import { NarrationEditor } from "./narration-editor";
 import { PageTemplateEditor } from "./page-template-editor";
 import { BookTemplateConfigurator } from "./book-template-configurator";
-import { type SlotValue } from "@/domain/templates";
+import { type SlotValue, type TemplateId } from "@/domain/templates";
+import { getAssetPublicUrl } from "@/lib/storage";
+import {
+  type BorderFrameId,
+  getAllBorderFrames,
+  getBorderFrame,
+} from "@/domain/border-frames";
 
 type NarrationMode = "recorded" | "tts";
 
@@ -50,9 +56,15 @@ interface Narration {
 }
 
 interface PropertyPanelProps {
+  book?: Book;
   page?: Page;
+  block?: Block;
   narration?: Narration | null;
+  assets?: { id: string; file_path: string; type?: string }[];
+  onBookUpdate?: (updates: Partial<Book>) => void;
   onPageUpdate: (updates: Partial<Page>) => void;
+  onBlockUpdate?: (updates: Partial<Block>) => void;
+  onBlockDelete?: () => void;
   onNarrationSave?: (data: {
     mode: NarrationMode;
     audio_asset_id?: string | null;
@@ -70,15 +82,23 @@ interface PropertyPanelProps {
 export function PropertyPanel({
   page,
   narration,
+  book,
+  block,
   onPageUpdate,
+  onBookUpdate,
+  onBlockUpdate,
+  onBlockDelete,
   onNarrationSave,
   onNarrationDelete,
   onOpenAssetLibrary,
   onOpenBackgroundLibrary,
   onOpenNarrationLibrary,
+  assets = [],
   onClose,
 }: PropertyPanelProps) {
-  const [activeTab, setActiveTab] = useState<"page" | "narration">(
+  const [activeTab, setActiveTab] = useState<
+    "page" | "narration" | "book" | "template" | "block"
+  >(
     page ? "page" : "narration"
   );
 
@@ -161,6 +181,7 @@ export function PropertyPanel({
         {activeTab === "page" && page && (
           <PageProperties
             page={page}
+            assets={assets}
             onUpdate={onPageUpdate}
             onOpenBackgroundLibrary={onOpenBackgroundLibrary}
             onOpenAssetLibrary={(slotKey, type) => {
@@ -187,7 +208,7 @@ export function PropertyPanel({
             }}
           />
         )}
-        {activeTab === "block" && block && (
+        {activeTab === "block" && block && onBlockUpdate && onBlockDelete && (
           <BlockProperties
             block={block}
             onUpdate={onBlockUpdate}
@@ -202,8 +223,10 @@ export function PropertyPanel({
             <NarrationEditor
               pageId={page.id}
               narration={narration || null}
+              page={page}
               onSave={onNarrationSave}
               onDelete={onNarrationDelete}
+              onPageUpdate={onPageUpdate}
               onOpenAssetLibrary={onOpenNarrationLibrary || (() => {})}
             />
           )}
@@ -220,11 +243,13 @@ export function PropertyPanel({
 
 function PageProperties({
   page,
+  assets = [],
   onUpdate,
   onOpenBackgroundLibrary,
   onOpenAssetLibrary,
 }: {
   page: Page;
+  assets?: { id: string; file_path: string; type?: string }[];
   onUpdate: (updates: Partial<Page>) => void;
   onOpenBackgroundLibrary?: () => void;
   onOpenAssetLibrary?: (
@@ -439,25 +464,6 @@ function PageProperties({
         </div>
       )}
 
-      {/* Layout Mode */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Layout Mode
-        </label>
-        <div className="flex gap-2">
-          <button
-            onClick={() => onUpdate({ layout_mode: "canvas" })}
-            className="flex-1 py-3 px-4 rounded-xl border-2 text-sm transition-all border-purple-500 bg-purple-50 text-purple-700"
-          >
-            <CanvasIcon className="w-5 h-5 mx-auto mb-1" />
-            Canvas (default)
-          </button>
-        </div>
-        <p className="mt-2 text-xs text-gray-500">
-          Canvas is always used. Flow view is removed to keep editing simple.
-        </p>
-      </div>
-
       {/* Background Color */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -502,14 +508,45 @@ function PageProperties({
       {/* Background Image */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Background Image
+          {(() => {
+            const asset = assets?.find((a) => a.id === page.background_asset_id);
+            const isVideo =
+              asset?.type === "video" ||
+              asset?.file_path?.toLowerCase?.().match(/\.(mp4|mov|webm)$/);
+            return isVideo ? "Background Video" : "Background Image";
+          })()}
         </label>
         {page.background_asset_id ? (
           <div className="relative">
-            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-              <span className="flex items-center justify-center h-full text-gray-400">
-                Background set
-              </span>
+            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
+              {(() => {
+                const asset = assets?.find((a) => a.id === page.background_asset_id);
+                const isVideo =
+                  asset?.type === "video" ||
+                  asset?.file_path?.toLowerCase?.().match(/\.(mp4|mov|webm)$/);
+                const url = asset?.file_path ? getAssetPublicUrl(asset.file_path) : "";
+                if (isVideo) {
+                  return (
+                    <video
+                      src={url}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
+                    />
+                  );
+                }
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={url}
+                    alt="Background preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                );
+              })()}
+              <div className="absolute inset-0 bg-black/10" />
             </div>
             <button
               onClick={() => onUpdate({ background_asset_id: null })}
@@ -528,6 +565,46 @@ function PageProperties({
               Click to add background
             </span>
           </button>
+        )}
+      </div>
+
+      {/* Border Frame Selector */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Border Frame
+        </label>
+        <p className="text-xs text-gray-500 mb-3">
+          Add decorative borders to your page
+        </p>
+        <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto p-2 bg-gray-50 rounded-lg">
+          {getAllBorderFrames().map((frame) => {
+            const isSelected = (page.border_frame_id || "none") === frame.id;
+            return (
+              <button
+                key={frame.id}
+                onClick={() => onUpdate({ border_frame_id: frame.id })}
+                className={`p-3 rounded-lg border-2 transition-all text-center ${
+                  isSelected
+                    ? "border-purple-500 bg-purple-50 shadow-md"
+                    : "border-gray-200 bg-white hover:border-purple-300"
+                }`}
+                title={frame.description}
+              >
+                <div className="text-2xl mb-1">{frame.preview}</div>
+                <div className="text-[10px] font-medium text-gray-700 leading-tight">
+                  {frame.name}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        {page.border_frame_id && page.border_frame_id !== "none" && (
+          <div className="mt-2 p-2 bg-purple-50 rounded text-xs text-purple-700">
+            <span className="font-semibold">
+              {getBorderFrame(page.border_frame_id as BorderFrameId).name}:
+            </span>{" "}
+            {getBorderFrame(page.border_frame_id as BorderFrameId).description}
+          </div>
         )}
       </div>
     </div>

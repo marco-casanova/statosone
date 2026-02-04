@@ -76,3 +76,211 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(147, 51, 234, 0.5);
 }
+
+/* ===================================================
+   Border Frame Styles - Classic & Vintage Decorations
+   =================================================== */
+
+/* Classic Simple - Single line border */
+.border-frame-classic-simple {
+  border: 3px solid #1a1a1a;
+  padding: 20px;
+  box-shadow: inset 0 0 0 2px #f5f5f5;
+}
+
+/* Classic Double - Double line border */
+.border-frame-classic-double {
+  border: 4px double #1a1a1a;
+  padding: 20px;
+  outline: 2px solid #1a1a1a;
+  outline-offset: -10px;
+}
+
+/* Ornate Victorian - Elaborate decorative border */
+.border-frame-ornate-victorian {
+  border: 6px solid #3a2010;
+  border-image: repeating-linear-gradient(
+    45deg,
+    #3a2010,
+    #3a2010 10px,
+    #6b4423 10px,
+    #6b4423 20px
+  ) 10;
+  padding: 25px;
+  background-image: 
+    linear-gradient(90deg, #3a2010 2px, transparent 2px),
+    linear-gradient(0deg, #3a2010 2px, transparent 2px);
+  background-size: 20px 20px;
+  background-position: -2px -2px;
+  background-repeat: repeat;
+  background-clip: padding-box;
+  box-shadow: 
+    inset 0 0 0 8px #f9f7f4,
+    inset 0 0 0 12px #3a2010,
+    inset 0 0 0 14px #6b4423;
+}
+
+/* Vintage Corners - Decorative corner elements */
+.border-frame-vintage-corners {
+  border: 2px solid #4a4a4a;
+  padding: 30px;
+  position: relative;
+  background-color: #fefdfb;
+}
+
+.border-frame-vintage-corners::before,
+.border-frame-vintage-corners::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #4a4a4a;
+}
+
+.border-frame-vintage-corners::before {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.border-frame-vintage-corners::after {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Art Deco - Geometric 1920s style */
+.border-frame-art-deco {
+  border: 4px solid #1a1a1a;
+  padding: 25px;
+  background: 
+    linear-gradient(135deg, transparent 0%, transparent 45%, #d4af37 45%, #d4af37 55%, transparent 55%, transparent 100%),
+    linear-gradient(45deg, transparent 0%, transparent 45%, #d4af37 45%, #d4af37 55%, transparent 55%, transparent 100%);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  background-repeat: repeat;
+  box-shadow: 
+    inset 0 0 0 2px #d4af37,
+    inset 0 0 0 6px #1a1a1a,
+    inset 0 0 0 8px #d4af37;
+}
+
+/* Storybook Wavy - Playful wavy border */
+.border-frame-storybook-wavy {
+  border: none;
+  padding: 25px;
+  background-image: 
+    radial-gradient(circle at 50% 0%, #9333ea 8px, transparent 8px),
+    radial-gradient(circle at 50% 100%, #9333ea 8px, transparent 8px),
+    radial-gradient(circle at 0% 50%, #9333ea 8px, transparent 8px),
+    radial-gradient(circle at 100% 50%, #9333ea 8px, transparent 8px);
+  background-size: 25px 25px, 25px 25px, 25px 25px, 25px 25px;
+  background-position: 
+    12.5px 0px,
+    12.5px 100%,
+    0px 12.5px,
+    100% 12.5px;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  position: relative;
+}
+
+.border-frame-storybook-wavy::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px solid #9333ea;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Medieval Scroll - Ancient scroll style */
+.border-frame-medieval-scroll {
+  border: 5px solid #5c4033;
+  padding: 30px;
+  background: 
+    linear-gradient(90deg, #e8d5b7 0%, #f5e6d3 50%, #e8d5b7 100%);
+  box-shadow: 
+    inset 0 0 20px rgba(92, 64, 51, 0.3),
+    inset 0 0 0 3px #8b6f47,
+    inset 0 0 0 8px #5c4033,
+    0 4px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.border-frame-medieval-scroll::before {
+  content: '⚜';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: #5c4033;
+}
+
+/* Nature Vine - Organic vine and leaf border */
+.border-frame-nature-vine {
+  border: 3px solid #4a7c59;
+  padding: 28px;
+  background: #f8fdf8;
+  box-shadow: 
+    inset 0 0 0 2px #a8d5ba,
+    inset 0 0 0 6px #f8fdf8,
+    inset 0 0 0 8px #4a7c59;
+  position: relative;
+}
+
+.border-frame-nature-vine::before,
+.border-frame-nature-vine::after {
+  content: '🌿';
+  position: absolute;
+  font-size: 32px;
+}
+
+.border-frame-nature-vine::before {
+  top: 5px;
+  left: 5px;
+}
+
+.border-frame-nature-vine::after {
+  bottom: 5px;
+  right: 5px;
+  transform: rotate(180deg);
+}
+
+/* Stars & Magic - Magical starry border */
+.border-frame-stars-magic {
+  border: 4px solid #6b21a8;
+  padding: 25px;
+  background: 
+    radial-gradient(circle, #fbbf24 2px, transparent 2px),
+    linear-gradient(to right, #a855f7 0%, #ec4899 100%);
+  background-size: 40px 40px, 100% 100%;
+  background-position: 0 0, 0 0;
+  box-shadow: 
+    inset 0 0 0 2px #fbbf24,
+    inset 0 0 20px rgba(168, 85, 247, 0.3),
+    0 0 20px rgba(168, 85, 247, 0.5);
+  position: relative;
+}
+
+.border-frame-stars-magic::before {
+  content: '✨';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 28px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2) rotate(180deg);
+  }
+}

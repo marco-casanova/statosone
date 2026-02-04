@@ -80,15 +80,32 @@ export async function uploadAsset(
   }
 
   // Get author record for current user
-  const { data: author } = await supabase
+  let { data: author } = await supabase
     .from("authors")
     .select("id")
     .eq("user_id", user.id)
     .single();
 
   if (!author) {
-    throw new Error("Author profile not found");
+    // Auto-create author record if missing (keeps RLS happy)
+    const { data: newAuthor, error: authorError } = await supabase
+      .from("authors")
+      .insert({ user_id: user.id, is_verified: false })
+      .select("id")
+      .single();
+    if (authorError || !newAuthor) {
+      throw new Error("Author profile not found");
+    }
+    author = newAuthor;
   }
+
+  // Ensure user has membership for DreamNest app (some storage policies require it)
+  await supabase
+    .from("user_app_memberships")
+    .upsert(
+      { user_id: user.id, app_key: APP_KEY, role: "author" },
+      { onConflict: "user_id,app_key" }
+    );
 
   // Verify user owns the book
   const { data: book } = await supabase

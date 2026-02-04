@@ -10,7 +10,7 @@ import type { UpsertPageInput, PageMode } from "@/types";
  */
 async function getAuthorId(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string
+  userId: string,
 ) {
   const { data: author } = await supabase
     .from("authors")
@@ -33,7 +33,7 @@ export async function listPages(bookId: string) {
       *,
       blocks:page_blocks(*),
       background_asset:assets!background_asset_id(file_path)
-    `
+    `,
     )
     .eq("book_id", bookId)
     .order("page_index", { ascending: true });
@@ -53,9 +53,7 @@ export async function listPages(bookId: string) {
           z_index:
             block.z_index ??
             block.block_index ??
-            (typeof block.block_order === "number"
-              ? block.block_order
-              : 0),
+            (typeof block.block_order === "number" ? block.block_order : 0),
         })) ?? [];
 
       return {
@@ -82,7 +80,7 @@ export async function getPageWithBlocks(pageId: string) {
       `
       *,
       blocks:page_blocks(*)
-    `
+    `,
     )
     .eq("id", pageId)
     .single();
@@ -96,7 +94,7 @@ export async function getPageWithBlocks(pageId: string) {
   if (data?.blocks) {
     data.blocks.sort(
       (a: { block_index: number }, b: { block_index: number }) =>
-        a.block_index - b.block_index
+        a.block_index - b.block_index,
     );
   }
 
@@ -115,7 +113,7 @@ export async function getPageByIndex(bookId: string, pageIndex: number) {
       `
       *,
       blocks:page_blocks(*)
-    `
+    `,
     )
     .eq("book_id", bookId)
     .eq("page_index", pageIndex)
@@ -130,7 +128,7 @@ export async function getPageByIndex(bookId: string, pageIndex: number) {
   if (data?.blocks) {
     data.blocks.sort(
       (a: { block_index: number }, b: { block_index: number }) =>
-        a.block_index - b.block_index
+        a.block_index - b.block_index,
     );
   }
 
@@ -210,7 +208,7 @@ export async function createPage(input: UpsertPageInput) {
  */
 export async function updatePage(
   pageId: string,
-  updates: Partial<Omit<UpsertPageInput, "book_id">>
+  updates: Partial<Omit<UpsertPageInput, "book_id">>,
 ) {
   const supabase = await createClient();
   const user = await getUser();
@@ -246,7 +244,8 @@ export async function updatePage(
     updateFields.background_color = updates.background_color;
   if (updates.background_asset_id !== undefined)
     updateFields.background_asset_id = updates.background_asset_id;
-  if (updates.page_text !== undefined) updateFields.page_text = updates.page_text;
+  if (updates.page_text !== undefined)
+    updateFields.page_text = updates.page_text;
   if (updates.border_frame_id !== undefined)
     updateFields.border_frame_id = updates.border_frame_id;
 
@@ -264,6 +263,56 @@ export async function updatePage(
 
   revalidatePath(`/author/books/${page.book_id}/edit`);
   return data;
+}
+
+/**
+ * Apply the same border frame to all pages in a book
+ */
+export async function applyBorderFrameToAllPages(
+  bookId: string,
+  borderFrameId: string | null,
+) {
+  const supabase = await createClient();
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  // Verify ownership
+  const authorId = await getAuthorId(supabase, user.id);
+  if (!authorId) {
+    throw new Error("Author record not found");
+  }
+
+  const { data: book } = await supabase
+    .from("books")
+    .select("author_id")
+    .eq("id", bookId)
+    .single();
+
+  if (!book || book.author_id !== authorId) {
+    throw new Error("Not authorized to edit this book");
+  }
+
+  // Handle null value properly for Supabase
+  const updateData =
+    borderFrameId === null
+      ? { border_frame_id: null }
+      : { border_frame_id: borderFrameId };
+
+  const { error } = await supabase
+    .from("book_pages")
+    .update(updateData)
+    .eq("book_id", bookId);
+
+  if (error) {
+    console.error("Error applying border frame:", error);
+    throw new Error("Failed to apply border frame to all pages");
+  }
+
+  revalidatePath(`/author/books/${bookId}/edit`);
+  return { success: true };
 }
 
 /**
@@ -350,7 +399,7 @@ export async function reorderPages(bookId: string, pageIds: string[]) {
       .from("book_pages")
       .update({ page_index: index })
       .eq("id", id)
-      .eq("book_id", bookId)
+      .eq("book_id", bookId),
   );
 
   const results = await Promise.all(updates);
@@ -390,7 +439,7 @@ export async function duplicatePage(pageId: string) {
       *,
       blocks:page_blocks(*),
       books!inner(author_id)
-    `
+    `,
     )
     .eq("id", pageId)
     .single();
@@ -464,7 +513,7 @@ export async function duplicatePage(pageId: string) {
         layout: block.layout,
         style: block.style,
         block_index: block.block_index,
-      })
+      }),
     );
 
     const { data: newBlocks, error: blocksError } = await supabase

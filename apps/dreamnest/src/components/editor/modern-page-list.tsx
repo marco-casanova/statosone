@@ -23,6 +23,7 @@ interface Page {
 interface Asset {
   id: string;
   file_path: string;
+  type?: string;
 }
 
 interface Book {
@@ -117,17 +118,23 @@ export function ModernPageList({
 
   const getPageBackgroundImage = (
     page: Page,
-    isCover: boolean
-  ): string | null => {
+    isCover: boolean,
+  ): { url: string; isVideo: boolean } | null => {
     // For cover page, use book's cover image
     if (isCover) {
       if (book?.cover_image_url) {
-        return book.cover_image_url;
+        return { url: book.cover_image_url, isVideo: false };
       }
       if (book?.cover_asset_id) {
         const coverAsset = assets.find((a) => a.id === book.cover_asset_id);
         if (coverAsset) {
-          return getAssetPublicUrl(coverAsset.file_path);
+          return {
+            url: getAssetPublicUrl(coverAsset.file_path),
+            isVideo:
+              coverAsset.type === "video" ||
+              coverAsset.file_path.toLowerCase().match(/\.(mp4|mov|webm)$/) !==
+                null,
+          };
         }
       }
       return null;
@@ -137,17 +144,25 @@ export function ModernPageList({
     if (page.background_asset_id) {
       const bgAsset = assets.find((a) => a.id === page.background_asset_id);
       if (bgAsset) {
-        return getAssetPublicUrl(bgAsset.file_path);
+        return {
+          url: getAssetPublicUrl(bgAsset.file_path),
+          isVideo:
+            bgAsset.type === "video" ||
+            bgAsset.file_path.toLowerCase().match(/\.(mp4|mov|webm)$/) !== null,
+        };
       }
     }
     return null;
   };
 
   const getBlockIndicators = (blocks: { type: string }[]) => {
-    const types = blocks.reduce((acc, block) => {
-      acc[block.type] = (acc[block.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const types = blocks.reduce(
+      (acc, block) => {
+        acc[block.type] = (acc[block.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return Object.entries(types).map(([type, count]) => ({
       type,
@@ -170,28 +185,25 @@ export function ModernPageList({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-purple-100 bg-gradient-to-r from-purple-50/50 to-pink-50/50">
-        <div className="flex items-center justify-between mb-2">
+      <div className="px-3 py-3 border-b border-purple-100">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-purple-600" />
-            <h2 className="font-semibold text-gray-800">Pages</h2>
+            <BookOpen className="w-4 h-4 text-purple-600" />
+            <h2 className="text-sm font-semibold text-gray-800">Pages</h2>
           </div>
-          <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+          <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded">
             {pages.length}
           </span>
         </div>
-        <p className="text-xs text-gray-500">Drag to reorder • Click to edit</p>
       </div>
 
-      {/* Page List */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2" ref={dragRef}>
+      {/* Page List - Compact */}
+      <div className="flex-1 overflow-y-auto p-2 space-y-1.5" ref={dragRef}>
         {pages.map((page, index) => {
           const isSelected = selectedIndex === index;
           const isDragging = draggedIndex === index;
           const isDragOver = dragOverIndex === index;
           const isCover = index === 0;
-          const blockIndicators = getBlockIndicators(page.blocks);
-          const backgroundImage = getPageBackgroundImage(page, isCover);
 
           return (
             <div
@@ -203,144 +215,92 @@ export function ModernPageList({
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={handleDragEnd}
               onClick={() => onSelect(index)}
-              className={`group relative rounded-xl overflow-hidden transition-all duration-200 cursor-pointer ${
+              className={`group relative rounded-lg overflow-hidden transition-all duration-150 cursor-pointer ${
                 isDragging
                   ? "opacity-40 scale-95"
                   : isDragOver
-                  ? "ring-2 ring-purple-400 ring-offset-2 scale-[1.02]"
-                  : isSelected
-                  ? "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
-                  : "hover:ring-2 hover:ring-purple-200 hover:shadow-md"
+                    ? "ring-2 ring-purple-400"
+                    : isSelected
+                      ? "ring-2 ring-purple-500 bg-purple-50"
+                      : "hover:bg-gray-50"
               }`}
             >
-              {/* Thumbnail */}
-              <div
-                className="aspect-[4/3] relative"
-                style={getPagePreviewStyle(page, isCover)}
-              >
-                {/* Background Image */}
-                {backgroundImage && (
-                  <Image
-                    src={backgroundImage}
-                    alt={isCover ? "Cover preview" : `Page ${index} preview`}
-                    fill
-                    className="object-cover"
-                    sizes="180px"
-                  />
-                )}
-
-                {/* Gradient Overlay for better readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-
-                {/* Cover Badge */}
-                {isCover && (
-                  <div className="absolute top-2 left-2 px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-400 text-white text-[10px] font-semibold rounded-full shadow-md flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
-                    Cover
-                  </div>
-                )}
-
-                {/* Page Number */}
-                {!isCover && (
-                  <div className="absolute top-2 left-2 w-6 h-6 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-xs font-bold text-gray-700 shadow-md">
-                    {index}
-                  </div>
-                )}
-
-                {/* Drag Handle */}
-                {!isCover && (
-                  <div className="absolute top-2 right-2 p-1 bg-white/80 backdrop-blur-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-                    <GripVertical className="w-4 h-4 text-gray-500" />
-                  </div>
-                )}
-
-                {/* Block Count / Indicators */}
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {blockIndicators.slice(0, 3).map((indicator, i) => (
-                      <span
-                        key={i}
-                        className="text-xs bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded-md"
-                        title={`${indicator.count} ${indicator.type}${
-                          indicator.count > 1 ? "s" : ""
-                        }`}
-                      >
-                        {indicator.icon}
-                        {indicator.count > 1 && (
-                          <span className="text-[10px] ml-0.5 text-gray-600">
-                            {indicator.count}
-                          </span>
-                        )}
-                      </span>
-                    ))}
-                    {blockIndicators.length === 0 && (
-                      <span className="text-xs text-white/70">Empty</span>
-                    )}
-                  </div>
+              <div className="flex items-center gap-2 p-2">
+                {/* Page Indicator */}
+                <div
+                  className={`flex-shrink-0 w-8 h-8 rounded flex items-center justify-center text-xs font-semibold ${
+                    isSelected
+                      ? "bg-purple-500 text-white"
+                      : "bg-gray-200 text-gray-600 group-hover:bg-purple-100 group-hover:text-purple-600"
+                  }`}
+                >
+                  {isCover ? "📖" : index}
                 </div>
 
-                {/* Quick Actions */}
-                {!isCover && pages.length > 1 && (
-                  <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Page Label */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium text-gray-700 truncate">
+                    {isCover ? "Cover" : `Page ${index}`}
+                  </div>
+                  {page.blocks.length > 0 && (
+                    <div className="text-[10px] text-gray-400">
+                      {page.blocks.length} block
+                      {page.blocks.length !== 1 ? "s" : ""}
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                {!isCover && (
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     {onDuplicate && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onDuplicate(page.id);
                         }}
-                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white transition-colors shadow-sm"
+                        className="p-1 hover:bg-white rounded transition-colors"
                         title="Duplicate page"
                       >
-                        <Copy className="w-3.5 h-3.5 text-gray-600" />
+                        <Copy className="w-3 h-3 text-gray-500" />
                       </button>
                     )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(page.id);
-                      }}
-                      className="p-1.5 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-red-50 transition-colors shadow-sm"
-                      title="Delete page"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                    </button>
+                    {pages.length > 1 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (
+                            confirm(
+                              "Are you sure you want to delete this page?",
+                            )
+                          ) {
+                            onDelete(page.id);
+                          }
+                        }}
+                        className="p-1 hover:bg-red-50 rounded transition-colors"
+                        title="Delete page"
+                      >
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </button>
+                    )}
+                    <div className="cursor-move p-1">
+                      <GripVertical className="w-3 h-3 text-gray-400" />
+                    </div>
                   </div>
-                )}
-
-                {/* Selection Indicator */}
-                {isSelected && (
-                  <div className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none" />
                 )}
               </div>
             </div>
           );
         })}
-
-        {/* Drop zone at the end */}
-        {draggedIndex !== null && (
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOverIndex(pages.length);
-            }}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, pages.length)}
-            className={`h-16 border-2 border-dashed rounded-xl transition-colors ${
-              dragOverIndex === pages.length
-                ? "border-purple-400 bg-purple-50"
-                : "border-gray-200"
-            }`}
-          />
-        )}
       </div>
 
       {/* Add Page Button */}
-      <div className="p-3 border-t border-purple-100 bg-gradient-to-r from-purple-50/30 to-pink-50/30">
+      <div className="p-2 border-t border-purple-100">
         <button
           onClick={onAdd}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Add New Page
         </button>
       </div>

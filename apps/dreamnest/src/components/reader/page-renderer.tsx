@@ -18,6 +18,7 @@ interface Page {
   background_asset_id?: string | null;
   background_asset_url?: string | null;
   background_asset?: { file_path?: string | null } | null;
+  page_text?: string | null;
   blocks: Block[];
 }
 
@@ -84,6 +85,32 @@ export function PageRenderer({
           <CanvasBlocks blocks={page.blocks} />
         ) : (
           <FlowBlocks blocks={page.blocks} />
+        )}
+
+        {/* Page Text Panel - Soft white panel at bottom */}
+        {page.page_text && page.page_text !== "Add text" && (
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end p-4">
+            <div
+              className="w-full max-w-[90%] rounded-2xl shadow-lg"
+              style={{
+                backgroundColor: "rgba(255, 253, 248, 0.95)",
+                padding: "clamp(1rem, 4%, 2rem)",
+              }}
+            >
+              <p
+                className="text-center leading-relaxed"
+                style={{
+                  fontFamily: "'Nunito', 'Poppins', 'Quicksand', system-ui, sans-serif",
+                  fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
+                  fontWeight: 600,
+                  color: "#2B2B2B",
+                  lineHeight: 1.6,
+                }}
+              >
+                {page.page_text}
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>

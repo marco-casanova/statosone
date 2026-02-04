@@ -24,6 +24,7 @@ import {
   deletePage,
   reorderPages,
   duplicatePage,
+  applyBorderFrameToAllPages,
 } from "@/actions/pages";
 import { updateBook } from "@/actions/books";
 import { uploadAsset } from "@/actions/assets";
@@ -149,7 +150,7 @@ export function BookEditor({
 
   const currentPage = pages[selectedPageIndex];
   const selectedBlock = currentPage?.blocks.find(
-    (b) => b.id === selectedBlockId
+    (b) => b.id === selectedBlockId,
   );
 
   // Helper to show notifications
@@ -158,7 +159,7 @@ export function BookEditor({
       setNotification({ type, message });
       setTimeout(() => setNotification(null), 3000);
     },
-    []
+    [],
   );
 
   // Page handlers
@@ -234,7 +235,7 @@ export function BookEditor({
         }
       });
     },
-    [pages.length, selectedPageIndex, showNotification]
+    [pages.length, selectedPageIndex, showNotification],
   );
 
   const handlePagesReorder = useCallback(
@@ -256,7 +257,7 @@ export function BookEditor({
         }
       });
     },
-    [book.id, showNotification]
+    [book.id, showNotification],
   );
 
   const handlePageDuplicate = useCallback(
@@ -292,7 +293,7 @@ export function BookEditor({
         }
       });
     },
-    [pages, showNotification]
+    [pages, showNotification],
   );
 
   // Block handlers
@@ -373,8 +374,8 @@ export function BookEditor({
                       },
                     ],
                   }
-                : p
-            )
+                : p,
+            ),
           );
 
           setSelectedBlockId(newBlock.id);
@@ -385,7 +386,7 @@ export function BookEditor({
         }
       });
     },
-    [currentPage, showNotification]
+    [currentPage, showNotification],
   );
 
   // Handle drop from element palette
@@ -418,8 +419,8 @@ export function BookEditor({
                 data.type === "shape-circle"
                   ? "circle"
                   : data.type === "shape-star"
-                  ? "star"
-                  : "rectangle",
+                    ? "star"
+                    : "rectangle",
             } as unknown as BlockContent,
             sticker: { emoji: data.emoji || "✨" } as unknown as BlockContent,
           };
@@ -479,8 +480,8 @@ export function BookEditor({
                       },
                     ],
                   }
-                : p
-            )
+                : p,
+            ),
           );
 
           setSelectedBlockId(newBlock.id);
@@ -491,7 +492,7 @@ export function BookEditor({
         }
       });
     },
-    [currentPage, showNotification]
+    [currentPage, showNotification],
   );
 
   const handleBlockUpdate = useCallback(
@@ -501,9 +502,9 @@ export function BookEditor({
         prev.map((p) => ({
           ...p,
           blocks: p.blocks.map((b) =>
-            b.id === blockId ? { ...b, ...updates } : b
+            b.id === blockId ? { ...b, ...updates } : b,
           ),
-        }))
+        })),
       );
       setHasChanges(true);
 
@@ -521,7 +522,7 @@ export function BookEditor({
         }
       });
     },
-    [showNotification]
+    [showNotification],
   );
 
   const handleBlockDelete = useCallback(
@@ -534,7 +535,7 @@ export function BookEditor({
             prev.map((p) => ({
               ...p,
               blocks: p.blocks.filter((b) => b.id !== blockId),
-            }))
+            })),
           );
 
           setSelectedBlockId(null);
@@ -545,7 +546,7 @@ export function BookEditor({
         }
       });
     },
-    [showNotification]
+    [showNotification],
   );
 
   const handleBlockMove = useCallback(
@@ -557,15 +558,15 @@ export function BookEditor({
           blocks: p.blocks.map((b) =>
             b.id === blockId
               ? { ...b, layout: { ...(b.layout as object), x, y } }
-              : b
+              : b,
           ),
-        }))
+        })),
       );
       setHasChanges(true);
 
       // Debounced server update (handled by drag end)
     },
-    []
+    [],
   );
 
   const handleBlockMoveEnd = useCallback(
@@ -577,7 +578,7 @@ export function BookEditor({
         showNotification("error", "Failed to save position");
       }
     },
-    [showNotification]
+    [showNotification],
   );
 
   const handleBlockResize = useCallback(
@@ -589,9 +590,9 @@ export function BookEditor({
           blocks: p.blocks.map((b) =>
             b.id === blockId
               ? { ...b, layout: { ...(b.layout as object), width, height } }
-              : b
+              : b,
           ),
-        }))
+        })),
       );
       setHasChanges(true);
 
@@ -603,7 +604,7 @@ export function BookEditor({
         }
       });
     },
-    []
+    [],
   );
 
   // Page update handler
@@ -613,11 +614,29 @@ export function BookEditor({
 
       // Optimistic update only (no network yet)
       setPages((prev) =>
-        prev.map((p) => (p.id === currentPage.id ? { ...p, ...updates } : p))
+        prev.map((p) => {
+          if (updates.border_frame_id !== undefined) {
+            return { ...p, border_frame_id: updates.border_frame_id };
+          }
+          return p.id === currentPage.id ? { ...p, ...updates } : p;
+        }),
       );
       setHasChanges(true);
+
+      if (updates.border_frame_id !== undefined) {
+        startTransition(async () => {
+          try {
+            await applyBorderFrameToAllPages(
+              currentPage.book_id as string,
+              updates.border_frame_id ?? null,
+            );
+          } catch (error) {
+            console.error("Error applying border frame:", error);
+          }
+        });
+      }
     },
-    [currentPage]
+    [currentPage],
   );
 
   // Asset handlers
@@ -652,7 +671,7 @@ export function BookEditor({
       selectedBlock,
       handleBlockUpdate,
       handlePageUpdate,
-    ]
+    ],
   );
 
   const handleAssetUpload = useCallback(
@@ -684,7 +703,7 @@ export function BookEditor({
         throw error;
       }
     },
-    [book.id, showNotification]
+    [book.id, showNotification],
   );
 
   // Save handlers
@@ -698,6 +717,7 @@ export function BookEditor({
         background_color: currentPage.background_color,
         background_asset_id: currentPage.background_asset_id ?? null,
         page_text: currentPage.page_text ?? "Add text",
+        border_frame_id: currentPage.border_frame_id ?? null,
       });
       setHasChanges(false);
       showNotification("success", "Page saved");
@@ -717,7 +737,7 @@ export function BookEditor({
     if (pages.length < 2) {
       showNotification(
         "error",
-        "Your book needs at least 2 pages to submit for review"
+        "Your book needs at least 2 pages to submit for review",
       );
       return;
     }
@@ -751,7 +771,7 @@ export function BookEditor({
         throw error;
       }
     },
-    [book.id, showNotification]
+    [book.id, showNotification],
   );
 
   const openAssetLibrary = useCallback((mode: "block" | "background") => {
@@ -800,7 +820,7 @@ export function BookEditor({
         throw error;
       }
     },
-    [currentPage, showNotification]
+    [currentPage, showNotification],
   );
 
   const handleNarrationDelete = useCallback(async () => {
@@ -849,22 +869,22 @@ export function BookEditor({
       />
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar: Book Settings Accordion + Page List */}
-        <div className="w-80 bg-white/80 backdrop-blur-xl border-r border-purple-100 flex flex-col">
+        {/* Left Sidebar: Book Settings Accordion + Page List - Reduced to 50% width */}
+        <div className="w-40 bg-white/80 backdrop-blur-xl border-r border-purple-100 flex flex-col">
           {/* Book Settings Section */}
           <div className="border-b border-purple-100">
             <button
               onClick={() => setIsSettingsModalOpen(true)}
-              className="w-full px-4 py-3 text-left hover:bg-purple-50 transition-colors flex items-center justify-between group"
+              className="w-full px-3 py-2.5 text-left hover:bg-purple-50 transition-colors flex items-center justify-between group"
             >
               <div className="flex items-center gap-2">
-                <span className="text-lg">⚙️</span>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600">
-                  Book Settings
+                <span className="text-base">⚙️</span>
+                <span className="text-xs font-medium text-gray-700 group-hover:text-purple-600">
+                  Settings
                 </span>
               </div>
               <svg
-                className="w-4 h-4 text-gray-400 group-hover:text-purple-600"
+                className="w-3 h-3 text-gray-400 group-hover:text-purple-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -898,36 +918,40 @@ export function BookEditor({
         {/* Main Canvas Area */}
         <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-200/80 via-purple-100/30 to-pink-100/30">
           {/* Show Cover Editor for first page, regular editor for others */}
-          {selectedPageIndex === 0 && currentPage ? (
-            <ModernCoverEditor
-              book={currentBook}
-              coverPage={currentPage}
-              onUpdateBook={async (updates) => {
-                startTransition(async () => {
-                  try {
-                    await updateBook(book.id, updates as never);
-                    setCurrentBook((prev) => ({ ...prev, ...updates }));
-                    showNotification("success", "Book info updated");
-                  } catch (error) {
-                    console.error("Error updating book:", error);
-                    showNotification("error", "Failed to update book info");
-                  }
-                });
-              }}
-              onUpdatePage={handlePageUpdate}
-              onOpenAssetLibrary={() => openAssetLibrary("background")}
-              coverImageUrl={
-                currentPage.background_asset_id
-                  ? getAssetPublicUrl(
-                      assets.find(
-                        (a) => a.id === currentPage.background_asset_id
-                      )?.file_path || ""
-                    )
-                  : undefined
-              }
-            />
+          {selectedPageIndex === 0 ? (
+            currentPage ? (
+              <ModernCoverEditor
+                key={currentPage.id}
+                book={currentBook}
+                coverPage={currentPage}
+                onUpdateBook={async (updates) => {
+                  startTransition(async () => {
+                    try {
+                      await updateBook(book.id, updates as never);
+                      setCurrentBook((prev) => ({ ...prev, ...updates }));
+                      showNotification("success", "Book info updated");
+                    } catch (error) {
+                      console.error("Error updating book:", error);
+                      showNotification("error", "Failed to update book info");
+                    }
+                  });
+                }}
+                onUpdatePage={handlePageUpdate}
+                onOpenAssetLibrary={() => openAssetLibrary("background")}
+                coverImageUrl={
+                  currentPage.background_asset_id
+                    ? getAssetPublicUrl(
+                        assets.find(
+                          (a) => a.id === currentPage.background_asset_id,
+                        )?.file_path || "",
+                      )
+                    : undefined
+                }
+              />
+            ) : null
           ) : currentPage ? (
             <ModernCanvas
+              key={currentPage.id}
               page={currentPage}
               canvasWidth={book.canvas_width ?? book.design_width ?? 1920}
               canvasHeight={book.canvas_height ?? book.design_height ?? 1080}
@@ -956,17 +980,18 @@ export function BookEditor({
           )}
         </div>
 
-        {/* Right Sidebar: Property Panel (35% width, always visible) */}
+        {/* Right Sidebar: Property Panel (25% width, always visible) */}
         {isPanelOpen && (
           <div
             className="bg-white/90 backdrop-blur-xl border-l border-purple-100 overflow-y-auto"
-            style={{ width: "35%", minWidth: "400px", maxWidth: "600px" }}
+            style={{ width: "25%", minWidth: "320px", maxWidth: "450px" }}
           >
             <PropertyPanel
               book={currentBook}
               page={currentPage}
               block={selectedBlock}
               narration={narration}
+              assets={assets}
               onBookUpdate={async (updates) => {
                 startTransition(async () => {
                   try {

@@ -18,6 +18,9 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  AlertTriangle,
+  Copy,
+  Upload as PublishIcon,
 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import { getAssetPublicUrl } from "@/lib/storage";
@@ -91,6 +94,13 @@ export default function AuthorDashboardPage() {
     coverTemplate: getDefaultCoverTemplate(2) as CoverTemplateId,
   });
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [confirmDeleteBook, setConfirmDeleteBook] = useState<AuthorBook | null>(
+    null,
+  );
+  const [duplicating, setDuplicating] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [authorId, setAuthorId] = useState<string | null>(null);
 
   // Create Supabase client
   const supabase = createBrowserClient(
@@ -125,6 +135,7 @@ export default function AuthorDashboardPage() {
         // User is not an author, redirect or show message
         return;
       }
+      setAuthorId(author.id);
 
       // Fetch author's books
       const { data: booksData, error } = await supabase
@@ -264,43 +275,128 @@ export default function AuthorDashboardPage() {
   };
 
   const handleDeleteBook = async (bookId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this book? This action cannot be undone.",
-      )
-    ) {
-      return;
-    }
-
+    if (deletingId) return;
+    setDeletingId(bookId);
     try {
-      // First delete related records
-      await supabase.from("book_categories").delete().eq("book_id", bookId);
-
-      // Get pages to delete blocks
-      const { data: pages } = await supabase
-        .from("book_pages")
-        .select("id")
-        .eq("book_id", bookId);
-
-      if (pages?.length) {
-        const pageIds = pages.map((p) => p.id);
-        await supabase.from("page_blocks").delete().in("page_id", pageIds);
-        await supabase.from("page_narrations").delete().in("page_id", pageIds);
+      let currentAuthorId = authorId;
+      if (!currentAuthorId) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+        const { data: author } = await supabase
+          .from("authors")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+        if (!author) throw new Error("Author profile not found");
+        currentAuthorId = author.id;
+        setAuthorId(author.id);
       }
 
-      await supabase.from("book_pages").delete().eq("book_id", bookId);
-      await supabase.from("bookmarks").delete().eq("book_id", bookId);
-      await supabase.from("reading_sessions").delete().eq("book_id", bookId);
-
-      // Finally delete the book
-      const { error } = await supabase.from("books").delete().eq("id", bookId);
+      // Delete the book (cascades handle related rows)
+      const { error } = await supabase
+        .from("books")
+        .delete()
+        .eq("id", bookId)
+        .eq("author_id", currentAuthorId);
       if (error) throw error;
 
-      setBooks(books.filter((b) => b.id !== bookId));
+      setBooks((prev) => prev.filter((b) => b.id !== bookId));
       setMenuOpen(null);
     } catch (error) {
       console.error("Error deleting book:", error);
       alert("Failed to delete book. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handlePublishBook = async (bookId: string) => {
+    if (publishing) return;
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("books")
+        .update({
+          status: "published",
+          published_at: new Date().toISOString(),
+        })
+        .eq("id", bookId);
+
+      if (error) throw error;
+
+      setBooks((prev) =>
+        prev.map((b) =>
+          b.id === bookId
+            ? { ...b, status: "published", published_at: new Date().toISOString() }
+            : b,
+        ),
+      );
+      setMenuOpen(null);
+    } catch (error) {
+      console.error("Error publishing book:", error);
+      alert("Failed to publish book. Please try again.");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleDuplicateBook = async (book: AuthorBook) => {
+    if (duplicating) return;
+    setDuplicating(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user session found");
+
+      const { data: author } = await supabase
+        .from("authors")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (!author) throw new Error("Author profile missing");
+
+      // Create the duplicate book with a suffixed title
+      const { data: newBook, error: bookError } = await supabase
+        .from("books")
+        .insert({
+          author_id: author.id,
+          title: `${book.title} (Copy)`,
+          subtitle: book.subtitle,
+          description: book.description,
+          age_min: 2,
+          age_max: 8,
+          status: "draft",
+          page_count: book.page_count,
+          design_width: 1920,
+          design_height: 1080,
+          language: "en",
+        })
+        .select()
+        .single();
+
+      if (bookError) throw bookError;
+
+      // Create blank pages matching original count
+      if (book.page_count > 0) {
+        const pagesToCreate = Array.from({ length: book.page_count }, (_, index) => ({
+          book_id: newBook.id,
+          page_index: index,
+          layout_mode: "canvas" as const,
+          background_color: "#ffffff",
+        }));
+        await supabase.from("book_pages").insert(pagesToCreate);
+      }
+
+      setBooks((prev) => [newBook as AuthorBook, ...prev]);
+      setMenuOpen(null);
+    } catch (error) {
+      console.error("Error duplicating book:", error);
+      alert("Failed to duplicate book. Please try again.");
+    } finally {
+      setDuplicating(false);
     }
   };
 
@@ -497,13 +593,72 @@ export default function AuthorDashboardPage() {
                   setMenuOpen(menuOpen === book.id ? null : book.id)
                 }
                 onEdit={() => router.push(`/author/books/${book.id}/edit`)}
-                onDelete={() => handleDeleteBook(book.id)}
+                onDelete={() => {
+                  setMenuOpen(null);
+                  setConfirmDeleteBook(book);
+                }}
+                onDuplicate={() => handleDuplicateBook(book)}
+                onPublish={() => handlePublishBook(book.id)}
                 onSubmitForReview={() => handleSubmitForReview(book.id)}
               />
             ))}
           </div>
         )}
       </main>
+
+      {/* Delete Confirmation Dialog */}
+      {confirmDeleteBook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setConfirmDeleteBook(null)}
+          />
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-6 border-b bg-gradient-to-r from-rose-50 to-red-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Delete "{confirmDeleteBook.title}"?
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    This removes the book and its pages from your workspace. You
+                    can’t undo this action.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-xl p-3">
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                <span>
+                  Make sure you’ve exported or shared anything you still need.
+                </span>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmDeleteBook(null)}
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    await handleDeleteBook(confirmDeleteBook.id);
+                    setConfirmDeleteBook(null);
+                  }}
+                  disabled={deletingId === confirmDeleteBook.id}
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {deletingId === confirmDeleteBook.id ? "Deleting..." : "Delete Book"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New Book Dialog */}
       {showNewBookDialog && (
@@ -787,6 +942,8 @@ function BookCard({
   onMenuToggle,
   onEdit,
   onDelete,
+  onDuplicate,
+  onPublish,
   onSubmitForReview,
 }: {
   book: AuthorBook;
@@ -794,13 +951,18 @@ function BookCard({
   onMenuToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onDuplicate: () => void;
+  onPublish: () => void;
   onSubmitForReview: () => void;
 }) {
   const status = statusConfig[book.status];
   const StatusIcon = status.icon;
 
   return (
-    <div className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all overflow-hidden">
+    <div
+      className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all overflow-hidden cursor-pointer"
+      onClick={onEdit}
+    >
       {/* Cover Image */}
       <div className="relative aspect-[4/3] bg-gradient-to-br from-amber-100 to-orange-100">
         {book.cover_url ? (
@@ -818,41 +980,73 @@ function BookCard({
         {/* Status Badge */}
         <div
           className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${status.className}`}
+          onClick={(e) => e.stopPropagation()}
         >
           <StatusIcon className="h-3 w-3" />
           {status.label}
         </div>
         {/* Menu Button */}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 z-20">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onMenuToggle();
             }}
-            className="p-1.5 bg-white/90 hover:bg-white rounded-lg shadow-sm transition-colors"
+            className="p-1.5 bg-white/90 hover:bg-white rounded-lg shadow-sm transition-transform hover:scale-105 focus:ring-2 focus:ring-amber-300"
           >
             <MoreHorizontal className="h-4 w-4 text-gray-600" />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
+            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
               <button
-                onClick={onEdit}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
               >
                 <Edit2 className="h-4 w-4" />
                 Edit Book
               </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicate();
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Duplicate
+              </button>
               {book.status === "draft" && (
                 <button
-                  onClick={onSubmitForReview}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSubmitForReview();
+                  }}
                   className="w-full px-4 py-2 text-left text-sm text-amber-600 hover:bg-amber-50 flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
                   Submit for Review
                 </button>
               )}
+              {book.status !== "published" && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPublish();
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-green-700 hover:bg-green-50 flex items-center gap-2"
+                >
+                  <PublishIcon className="h-4 w-4" />
+                  Publish
+                </button>
+              )}
               <button
-                onClick={onDelete}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
                 className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4" />
@@ -864,9 +1058,9 @@ function BookCard({
         {/* Quick Edit Overlay */}
         <div
           onClick={onEdit}
-          className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors cursor-pointer flex items-center justify-center opacity-0 group-hover:opacity-100"
+          className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors cursor-pointer flex items-center justify-center opacity-0 group-hover:opacity-100 z-10 pointer-events-none group-hover:pointer-events-auto"
         >
-          <div className="bg-white rounded-xl px-4 py-2 font-medium text-gray-900 flex items-center gap-2 shadow-lg">
+          <div className="bg-white rounded-xl px-4 py-2 font-medium text-gray-900 flex items-center gap-2 shadow-lg pointer-events-auto">
             <Edit2 className="h-4 w-4" />
             Edit
           </div>

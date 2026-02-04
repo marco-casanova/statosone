@@ -127,24 +127,39 @@ function AssetCard({
   asset: Asset;
   onSelect: () => void;
 }) {
+  const isVideo =
+    asset.type === "video" ||
+    asset.file_path.toLowerCase().match(/\.(mp4|mov|webm)$/) !== null;
+
   return (
     <button
       onClick={onSelect}
       className="group relative aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-purple-500 transition-all"
     >
       {/* Preview */}
-      {asset.type === "image" ? (
+      {asset.type === "image" && (
         <Image
           src={getAssetPublicUrl(asset.file_path)}
           alt={asset.alt_text || ""}
           fill
           className="object-cover"
         />
-      ) : asset.type === "audio" ? (
+      )}
+      {isVideo && (
+        <video
+          src={getAssetPublicUrl(asset.file_path)}
+          className="absolute inset-0 w-full h-full object-cover"
+          muted
+          loop
+          playsInline
+        />
+      )}
+      {asset.type === "audio" && !isVideo && (
         <div className="w-full h-full bg-blue-100 flex items-center justify-center">
           <span className="text-4xl">🎵</span>
         </div>
-      ) : (
+      )}
+      {!isVideo && asset.type !== "image" && asset.type !== "audio" && (
         <div className="w-full h-full bg-green-100 flex items-center justify-center">
           <span className="text-4xl">🎬</span>
         </div>

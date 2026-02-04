@@ -11,12 +11,14 @@ import {
   Unlock,
 } from "lucide-react";
 import { getAssetPublicUrl } from "@/lib/storage";
+import { getBorderFrame, type BorderFrameId } from "@/domain/border-frames";
 
 interface Page {
   id: string;
   layout_mode: "canvas" | "flow";
   background_color: string;
   background_asset_id?: string | null;
+  border_frame_id?: string | null;
   page_text?: string | null;
   blocks: Block[];
 }
@@ -33,6 +35,7 @@ interface Block {
 interface Asset {
   id: string;
   file_path: string;
+  type?: string;
 }
 
 interface ModernCanvasProps {
@@ -101,7 +104,7 @@ export function ModernCanvas({
     (
       e: React.MouseEvent,
       blockId: string,
-      layout: { x?: number; y?: number }
+      layout: { x?: number; y?: number },
     ) => {
       e.stopPropagation();
       e.preventDefault();
@@ -118,7 +121,7 @@ export function ModernCanvas({
         setShowGuides(true);
       }
     },
-    [page.layout_mode, onBlockSelect]
+    [page.layout_mode, onBlockSelect],
   );
 
   const handleResizeMouseDown = useCallback(
@@ -126,7 +129,7 @@ export function ModernCanvas({
       e: React.MouseEvent,
       blockId: string,
       handle: "se" | "e" | "s" | "sw" | "ne" | "nw" | "n" | "w",
-      layout: { x?: number; y?: number; width?: number; height?: number }
+      layout: { x?: number; y?: number; width?: number; height?: number },
     ) => {
       e.stopPropagation();
       e.preventDefault();
@@ -142,7 +145,7 @@ export function ModernCanvas({
         initialY: layout.y || 0,
       });
     },
-    []
+    [],
   );
 
   const handleMouseMove = useCallback(
@@ -182,32 +185,32 @@ export function ModernCanvas({
         if (["se", "e", "ne"].includes(resizing.handle)) {
           newWidth = Math.max(
             0.05,
-            Math.min(1, resizing.initialWidth + deltaX)
+            Math.min(1, resizing.initialWidth + deltaX),
           );
         }
         if (["sw", "w", "nw"].includes(resizing.handle)) {
           newWidth = Math.max(
             0.05,
-            Math.min(1, resizing.initialWidth - deltaX)
+            Math.min(1, resizing.initialWidth - deltaX),
           );
         }
         if (["se", "s", "sw"].includes(resizing.handle)) {
           newHeight = Math.max(
             0.05,
-            Math.min(1, resizing.initialHeight + deltaY)
+            Math.min(1, resizing.initialHeight + deltaY),
           );
         }
         if (["ne", "n", "nw"].includes(resizing.handle)) {
           newHeight = Math.max(
             0.05,
-            Math.min(1, resizing.initialHeight - deltaY)
+            Math.min(1, resizing.initialHeight - deltaY),
           );
         }
 
         onBlockResize(resizing.blockId, newWidth, newHeight);
       }
     },
-    [dragging, resizing, onBlockMove, onBlockResize]
+    [dragging, resizing, onBlockMove, onBlockResize],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -262,10 +265,14 @@ export function ModernCanvas({
         console.error("Invalid drop data");
       }
     },
-    [onDrop]
+    [onDrop],
   );
 
-  const aspectRatio = canvasWidth / canvasHeight;
+  const safeWidth = canvasWidth || 1920;
+  const safeHeight = canvasHeight || 1080;
+  const aspectRatio = safeWidth / safeHeight;
+  const renderWidth = Math.min(safeWidth, 1200);
+  const renderHeight = aspectRatio > 0 ? renderWidth / aspectRatio : 675;
 
   // Resolve background image URL from asset_id
   const backgroundImageUrl = page.background_asset_id
@@ -274,130 +281,191 @@ export function ModernCanvas({
         return bgAsset ? getAssetPublicUrl(bgAsset.file_path) : null;
       })()
     : null;
+  const backgroundIsVideo = (() => {
+    if (!page.background_asset_id) return false;
+    const bgAsset = assets.find((a) => a.id === page.background_asset_id);
+    if (!bgAsset) return false;
+    if (bgAsset.type) return bgAsset.type === "video";
+    const path = bgAsset.file_path.toLowerCase();
+    return (
+      path.endsWith(".mp4") || path.endsWith(".mov") || path.endsWith(".webm")
+    );
+  })();
+  const frameClass = getBorderFrame(
+    (page.border_frame_id as BorderFrameId | null | undefined) ?? "none",
+  ).cssClass;
 
   return (
-    <div className="flex items-center justify-center h-full p-8">
+    <div className="flex items-center justify-center h-full w-full p-4 overflow-hidden">
       <div
-        ref={canvasRef}
-        className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
-          isDropTarget || isDraggingElement
-            ? "ring-4 ring-purple-400 ring-offset-4 ring-offset-gray-200 shadow-2xl scale-[1.01]"
-            : "shadow-2xl hover:shadow-3xl"
-        }`}
+        className={`relative flex justify-center items-center h-full w-full ${frameClass}`}
         style={{
-          width: "100%",
-          maxWidth: Math.min(canvasWidth, 1200),
-          aspectRatio: aspectRatio.toString(),
-          backgroundColor: page.background_color,
+          maxHeight: "calc(100vh - 200px)",
+          maxWidth: "calc(100vw - 700px)",
         }}
-        onClick={handleCanvasClick}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDropEvent}
       >
-        {/* Background Image */}
-        {backgroundImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={backgroundImageUrl}
-            alt="Page background"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          />
-        )}
-
-        {/* Canvas Texture Overlay */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.02]"
+          ref={canvasRef}
+          className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
+            isDropTarget || isDraggingElement
+              ? "ring-4 ring-purple-400 ring-offset-4 ring-offset-gray-200 shadow-2xl scale-[1.01]"
+              : "shadow-2xl hover:shadow-3xl"
+          }`}
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            width: renderWidth,
+            height: renderHeight || 675,
+            maxHeight: "calc(100vh - 220px)",
+            maxWidth: "100%",
+            minHeight: 400,
+            backgroundColor: page.background_color,
           }}
-        />
+          onClick={handleCanvasClick}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDropEvent}
+        >
+          {/* Background Media */}
+          {backgroundImageUrl &&
+            (backgroundIsVideo ? (
+              <video
+                src={backgroundImageUrl}
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                muted
+                loop
+                autoPlay
+                playsInline
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={backgroundImageUrl}
+                alt="Page background"
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              />
+            ))}
 
-        {/* Grid Overlay - shows when dragging */}
-        {(showGuides || isDropTarget) && (
+          {/* Canvas Texture Overlay */}
           <div
-            className="absolute inset-0 pointer-events-none z-40 transition-opacity duration-200"
+            className="absolute inset-0 pointer-events-none opacity-[0.02]"
             style={{
-              backgroundImage: `
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            }}
+          />
+
+          {/* Grid Overlay - shows when dragging */}
+          {(showGuides || isDropTarget) && (
+            <div
+              className="absolute inset-0 pointer-events-none z-40 transition-opacity duration-200"
+              style={{
+                backgroundImage: `
                 linear-gradient(to right, rgba(147, 51, 234, 0.08) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(147, 51, 234, 0.08) 1px, transparent 1px)
               `,
-              backgroundSize: "5% 5%",
-            }}
-          />
-        )}
+                backgroundSize: "5% 5%",
+              }}
+            />
+          )}
 
-        {/* Center guides when dragging */}
-        {showGuides && (
-          <>
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500/0 via-purple-500/50 to-purple-500/0 pointer-events-none z-40" />
-            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-purple-500/0 pointer-events-none z-40" />
-          </>
-        )}
+          {/* Center guides when dragging */}
+          {showGuides && (
+            <>
+              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500/0 via-purple-500/50 to-purple-500/0 pointer-events-none z-40" />
+              <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-purple-500/0 pointer-events-none z-40" />
+            </>
+          )}
 
-        {/* Drop Position Indicator */}
-        {dropPosition && isDropTarget && (
-          <div
-            className="absolute w-24 h-16 border-2 border-dashed border-purple-500 rounded-xl bg-purple-500/10 pointer-events-none z-50 transition-all duration-75"
-            style={{
-              left: `${dropPosition.x * 100}%`,
-              top: `${dropPosition.y * 100}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-purple-600 text-2xl animate-bounce">+</span>
+          {/* Drop Position Indicator */}
+          {dropPosition && isDropTarget && (
+            <div
+              className="absolute w-24 h-16 border-2 border-dashed border-purple-500 rounded-xl bg-purple-500/10 pointer-events-none z-50 transition-all duration-75"
+              style={{
+                left: `${dropPosition.x * 100}%`,
+                top: `${dropPosition.y * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-purple-600 text-2xl animate-bounce">
+                  +
+                </span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Blocks */}
-        {page.layout_mode === "canvas" ? (
-          <CanvasBlocks
-            blocks={page.blocks}
-            selectedBlockId={selectedBlockId}
-            onMouseDown={handleBlockMouseDown}
-            onResizeMouseDown={handleResizeMouseDown}
-            onDelete={onBlockDelete}
-            onDuplicate={onBlockDuplicate}
-            isDragging={!!dragging}
-            isResizing={!!resizing}
-            assets={assets}
-          />
-        ) : (
-          <FlowBlocks
-            blocks={page.blocks}
-            selectedBlockId={selectedBlockId}
-            onSelect={onBlockSelect}
-            assets={assets}
-          />
-        )}
+          {/* Blocks */}
+          {page.layout_mode === "canvas" ? (
+            <CanvasBlocks
+              blocks={page.blocks}
+              selectedBlockId={selectedBlockId}
+              onMouseDown={handleBlockMouseDown}
+              onResizeMouseDown={handleResizeMouseDown}
+              onDelete={onBlockDelete}
+              onDuplicate={onBlockDuplicate}
+              isDragging={!!dragging}
+              isResizing={!!resizing}
+              assets={assets}
+            />
+          ) : (
+            <FlowBlocks
+              blocks={page.blocks}
+              selectedBlockId={selectedBlockId}
+              onSelect={onBlockSelect}
+              assets={assets}
+            />
+          )}
 
-        {/* Empty state */}
-        {page.blocks.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center p-8">
-              <p className="text-xl font-semibold text-gray-700 mb-2">
-                {page.page_text || "Add text"}
-              </p>
-              <p className="text-sm text-gray-400 max-w-xs">
-                Drag elements or edit the Page Text field to update this copy.
-              </p>
+          {/* Page Text Panel - Shown when page_text exists (soft white panel) */}
+          {page.page_text && page.page_text !== "Add text" && (
+            <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end p-4 pointer-events-none">
+              <div
+                className="w-full max-w-[90%] rounded-2xl shadow-lg"
+                style={{
+                  backgroundColor: "rgba(255, 253, 248, 0.95)",
+                  padding: "clamp(1rem, 4%, 2rem)",
+                }}
+              >
+                <p
+                  className="text-center leading-relaxed"
+                  style={{
+                    fontFamily: "'Nunito', 'Poppins', 'Quicksand', system-ui, sans-serif",
+                    fontSize: "clamp(1.25rem, 2.5vw, 2rem)",
+                    fontWeight: 600,
+                    color: "#2B2B2B",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {page.page_text}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Page corner fold effect */}
-        <div className="absolute bottom-0 right-0 w-12 h-12 pointer-events-none overflow-hidden">
-          <div
-            className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-black/10 to-transparent"
-            style={{
-              clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
-            }}
-          />
+          {/* Empty state - no text */}
+          {page.blocks.length === 0 && !page.page_text && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center p-8">
+                <p className="text-xl font-semibold text-gray-700 mb-2">
+                  Add text
+                </p>
+                <p className="text-sm text-gray-400 max-w-xs">
+                  Drag elements or edit the Page Text field to add content.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Page corner fold effect */}
+          <div className="absolute bottom-0 right-0 w-12 h-12 pointer-events-none overflow-hidden">
+            <div
+              className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-black/10 to-transparent"
+              style={{
+                clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -421,13 +489,13 @@ function CanvasBlocks({
   onMouseDown: (
     e: React.MouseEvent,
     blockId: string,
-    layout: { x?: number; y?: number }
+    layout: { x?: number; y?: number },
   ) => void;
   onResizeMouseDown: (
     e: React.MouseEvent,
     blockId: string,
     handle: "se" | "e" | "s" | "sw" | "ne" | "nw" | "n" | "w",
-    layout: { x?: number; y?: number; width?: number; height?: number }
+    layout: { x?: number; y?: number; width?: number; height?: number },
   ) => void;
   onDelete?: (blockId: string) => void;
   onDuplicate?: (blockId: string) => void;
@@ -435,7 +503,7 @@ function CanvasBlocks({
   isResizing: boolean;
 }) {
   const sortedBlocks = [...blocks].sort(
-    (a, b) => a.block_index - b.block_index
+    (a, b) => a.block_index - b.block_index,
   );
 
   return (
@@ -543,7 +611,7 @@ function ResizeHandles({
   layout: { x?: number; y?: number; width?: number; height?: number };
   onResizeMouseDown: (
     e: React.MouseEvent,
-    handle: "se" | "e" | "s" | "sw" | "ne" | "nw" | "n" | "w"
+    handle: "se" | "e" | "s" | "sw" | "ne" | "nw" | "n" | "w",
   ) => void;
 }) {
   const handles = [
@@ -583,7 +651,7 @@ function ResizeHandles({
           onMouseDown={(e) =>
             onResizeMouseDown(
               e,
-              handle.pos as "se" | "e" | "s" | "sw" | "ne" | "nw" | "n" | "w"
+              handle.pos as "se" | "e" | "s" | "sw" | "ne" | "nw" | "n" | "w",
             )
           }
         />
@@ -604,7 +672,7 @@ function FlowBlocks({
   assets?: Asset[];
 }) {
   const sortedBlocks = [...blocks].sort(
-    (a, b) => a.block_index - b.block_index
+    (a, b) => a.block_index - b.block_index,
   );
 
   return (
@@ -733,11 +801,21 @@ function BlockPreview({
       );
     case "video":
       return (
-        <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center p-4">
-          <div className="text-center">
-            <span className="text-4xl block mb-2">🎬</span>
-            <span className="text-sm text-gray-500">Video Block</span>
-          </div>
+        <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center p-1">
+          {resolveImageSrc() ? (
+            <video
+              src={resolveImageSrc()!}
+              className="w-full h-full object-cover rounded-lg"
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <div className="text-center text-gray-500">
+              <span className="text-4xl block mb-2">🎬</span>
+              <span className="text-sm">Video Block</span>
+            </div>
+          )}
         </div>
       );
     case "shape":
