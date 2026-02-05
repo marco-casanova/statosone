@@ -29,19 +29,9 @@ const DEMO_FILES = [
     url: "/models/washer bowl.stl",
   },
   {
-    id: "stormtrooper-helmet",
-    name: "Star Wars Stormtrooper Helmet",
-    url: "/models/Star wars stormtrooper-helmet.3mf",
-  },
-  {
     id: "valentine-dragon",
     name: "Valentine Dragon",
     url: "/models/valentine-dragon.stl",
-  },
-  {
-    id: "toilettenmaennchen",
-    name: "Toilettenmaennchen mit Herz",
-    url: "/models/toilettenmaennchen-mit-herz.3mf",
   },
   {
     id: "car1",

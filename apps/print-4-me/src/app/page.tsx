@@ -19,6 +19,8 @@ import {
   Shield,
   Star,
   ArrowRight,
+  ExternalLink,
+  Download,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -267,6 +269,148 @@ export default function LandingPage() {
 
       {/* Demo Section */}
       <DemoSection />
+
+      {/* 3D Model Repositories Section */}
+      <section className="py-24 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-flow-100 text-flow-700 rounded-full text-sm font-medium mb-4">
+              <Download className="w-4 h-4" />
+              Free Resources
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Find Your Perfect Model
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Download free 3D printable models from these popular repositories
+              and upload them to our visualizer
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                name: "Printables",
+                url: "https://www.printables.com/",
+                description:
+                  "One of the largest free STL repositories for 3D printing",
+                color: "from-orange-500 to-red-500",
+                featured: true,
+              },
+              {
+                name: "Thingiverse",
+                url: "https://www.thingiverse.com/",
+                description:
+                  "Huge database of free 3D-printable designs and community files",
+                color: "from-blue-500 to-cyan-500",
+                featured: true,
+              },
+              {
+                name: "Cults3D",
+                url: "https://cults3d.com/",
+                description:
+                  "Marketplace with many free 3D printing models and premium designs",
+                color: "from-purple-500 to-pink-500",
+                featured: false,
+              },
+              {
+                name: "Thangs",
+                url: "https://thangs.com/",
+                description: "Free & paid 3D model community and search engine",
+                color: "from-green-500 to-emerald-500",
+                featured: false,
+              },
+              {
+                name: "MakerWorld",
+                url: "https://makerworld.com/",
+                description:
+                  "Thousands of free printable models: toys, tools, decor & more",
+                color: "from-indigo-500 to-blue-500",
+                featured: false,
+              },
+              {
+                name: "MyMiniFactory",
+                url: "https://www.myminifactory.com/",
+                description: "Curated 3D designs tested for printability",
+                color: "from-red-500 to-orange-500",
+                featured: false,
+              },
+              {
+                name: "Pinshape",
+                url: "https://pinshape.com/",
+                description:
+                  "3D printing marketplace with free and premium files",
+                color: "from-teal-500 to-cyan-500",
+                featured: false,
+              },
+              {
+                name: "3D For Print",
+                url: "https://www.3dforprint.com/",
+                description: "Free STL/OBJ models ready to download and print",
+                color: "from-violet-500 to-purple-500",
+                featured: false,
+              },
+            ].map((repo) => (
+              <a
+                key={repo.name}
+                href={repo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`group relative bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-100 hover:border-transparent hover:shadow-xl transition-all duration-300 ${
+                  repo.featured ? "md:col-span-1 lg:col-span-2" : ""
+                }`}
+              >
+                <div className="flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div
+                      className={`w-12 h-12 bg-gradient-to-br ${repo.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}
+                    >
+                      <Download className="w-6 h-6 text-white" />
+                    </div>
+                    <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-forge-500 transition-colors" />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-forge-500 transition-colors">
+                    {repo.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed flex-grow">
+                    {repo.description}
+                  </p>
+
+                  <div className="mt-4 flex items-center gap-2 text-sm font-medium text-forge-500 group-hover:gap-3 transition-all">
+                    <span>Visit site</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+
+                {/* Gradient overlay on hover */}
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${repo.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity pointer-events-none`}
+                />
+              </a>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <div className="inline-flex flex-col sm:flex-row items-center gap-3 px-6 py-4 bg-gradient-to-r from-forge-50 to-flow-50 rounded-2xl border border-forge-200">
+              <div className="flex items-center gap-2 text-forge-700 font-semibold">
+                <Sparkles className="w-5 h-5" />
+                <span>Pro Tip:</span>
+              </div>
+              <p className="text-gray-700">
+                Download any model, then upload it to{" "}
+                <Link
+                  href="/signup"
+                  className="text-forge-600 hover:text-forge-700 font-semibold underline decoration-2 underline-offset-2"
+                >
+                  your dashboard
+                </Link>{" "}
+                to preview and get instant quotes!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Materials Section */}
       <section id="pricing" className="py-24 px-4 bg-gray-50">
