@@ -51,7 +51,28 @@ export type ObservationSubtype =
   | "diabetes_symptom"
   | "glucose_value"
   | "catheter_issue"
-  | "behaviour_change";
+  | "behaviour_change"
+  | "redness"
+  | "cut"
+  | "bruise"
+  | "abrasion"
+  | "laceration"
+  | "abuse"
+  | "inflammation"
+  | "bites"
+  | "falls"
+  | "near_miss"
+  | "loss_of_balance"
+  | "restlessness"
+  | "urine_leak"
+  | "bowel_leak"
+  | "upset_stomach"
+  | "confusion"
+  | "challenging_behaviour"
+  | "anxiety"
+  | "hallucination"
+  | "medication_error"
+  | "environment_hazard";
 export type AdlSubtype =
   // Legacy existing values (kept for backward compatibility with stored rows)
   | "mobility_transfer"
@@ -89,7 +110,8 @@ export type EngagementSubtype =
   | "exercise_light"
   | "exercise_moderate"
   | "outdoor_walk"
-  | "art_craft";
+  | "art_craft"
+  | "general_activity";
 export type HarmSeverity =
   | "no_harm_prevented"
   | "no_harm_unprevented"
@@ -101,7 +123,9 @@ export type AssistanceLevel =
   | "independent"
   | "supervision"
   | "partial"
-  | "full";
+  | "full"
+  | "prompted"
+  | "assisted";
 export interface ActivityInsert {
   circle_id: string;
   recipient_id: string;
@@ -207,6 +231,27 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "glucose_value",
       "catheter_issue",
       "behaviour_change",
+      "redness",
+      "cut",
+      "bruise",
+      "abrasion",
+      "laceration",
+      "abuse",
+      "inflammation",
+      "bites",
+      "falls",
+      "near_miss",
+      "loss_of_balance",
+      "restlessness",
+      "urine_leak",
+      "bowel_leak",
+      "upset_stomach",
+      "confusion",
+      "challenging_behaviour",
+      "anxiety",
+      "hallucination",
+      "medication_error",
+      "environment_hazard",
     ],
   },
   adl: {
@@ -261,6 +306,7 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "exercise_moderate",
       "outdoor_walk",
       "art_craft",
+      "general_activity",
     ],
   },
 };
@@ -334,7 +380,8 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Wrong medication", value: "wrong_med" },
     { label: "Wrong time", value: "wrong_time" },
     { label: "Wrong route", value: "wrong_route" },
-    { label: "Double dose", value: "double_dose" },
+    { label: "Overdose", value: "overdose" },
+    { label: "Refusal", value: "refusal" },
   ],
   missing_client: [
     { label: "Brief (< 30 min)", value: "brief" },
@@ -515,6 +562,12 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Aggression", value: "aggression" },
     { label: "Anxiety", value: "anxiety" },
   ],
+  environment_hazard: [
+    { label: "Furniture", value: "furniture" },
+    { label: "Lighting", value: "lighting" },
+    { label: "Access", value: "access" },
+    { label: "Mould", value: "mould" },
+  ],
 
   // ============================================
   // ADL SUBTYPES
@@ -532,13 +585,11 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   ],
   // Hydration
   hydration: [
+    { label: "50 ml", value: 50, unit: "ml" },
     { label: "100 ml", value: 100, unit: "ml" },
     { label: "200 ml", value: 200, unit: "ml" },
     { label: "300 ml", value: 300, unit: "ml" },
-    { label: "400 ml", value: 400, unit: "ml" },
-    { label: "500 ml", value: 500, unit: "ml" },
     { label: "750 ml", value: 750, unit: "ml" },
-    { label: "1 L", value: 1000, unit: "ml" },
   ],
   // Nutrition
   nutrition_meal: [
@@ -602,8 +653,9 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   ],
   // Bathing/Hygiene
   bathing_hygiene: [
-    { label: "Full bath/shower", value: "full" },
-    { label: "Partial wash", value: "partial" },
+    { label: "Bath", value: "bath" },
+    { label: "Shower", value: "shower" },
+    { label: "Flannel wash", value: "flannel" },
     { label: "Bed bath", value: "bed_bath" },
     { label: "Refused", value: "refused" },
   ],

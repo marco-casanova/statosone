@@ -55,7 +55,8 @@ export function iconFor(
   category?: IncidentCategory | string | null,
   subtype?: string | null
 ) {
-  if (subtype && SUBTYPE_ICON[subtype]) return SUBTYPE_ICON[subtype];
+  if (subtype && SUBTYPE_ICON[subtype] && SUBTYPE_ICON[subtype] !== "•")
+    return SUBTYPE_ICON[subtype];
   if (category && CATEGORY_ICON[category as IncidentCategory])
     return CATEGORY_ICON[category as IncidentCategory];
   return "•";
