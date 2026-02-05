@@ -12,7 +12,7 @@ export function AuthWatcher() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange((event: any) => {
       if (event === "SIGNED_OUT") {
         router.replace("/");
       }

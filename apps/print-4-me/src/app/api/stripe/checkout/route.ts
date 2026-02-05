@@ -3,12 +3,18 @@ import Stripe from "stripe";
 import { createServerClient } from "@/lib/supabase/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-06-20",
+  apiVersion: "2025-02-24.acacia",
 });
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -6,6 +6,12 @@ import type { Material, Quality } from "@/types/database";
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -91,6 +97,12 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();

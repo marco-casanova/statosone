@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { supabase, hasSupabase } from "@/lib/supabase/client";
 import { useToast } from "@/components/Toast";
-import type { Model, Material, Quality } from "@/types/database";
+import type { Model, Material, Quality, Quote, Order } from "@/types/database";
 import type { ModelDimensions, ValidationResult } from "@/types/model";
 import {
   calculatePrice,

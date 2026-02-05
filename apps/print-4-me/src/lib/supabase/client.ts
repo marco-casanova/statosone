@@ -5,7 +5,7 @@ import type { Database } from "@/types/database";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-let supabase: SupabaseClient<Database> | null = null;
+let supabase: any = null;
 
 if (supabaseUrl && supabaseAnonKey) {
   try {
@@ -23,7 +23,7 @@ if (supabaseUrl && supabaseAnonKey) {
   }
 }
 
-export function createClient(): SupabaseClient<Database> {
+export function createClient(): any {
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error("Supabase URL and Anon Key must be set");
   }

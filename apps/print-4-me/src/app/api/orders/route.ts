@@ -4,6 +4,12 @@ import { createServerClient } from "@/lib/supabase/server";
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -20,12 +26,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the quote
-    const { data: quote, error: quoteError } = await supabase
+    const { data: quote, error: quoteError } = (await supabase
       .from("quotes")
       .select("*")
       .eq("id", quoteId)
       .eq("user_id", user.id)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (quoteError || !quote) {
       return NextResponse.json({ error: "Quote not found" }, { status: 404 });
@@ -77,6 +83,12 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -142,6 +154,12 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -158,12 +176,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Fetch order
-    const { data: order, error: fetchError } = await supabase
+    const { data: order, error: fetchError } = (await supabase
       .from("orders")
       .select("*")
       .eq("id", orderId)
       .eq("user_id", user.id)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (fetchError || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });

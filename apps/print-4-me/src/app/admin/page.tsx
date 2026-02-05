@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       .neq("status", "cancelled");
 
     const totalRevenue =
-      paidOrders?.reduce((sum, order: any) => {
+      paidOrders?.reduce((sum: number, order: any) => {
         return sum + (order.quotes?.price_cents || 0);
       }, 0) || 0;
 

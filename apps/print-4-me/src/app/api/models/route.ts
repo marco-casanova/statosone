@@ -4,6 +4,12 @@ import { createServerClient } from "@/lib/supabase/server";
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -102,6 +108,12 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -115,12 +127,12 @@ export async function GET(request: NextRequest) {
 
     if (modelId) {
       // Get single model
-      const { data: model, error } = await supabase
+      const { data: model, error } = (await supabase
         .from("models")
         .select("*")
         .eq("id", modelId)
         .eq("user_id", user.id)
-        .single();
+        .single()) as { data: any; error: any };
 
       if (error || !model) {
         return NextResponse.json({ error: "Model not found" }, { status: 404 });
@@ -164,6 +176,12 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -180,12 +198,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Fetch the model first
-    const { data: model, error: fetchError } = await supabase
+    const { data: model, error: fetchError } = (await supabase
       .from("models")
       .select("*")
       .eq("id", modelId)
       .eq("user_id", user.id)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (fetchError || !model) {
       return NextResponse.json({ error: "Model not found" }, { status: 404 });

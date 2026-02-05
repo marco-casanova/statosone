@@ -58,12 +58,12 @@ export default function SettingsPage() {
     } else if (data) {
       setProfile(data);
       setFullName(data.full_name || "");
-      setPhone(data.phone || "");
-      const addr = data.default_address || {};
-      setStreet(addr.street || "");
-      setCity(addr.city || "");
-      setPostalCode(addr.postal_code || "");
-      setCountry(addr.country || "DE");
+      // setPhone(data.phone || "");
+      // const addr = data.default_address || {};
+      // setStreet(addr.street || "");
+      // setCity(addr.city || "");
+      // setPostalCode(addr.postal_code || "");
+      // setCountry(addr.country || "DE");
     }
     setLoading(false);
   }
@@ -77,13 +77,13 @@ export default function SettingsPage() {
       .from("profiles")
       .update({
         full_name: fullName,
-        phone,
-        default_address: {
-          street,
-          city,
-          postal_code: postalCode,
-          country,
-        },
+        // phone,
+        // default_address: {
+        //   street,
+        //   city,
+        //   postal_code: postalCode,
+        //   country,
+        // },
       })
       .eq("id", profile.id);
 

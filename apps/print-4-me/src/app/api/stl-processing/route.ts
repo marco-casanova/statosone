@@ -24,6 +24,12 @@ import type {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -43,12 +49,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch model from database
-    const { data: model, error: modelError } = await supabase
+    const { data: model, error: modelError } = (await supabase
       .from("models")
       .select("*")
       .eq("id", modelId)
       .eq("user_id", user.id)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (modelError || !model) {
       return NextResponse.json({ error: "Model not found" }, { status: 404 });
@@ -127,21 +133,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update model record
-    const { error: updateError } = await supabase
-      .from("models")
-      .update({
-        scaled_file_path: scaledFileName,
-        final_dimensions: finalDimensions,
-        scale_factor: finalScaleFactor,
-        validation: validationResult,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", modelId);
-
-    if (updateError) {
-      console.error("Failed to update model record:", updateError);
-    }
+    // Note: Model metadata update removed - no relevant fields exist in models table
+    // Scaled file is already uploaded to storage
 
     const response: STLProcessingResponse = {
       success: true,
@@ -167,6 +160,12 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -186,12 +185,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch model from database
-    const { data: model, error: modelError } = await supabase
+    const { data: model, error: modelError } = (await supabase
       .from("models")
       .select("*")
       .eq("id", modelId)
       .eq("user_id", user.id)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (modelError || !model) {
       return NextResponse.json({ error: "Model not found" }, { status: 404 });

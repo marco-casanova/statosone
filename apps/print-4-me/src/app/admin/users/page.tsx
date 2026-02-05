@@ -54,33 +54,33 @@ export default function AdminUsersPage() {
     // Fetch order counts per user
     const { data: orderCounts } = await supabase
       .from("orders")
-      .select("user_id")
-      .returns<{ user_id: string }[]>();
+      .select("user_id");
 
     // Fetch model counts per user
     const { data: modelCounts } = await supabase
       .from("models")
-      .select("user_id")
-      .returns<{ user_id: string }[]>();
+      .select("user_id");
 
     // Aggregate counts
     const orderCountMap: Record<string, number> = {};
     const modelCountMap: Record<string, number> = {};
 
-    orderCounts?.forEach((o) => {
+    orderCounts?.forEach((o: any) => {
       orderCountMap[o.user_id] = (orderCountMap[o.user_id] || 0) + 1;
     });
 
-    modelCounts?.forEach((m) => {
+    modelCounts?.forEach((m: any) => {
       modelCountMap[m.user_id] = (modelCountMap[m.user_id] || 0) + 1;
     });
 
     // Merge stats into profiles
-    const profilesWithStats: ProfileWithStats[] = (profiles || []).map((p) => ({
-      ...p,
-      order_count: orderCountMap[p.id] || 0,
-      model_count: modelCountMap[p.id] || 0,
-    }));
+    const profilesWithStats: ProfileWithStats[] = (profiles || []).map(
+      (p: any) => ({
+        ...p,
+        order_count: orderCountMap[p.id] || 0,
+        model_count: modelCountMap[p.id] || 0,
+      }),
+    );
 
     setUsers(profilesWithStats);
     setLoading(false);

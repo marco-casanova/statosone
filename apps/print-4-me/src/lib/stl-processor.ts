@@ -53,7 +53,9 @@ export function exportSTL(geometry: THREE.BufferGeometry): ArrayBuffer {
   const stlData = exporter.parse(mesh, { binary: true });
 
   if (stlData instanceof DataView) {
-    return stlData.buffer;
+    // DataView.buffer is ArrayBufferLike, but we need ArrayBuffer
+    // In practice, it's always ArrayBuffer in browser contexts
+    return stlData.buffer as ArrayBuffer;
   }
 
   // If string (ASCII), convert to buffer

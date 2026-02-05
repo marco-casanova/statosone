@@ -147,6 +147,12 @@ async function createDHLShipment(data: ShippingLabelRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Database configuration error" },
+        { status: 500 },
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -193,8 +199,8 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from("orders")
       .update({
-        dhl_tracking_number: labelResult.trackingNumber,
-        dhl_label_url: labelResult.labelUrl,
+        tracking_number: labelResult.trackingNumber,
+        label_url: labelResult.labelUrl,
       })
       .eq("id", body.orderId);
 
