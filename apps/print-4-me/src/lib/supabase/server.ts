@@ -1,4 +1,5 @@
 import { createServerClient as createSSRServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
@@ -31,7 +32,7 @@ export async function createServerClient() {
   });
 }
 
-export async function createServiceRoleClient() {
+export function createServiceRoleClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -39,7 +40,6 @@ export async function createServiceRoleClient() {
     throw new Error("Missing Supabase service role configuration");
   }
 
-  const { createClient } = await import("@supabase/supabase-js");
   return createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,

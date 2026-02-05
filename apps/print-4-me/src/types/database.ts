@@ -104,7 +104,9 @@ export interface Database {
           quality: Quality;
           quantity: number;
           price_cents: number;
+          total_cents: number;
           currency: string;
+          shipping_address: ShippingAddress | null;
           created_at: string;
         };
         Insert: {
@@ -115,7 +117,9 @@ export interface Database {
           quality: Quality;
           quantity: number;
           price_cents: number;
+          total_cents: number;
           currency?: string;
+          shipping_address?: ShippingAddress | null;
           created_at?: string;
         };
         Update: {
@@ -126,7 +130,9 @@ export interface Database {
           quality?: Quality;
           quantity?: number;
           price_cents?: number;
+          total_cents?: number;
           currency?: string;
+          shipping_address?: ShippingAddress | null;
           created_at?: string;
         };
       };
@@ -137,6 +143,10 @@ export interface Database {
           model_id: string;
           quote_id: string;
           status: OrderStatus;
+          material: Material;
+          quality: Quality;
+          quantity: number;
+          total_cents: number;
           shipping_address: ShippingAddress;
           stripe_session_id: string | null;
           stripe_payment_intent_id: string | null;
@@ -151,6 +161,10 @@ export interface Database {
           model_id: string;
           quote_id: string;
           status?: OrderStatus;
+          material: Material;
+          quality: Quality;
+          quantity: number;
+          total_cents: number;
           shipping_address: ShippingAddress;
           stripe_session_id?: string | null;
           stripe_payment_intent_id?: string | null;
@@ -165,6 +179,10 @@ export interface Database {
           model_id?: string;
           quote_id?: string;
           status?: OrderStatus;
+          material?: Material;
+          quality?: Quality;
+          quantity?: number;
+          total_cents?: number;
           shipping_address?: ShippingAddress;
           stripe_session_id?: string | null;
           stripe_payment_intent_id?: string | null;
