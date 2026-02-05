@@ -24,7 +24,9 @@ type OrderWithDetails = Order & {
   profile: Profile;
 };
 
-const STATUS_OPTIONS = [
+type StatusFilter = "all" | OrderStatus;
+
+const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All Orders" },
   { value: "created", label: "Created" },
   { value: "paid", label: "Paid" },
@@ -38,7 +40,7 @@ export default function AdminOrdersPage() {
   const { push } = useToast();
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -119,7 +121,9 @@ export default function AdminOrdersPage() {
           <Filter className="w-5 h-5 text-gray-400" />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as StatusFilter)
+            }
             className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500"
           >
             {STATUS_OPTIONS.map((opt) => (
