@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase, hasSupabase } from "@/lib/supabase/client";
 import { useToast } from "@/components/Toast";
-import type { Order, Quote, Model, Profile } from "@/types/database";
+import type { Order, Quote, Model, Profile, OrderStatus } from "@/types/database";
 import { formatPrice } from "@/lib/pricing";
 import {
   ShoppingBag,
