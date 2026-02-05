@@ -85,7 +85,7 @@ export default function AdminDashboard() {
       totalUsers: userCount || 0,
       pendingRequests: requestCount || 0,
     });
-    setRecentOrders(orders || []);
+    setRecentOrders((orders as Order[]) || []);
     setLoading(false);
   }
 
