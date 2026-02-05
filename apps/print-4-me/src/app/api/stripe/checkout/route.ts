@@ -2,12 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createServerClient } from "@/lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-02-24.acacia",
-});
-
 export async function POST(request: NextRequest) {
   try {
+    // Initialize Stripe with API key check
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) {
+      return NextResponse.json(
+        { error: "Payment processing is not configured" },
+        { status: 500 },
+      );
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2025-02-24.acacia",
+    });
+
     const supabase = await createServerClient();
     if (!supabase) {
       return NextResponse.json(

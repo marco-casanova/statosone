@@ -6,14 +6,30 @@ import { headers } from "next/headers";
 import type { Database } from "@/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-02-24.acacia",
-});
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
-
 export async function POST(request: NextRequest) {
   try {
+    // Initialize Stripe with API key check
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!stripeSecretKey) {
+      return NextResponse.json(
+        { error: "Payment processing is not configured" },
+        { status: 500 },
+      );
+    }
+
+    if (!webhookSecret) {
+      return NextResponse.json(
+        { error: "Webhook secret is not configured" },
+        { status: 500 },
+      );
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2025-02-24.acacia",
+    });
+
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get("stripe-signature");
