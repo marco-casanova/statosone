@@ -111,11 +111,12 @@ NEXT_PUBLIC_APP_URL=http://localhost:3002
 
 ### 3. Database Setup
 
-Run the migration in your Supabase SQL editor:
+Run the migrations in your Supabase SQL editor (in order):
 
 ```bash
 # Copy contents from:
 supabase/migrations/001_print-4-me_schema.sql
+supabase/migrations/002_align_schema.sql
 ```
 
 Or use Supabase CLI:

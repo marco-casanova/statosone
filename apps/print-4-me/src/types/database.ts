@@ -62,6 +62,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       models: {
         Row: {
@@ -94,6 +95,7 @@ export interface Database {
           thumbnail_path?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       quotes: {
         Row: {
@@ -104,9 +106,14 @@ export interface Database {
           quality: Quality;
           quantity: number;
           price_cents: number;
+          base_price_cents: number;
+          quality_addon_cents: number;
+          quantity_price_cents: number;
+          shipping_cents: number;
           total_cents: number;
           currency: string;
           shipping_address: ShippingAddress | null;
+          expires_at: string;
           created_at: string;
         };
         Insert: {
@@ -117,9 +124,14 @@ export interface Database {
           quality: Quality;
           quantity: number;
           price_cents: number;
+          base_price_cents: number;
+          quality_addon_cents: number;
+          quantity_price_cents: number;
+          shipping_cents: number;
           total_cents: number;
           currency?: string;
           shipping_address?: ShippingAddress | null;
+          expires_at?: string;
           created_at?: string;
         };
         Update: {
@@ -130,11 +142,17 @@ export interface Database {
           quality?: Quality;
           quantity?: number;
           price_cents?: number;
+          base_price_cents?: number;
+          quality_addon_cents?: number;
+          quantity_price_cents?: number;
+          shipping_cents?: number;
           total_cents?: number;
           currency?: string;
           shipping_address?: ShippingAddress | null;
+          expires_at?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
       orders: {
         Row: {
@@ -191,6 +209,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       custom_requests: {
         Row: {
@@ -226,10 +245,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
-    Views: {};
-    Functions: {};
+    Views: {
+      [key: string]: never;
+    };
+    Functions: {
+      [key: string]: never;
+    };
     Enums: {
       user_role: UserRole;
       material: Material;
@@ -237,6 +261,9 @@ export interface Database {
       file_type: FileType;
       order_status: OrderStatus;
       custom_request_status: CustomRequestStatus;
+    };
+    CompositeTypes: {
+      [key: string]: never;
     };
   };
 }

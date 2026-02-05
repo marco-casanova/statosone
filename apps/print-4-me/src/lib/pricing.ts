@@ -19,7 +19,9 @@ export interface PriceBreakdown {
   basePriceCents: number;
   materialPriceCents: number;
   qualityMultiplier: number;
+  qualityAddonCents: number;
   subtotalCents: number;
+  quantityPriceCents: number;
   quantityTotal: number;
   shippingCents: number;
   totalCents: number;
@@ -57,7 +59,9 @@ export function calculatePrice(
     basePriceCents,
     materialPriceCents,
     qualityMultiplier,
+    qualityAddonCents: subtotalCents - materialPriceCents,
     subtotalCents,
+    quantityPriceCents: quantityTotal - subtotalCents,
     quantityTotal,
     shippingCents: SHIPPING_COST_CENTS,
     totalCents,

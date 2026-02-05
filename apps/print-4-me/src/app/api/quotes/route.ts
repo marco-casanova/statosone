@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
         material: material as Material,
         quality: quality as Quality,
         quantity,
+        price_cents: pricing.totalCents,
         base_price_cents: pricing.basePriceCents,
         quality_addon_cents: pricing.qualityAddonCents,
         quantity_price_cents: pricing.quantityPriceCents,
@@ -128,7 +129,7 @@ export async function GET(request: NextRequest) {
       .select(
         `
         *,
-        model:models(id, name)
+        model:models(id, filename)
       `,
       )
       .eq("user_id", user.id)

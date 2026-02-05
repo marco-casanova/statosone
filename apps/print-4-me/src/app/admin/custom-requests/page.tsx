@@ -94,7 +94,6 @@ export default function AdminCustomRequestsPage() {
       updateData.admin_notes = notes;
     }
 
-    // @ts-expect-error Supabase type inference issue
     const { error } = await supabase
       .from("custom_requests")
       .update(updateData)

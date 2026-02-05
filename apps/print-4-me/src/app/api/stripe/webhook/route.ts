@@ -54,7 +54,6 @@ export async function POST(request: NextRequest) {
 
         // If we have an order ID, update the order status
         if (orderId) {
-          // @ts-expect-error Supabase type inference issue
           const { error: orderError } = await supabase
             .from("orders")
             .update({
@@ -74,7 +73,6 @@ export async function POST(request: NextRequest) {
         // If we have a quote ID but no order, create the order now
         if (quoteId && !orderId) {
           // Fetch the quote
-          // @ts-expect-error Supabase type inference issue
           const { data: quote, error: quoteError } = await supabase
             .from("quotes")
             .select("*")
@@ -92,7 +90,6 @@ export async function POST(request: NextRequest) {
           }
 
           // Fetch the model
-          // @ts-expect-error Supabase type inference issue
           const { data: model, error: modelError } = await supabase
             .from("models")
             .select("*")
@@ -113,7 +110,7 @@ export async function POST(request: NextRequest) {
                 material: quote.material,
                 quality: quote.quality,
                 quantity: quote.quantity,
-                total_cents: quote.total_cents,
+                total_cents: quote.total_cents ?? quote.price_cents,
                 shipping_address: quote.shipping_address || {},
                 stripe_payment_intent_id: session.payment_intent as string,
                 stripe_session_id: session.id,
@@ -157,14 +154,12 @@ export async function POST(request: NextRequest) {
         const paymentIntentId = charge.payment_intent as string;
 
         // Find and update the order
-        // @ts-expect-error Supabase type inference issue
         const { data: orders, error: findError } = await supabase
           .from("orders")
           .select("id")
           .eq("stripe_payment_intent_id", paymentIntentId);
 
         if (!findError && orders && orders.length > 0) {
-          // @ts-expect-error Supabase type inference issue
           const { error: updateError } = await supabase
             .from("orders")
             .update({ status: "cancelled" as const })

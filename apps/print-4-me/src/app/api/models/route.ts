@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
       .from("models")
       .insert({
         user_id: user.id,
-        name: file.name.replace(fileExtension, ""),
+        filename: file.name,
         file_path: uploadData.path,
         file_size_bytes: file.size,
-        file_type: fileExtension.replace(".", "").toUpperCase(),
+        file_type: fileExtension.replace(".", "") as "stl" | "obj",
       })
       .select()
       .single();

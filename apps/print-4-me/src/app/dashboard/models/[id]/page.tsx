@@ -180,7 +180,13 @@ export default function ModelDetailPage({ params }: PageProps) {
           quality,
           quantity,
           price_cents: priceBreakdown.totalCents,
+          total_cents: priceBreakdown.totalCents,
+          base_price_cents: priceBreakdown.basePriceCents,
+          quality_addon_cents: priceBreakdown.qualityAddonCents,
+          quantity_price_cents: priceBreakdown.quantityPriceCents,
+          shipping_cents: priceBreakdown.shippingCents,
           currency: priceBreakdown.currency,
+          shipping_address: address,
         })
         .select()
         .single();
@@ -198,6 +204,10 @@ export default function ModelDetailPage({ params }: PageProps) {
           model_id: model.id,
           quote_id: quote.id,
           status: "created",
+          material,
+          quality,
+          quantity,
+          total_cents: quote.total_cents ?? priceBreakdown.totalCents,
           shipping_address: address,
         })
         .select()

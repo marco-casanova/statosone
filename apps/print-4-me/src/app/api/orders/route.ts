@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         material: quote.material,
         quality: quote.quality,
         quantity: quote.quantity,
-        total_cents: quote.total_cents,
+        total_cents: quote.total_cents ?? quote.price_cents,
         shipping_address: shippingAddress || quote.shipping_address || {},
       })
       .select()
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
       .select(
         `
         *,
-        model:models(id, name, file_type)
+        model:models(id, filename, file_type)
       `,
       )
       .eq("user_id", user.id)
