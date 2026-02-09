@@ -249,16 +249,45 @@ export async function updatePage(
   if (updates.border_frame_id !== undefined)
     updateFields.border_frame_id = updates.border_frame_id;
 
-  const { data, error } = await supabase
-    .from("book_pages")
-    .update(updateFields)
-    .eq("id", pageId)
-    .select()
-    .single();
+  const performUpdate = async (fields: Record<string, unknown>) =>
+    supabase
+      .from("book_pages")
+      .update(fields)
+      .eq("id", pageId)
+      .select()
+      .single();
+
+  let { data, error } = await performUpdate(updateFields);
+
+  const isMissingBorderFrameColumn =
+    !!error?.message &&
+    updateFields.border_frame_id !== undefined &&
+    error.message.includes("border_frame_id");
+
+  if (error && isMissingBorderFrameColumn) {
+    const { border_frame_id: _ignored, ...retryFields } = updateFields;
+
+    if (Object.keys(retryFields).length === 0) {
+      console.warn(
+        "Skipping page update because border_frame_id is not available in this database.",
+      );
+      return data ?? page;
+    }
+
+    const retry = await performUpdate(retryFields);
+    data = retry.data;
+    error = retry.error;
+
+    if (!error) {
+      console.warn(
+        "Updated page without border_frame_id because the column is missing from the schema cache.",
+      );
+    }
+  }
 
   if (error) {
     console.error("Error updating page:", error);
-    throw new Error("Failed to update page");
+    throw new Error(`Failed to update page: ${error.message}`);
   }
 
   revalidatePath(`/author/books/${page.book_id}/edit`);
@@ -307,8 +336,16 @@ export async function applyBorderFrameToAllPages(
     .eq("book_id", bookId);
 
   if (error) {
+    if (error.message?.includes("border_frame_id")) {
+      console.warn(
+        "Border frames are not available in this database; skipping update.",
+      );
+      return { success: false, skipped: true };
+    }
     console.error("Error applying border frame:", error);
-    throw new Error("Failed to apply border frame to all pages");
+    throw new Error(
+      `Failed to apply border frame to all pages: ${error.message}`,
+    );
   }
 
   revalidatePath(`/author/books/${bookId}/edit`);
@@ -578,7 +615,7 @@ export async function updatePageMode(pageId: string, mode: PageMode) {
 
   if (error) {
     console.error("Error updating page mode:", error);
-    throw new Error("Failed to update page mode");
+    throw new Error(`Failed to update page mode: ${error.message}`);
   }
 
   revalidatePath(`/author/books/${page.book_id}/edit`);

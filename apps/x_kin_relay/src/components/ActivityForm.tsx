@@ -7,6 +7,11 @@ import {
   SUBTYPE_OPTIONS,
 } from "../types/schema";
 import { iconFor, a11yLabel } from "./activityIcons";
+import {
+  QuickActionsManager,
+  QuickAction,
+  loadQuickActions,
+} from "./QuickActionsManager";
 
 type Phase = "browse" | "category" | "confirm";
 type MainCategory = "hydration" | "nutrition" | "personal_care" | "incident";
@@ -35,14 +40,14 @@ const MAIN_CATEGORIES: {
   {
     id: "personal_care",
     label: "Personal Care",
-    subtitle: "Bathing / Hygiene",
+    subtitle: "Bathing Hygiene [Personal Care]",
     category: "adl",
     subtype: "bathing_hygiene",
   },
   {
     id: "incident",
     label: "Incident",
-    subtitle: "Health Observation",
+    subtitle: "Health Observation + Other",
     category: "health_observation",
   },
 ];
@@ -57,19 +62,21 @@ const INCIDENT_GROUPS: {
       { label: "Breathing difficulty", value: "breathing_difficulty" },
       { label: "Cough", value: "cough_sputum" },
       { label: "Obstruction", value: "airway_obstruction" },
+      { label: "Phlegm/sputum", value: "cough_sputum" },
     ],
   },
   {
-    label: "Skin",
+    label: "Skin Change",
     items: [
       { label: "Burn", value: "burn" },
       { label: "Rash", value: "rash" },
       { label: "Redness", value: "redness" },
-      { label: "Cut", value: "cut" },
+      { label: "Cut/wound", value: "cut" },
       { label: "Bruise", value: "bruise" },
-      { label: "Pale", value: "pale" },
+      { label: "Paleness", value: "pale" },
       { label: "Inflammation", value: "inflammation" },
       { label: "Bites", value: "bites" },
+      { label: "Bed sore", value: "skin_breakdown" },
     ],
   },
   {
@@ -78,46 +85,71 @@ const INCIDENT_GROUPS: {
       { label: "Fall", value: "falls" },
       { label: "Near miss", value: "near_miss" },
       { label: "Weakness", value: "weakness" },
-      { label: "Loss of balance", value: "loss_of_balance" },
+      { label: "Unstable", value: "loss_of_balance" },
     ],
   },
   {
-    label: "Sleep",
+    label: "Sleep Disturbance",
     items: [
-      { label: "Restlessness", value: "restlessness" },
-      { label: "Drowsy", value: "drowsiness" },
+      { label: "Insomnia", value: "restlessness" },
+      { label: "Drowsiness", value: "drowsiness" },
+      { label: "Sleep apnea", value: "breathing_difficulty" },
+      { label: "Restless legs syndrome", value: "restlessness" },
     ],
   },
   {
-    label: "Continence",
+    label: "Gastrointestinal",
     items: [
       { label: "Urine leak", value: "urine_leak" },
       { label: "Bowel leak", value: "bowel_leak" },
-      { label: "Upset stomach", value: "upset_stomach" },
+      { label: "Diarrhea", value: "diarrhoea" },
+      { label: "Vomiting", value: "vomiting" },
+      { label: "Inappetence", value: "upset_stomach" },
     ],
   },
   {
-    label: "Cognition",
+    label: "Cognition/Behaviour",
     items: [
       { label: "Loss of consciousness", value: "loss_of_consciousness" },
       { label: "Confusion", value: "confusion" },
       { label: "Challenging behaviour", value: "challenging_behaviour" },
       { label: "Anxiety", value: "anxiety" },
       { label: "Hallucination", value: "hallucination" },
+      { label: "Delusion", value: "behaviour_change" },
+      { label: "Grief/sadness", value: "behaviour_change" },
     ],
   },
   {
     label: "Medication Error",
-    items: [{ label: "Medication error", value: "medication_error" }],
+    items: [
+      { label: "Missed dose", value: "medication_error" },
+      { label: "Overdose", value: "medication_error" },
+      { label: "Wrong med", value: "medication_error" },
+      { label: "Wrong time", value: "medication_error" },
+      { label: "Wrong route", value: "medication_error" },
+      { label: "Refusal", value: "medication_error" },
+    ],
   },
   {
-    label: "Environment Hazard",
-    items: [{ label: "Environment hazard", value: "environment_hazard" }],
+    label: "Environmental Hazard",
+    items: [
+      { label: "Furniture", value: "environment_hazard" },
+      { label: "Poor lighting", value: "environment_hazard" },
+      { label: "Inadequate access", value: "environment_hazard" },
+      { label: "Mould", value: "environment_hazard" },
+      { label: "Chemicals", value: "environment_hazard" },
+      { label: "Flooring", value: "environment_hazard" },
+      { label: "Infestation", value: "environment_hazard" },
+    ],
+  },
+  {
+    label: "Other",
+    items: [{ label: "Other", value: "behaviour_change" }],
   },
 ];
 
 const FOOD_SUGGESTIONS = [
-  "Pasta bolanesa y pan tostado",
+  "Pasta bolognesa y pan tostado",
   "Sopa",
   "Pasta de pollo con salsa",
   "Galleta con queso",
@@ -197,8 +229,12 @@ export function ActivityForm() {
   const [assistanceLevel, setAssistanceLevel] = useState("");
   const [fluidType, setFluidType] = useState("");
   const [foodType, setFoodType] = useState("");
+  const [incidentLabel, setIncidentLabel] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [quickActions, setQuickActions] = useState<QuickAction[]>([]);
+  const [showManager, setShowManager] = useState(false);
 
   // Client selection
   const [clients, setClients] = useState<
@@ -245,6 +281,10 @@ export function ActivityForm() {
   }, []);
 
   useEffect(() => {
+    setQuickActions(loadQuickActions());
+  }, []);
+
+  useEffect(() => {
     loadRecentActivities();
   }, [selectedClientId, recentExpanded]);
 
@@ -259,6 +299,7 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
+    setIncidentLabel(null);
     setMessage(null);
     setRecentExpanded(false);
   }
@@ -273,13 +314,38 @@ export function ActivityForm() {
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
+    setIncidentLabel(null);
     setAssistanceLevel("");
     setMessage(null);
     setPhase(id === "incident" ? "category" : "confirm");
   }
 
-  function pickIncidentSubtype(value: string) {
+  function pickQuickAction(action: QuickAction) {
+    const matchedMain = MAIN_CATEGORIES.find(
+      (c) => c.category === action.category && c.subtype === action.subtype,
+    );
+    if (matchedMain) {
+      setMainCategory(matchedMain.id);
+    } else if (action.category === "health_observation") {
+      setMainCategory("incident");
+    } else {
+      setMainCategory(null);
+    }
+    setCategory(action.category);
+    setSubtype(action.subtype);
+    setSubtypeValue(null);
+    setHydrationValues([]);
+    setFluidType("");
+    setFoodType("");
+    setIncidentLabel(action.subtype ? formatSubtype(action.subtype) : null);
+    setAssistanceLevel("");
+    setMessage(null);
+    setPhase("confirm");
+  }
+
+  function pickIncidentSubtype(value: string, label: string) {
     setSubtype(value);
+    setIncidentLabel(label);
     setSubtypeValue(null);
     setPhase("confirm");
   }
@@ -372,6 +438,9 @@ export function ActivityForm() {
       if (isNutrition && foodType.trim()) {
         details.food_type = foodType.trim();
       }
+      if (isIncident && incidentLabel) {
+        details.incident_label = incidentLabel;
+      }
 
       if (Object.keys(details).length) payload.details = details;
 
@@ -411,24 +480,90 @@ export function ActivityForm() {
   const currentMainLabel = MAIN_CATEGORIES.find(
     (c) => c.id === mainCategory
   )?.label;
+  const displayCategoryLabel = mainCategory
+    ? currentMainLabel || "Category"
+    : category
+      ? formatCategory(category)
+      : "Category";
+  const clientSelector = (
+    <>
+      <label style={miniLabel}>Client</label>
+      <select
+        value={selectedClientId}
+        onChange={(e) => setSelectedClientId(e.target.value)}
+        style={input}
+        aria-label="Select client"
+        disabled={loadingClients}
+      >
+        {loadingClients ? (
+          <option>Loading...</option>
+        ) : clients.length === 0 ? (
+          <option value="">No clients available</option>
+        ) : (
+          clients.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.display_name || c.id}
+            </option>
+          ))
+        )}
+      </select>
+    </>
+  );
 
   return (
     <div style={shell} aria-labelledby="af-title">
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={headerRow}>
         {phase !== "browse" && (
           <button onClick={goBack} style={backButton} aria-label="Go back">
             ←
           </button>
         )}
         {phase === "browse" && (
-          <h3 id="af-title" style={titleH3}>
-            Main Log
-          </h3>
+          <>
+            <h3 id="af-title" style={titleH3}>
+              Main Log
+            </h3>
+            <button
+              onClick={() => setShowManager(true)}
+              style={settingsBtn}
+              aria-label="Configure quick log"
+              title="Configure quick actions"
+            >
+              ⚙️
+            </button>
+          </>
         )}
       </div>
 
       {phase === "browse" && (
         <>
+          {quickActions.length > 0 && (
+            <>
+              <div style={sectionLabel}>Quick Actions</div>
+              <div style={quickGrid}>
+                {quickActions.map((q, idx) => (
+                  <button
+                    key={`${q.category}-${q.subtype}-${idx}`}
+                    style={quickCard(q.category)}
+                    onClick={() => pickQuickAction(q)}
+                    aria-label={`${q.label} quick action`}
+                  >
+                    <span
+                      style={iconBadge(q.category)}
+                      role="img"
+                      aria-label={a11yLabel(q.category, q.subtype)}
+                    >
+                      {iconFor(q.category, q.subtype)}
+                    </span>
+                    <div>
+                      <span style={cardTitle}>{q.label}</span>
+                      <div style={cardSub}>{formatCategory(q.category)}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
           <div style={sectionLabel}>Categories</div>
           <div style={grid}>
             {MAIN_CATEGORIES.map((c) => (
@@ -457,6 +592,7 @@ export function ActivityForm() {
 
       {phase === "category" && isIncident && (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {clientSelector}
           <div style={sectionLabel}>Incident Types</div>
           {INCIDENT_GROUPS.map((group) => (
             <div
@@ -467,9 +603,13 @@ export function ActivityForm() {
               <div style={grid}>
                 {group.items.map((item) => (
                   <button
-                    key={item.value}
-                    style={incidentCard(subtype === item.value)}
-                    onClick={() => pickIncidentSubtype(item.value)}
+                    key={`${group.label}-${item.value}-${item.label}`}
+                    style={
+                      incidentCard(
+                        subtype === item.value && incidentLabel === item.label
+                      )
+                    }
+                    onClick={() => pickIncidentSubtype(item.value, item.label)}
                     aria-label={`Pick incident ${item.label}`}
                   >
                     <span
@@ -500,34 +640,17 @@ export function ActivityForm() {
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <div style={categoryTitle}>
-                {(currentMainLabel || "Category").toUpperCase()}
+                {displayCategoryLabel.toUpperCase()}
               </div>
               {isIncident && subtype && (
-                <div style={categorySubtitle}>{formatSubtype(subtype)}</div>
+                <div style={categorySubtitle}>
+                  {incidentLabel || formatSubtype(subtype)}
+                </div>
               )}
             </div>
           </div>
 
-          <label style={miniLabel}>Client</label>
-          <select
-            value={selectedClientId}
-            onChange={(e) => setSelectedClientId(e.target.value)}
-            style={input}
-            aria-label="Select client"
-            disabled={loadingClients}
-          >
-            {loadingClients ? (
-              <option>Loading...</option>
-            ) : clients.length === 0 ? (
-              <option value="">No clients available</option>
-            ) : (
-              clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.display_name || c.id}
-                </option>
-              ))
-            )}
-          </select>
+          {clientSelector}
 
           <label style={miniLabel}>Observed at</label>
           <input
@@ -624,13 +747,13 @@ export function ActivityForm() {
 
           {isNutrition && (
             <>
-              <label style={miniLabel}>Food type (optional)</label>
+              <label style={miniLabel}>Food type (caregiver input)</label>
               <input
                 type="text"
                 value={foodType}
                 onChange={(e) => setFoodType(e.target.value)}
                 style={input}
-                placeholder="Ejemplos: sopa, pasta, galleta..."
+                placeholder="Examples: pasta bolognesa, soup, chicken pasta..."
                 aria-label="Food type"
               />
               <div style={chipRow}>
@@ -710,6 +833,13 @@ export function ActivityForm() {
             </div>
           )}
         </div>
+      )}
+      {showManager && (
+        <QuickActionsManager
+          onClose={() => setShowManager(false)}
+          onSave={(actions) => setQuickActions(actions)}
+          currentActions={quickActions}
+        />
       )}
     </div>
   );
@@ -873,6 +1003,23 @@ const sectionLabel: React.CSSProperties = {
   fontWeight: 700,
 };
 
+const headerRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  justifyContent: "space-between",
+};
+
+const settingsBtn: React.CSSProperties = {
+  background: "transparent",
+  border: "none",
+  fontSize: 20,
+  cursor: "pointer",
+  padding: "4px 8px",
+  borderRadius: 8,
+  color: "#1A1A1A",
+};
+
 const groupLabel: React.CSSProperties = {
   fontSize: 12,
   textTransform: "uppercase",
@@ -885,6 +1032,12 @@ const grid: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
   gap: 18,
+};
+
+const quickGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))",
+  gap: 16,
 };
 
 const mainCategoryCard = (cat: MainCategory): React.CSSProperties => {
@@ -906,6 +1059,30 @@ const mainCategoryCard = (cat: MainCategory): React.CSSProperties => {
     minHeight: 90,
     transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
     boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)",
+  };
+};
+
+const quickCard = (cat: IncidentCategory): React.CSSProperties => {
+  const colors = categoryColors[cat] || {
+    color: "#6C7CFF",
+    bg: "rgba(108, 124, 255, 0.18)",
+  };
+  return {
+    background: "rgba(255, 255, 255, 0.92)",
+    borderWidth: 2,
+    borderStyle: "solid",
+    borderColor: colors.color,
+    padding: 18,
+    borderRadius: 16,
+    color: "#1A1A1A",
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+    textAlign: "left",
+    cursor: "pointer",
+    minHeight: 90,
+    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
+    transition: "all 0.2s ease",
   };
 };
 

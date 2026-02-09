@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 
-type ToastType = "success" | "error" | "info" | "warning";
+type ToastType = "success" | "error" | "info" | "warning" | "info";
 
 interface Toast {
   id: string;

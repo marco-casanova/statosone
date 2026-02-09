@@ -162,6 +162,19 @@ export function BookEditor({
     [],
   );
 
+  const isEditable =
+    currentBook.status === "draft" || currentBook.status === "in_review";
+
+  const ensureEditable = useCallback(() => {
+    if (isEditable) return true;
+    const statusLabel = currentBook.status.replace(/_/g, " ");
+    showNotification(
+      "error",
+      `This book is read-only while its status is ${statusLabel}.`,
+    );
+    return false;
+  }, [currentBook.status, isEditable, showNotification]);
+
   // Page handlers
   const handlePageSelect = useCallback((index: number) => {
     setSelectedPageIndex(index);
@@ -169,6 +182,7 @@ export function BookEditor({
   }, []);
 
   const handlePageAdd = useCallback(async () => {
+    if (!ensureEditable()) return;
     startTransition(async () => {
       try {
         const newPageIndex = pages.length;
@@ -204,10 +218,17 @@ export function BookEditor({
         showNotification("error", "Failed to create page");
       }
     });
-  }, [book.id, book.primary_template_id, pages.length, showNotification]);
+  }, [
+    book.id,
+    book.primary_template_id,
+    ensureEditable,
+    pages.length,
+    showNotification,
+  ]);
 
   const handlePageDelete = useCallback(
     async (pageId: string) => {
+      if (!ensureEditable()) return;
       if (pages.length <= 1) {
         showNotification("error", "Cannot delete the last page");
         return;
@@ -235,11 +256,12 @@ export function BookEditor({
         }
       });
     },
-    [pages.length, selectedPageIndex, showNotification],
+    [ensureEditable, pages.length, selectedPageIndex, showNotification],
   );
 
   const handlePagesReorder = useCallback(
     async (newOrder: string[]) => {
+      if (!ensureEditable()) return;
       startTransition(async () => {
         try {
           await reorderPages(book.id, newOrder);
@@ -257,11 +279,12 @@ export function BookEditor({
         }
       });
     },
-    [book.id, showNotification],
+    [book.id, ensureEditable, showNotification],
   );
 
   const handlePageDuplicate = useCallback(
     async (pageId: string) => {
+      if (!ensureEditable()) return;
       startTransition(async () => {
         try {
           const result = await duplicatePage(pageId);
@@ -293,7 +316,7 @@ export function BookEditor({
         }
       });
     },
-    [pages, showNotification],
+    [ensureEditable, pages, showNotification],
   );
 
   // Block handlers
@@ -304,6 +327,7 @@ export function BookEditor({
   const handleBlockAdd = useCallback(
     async (blockType: string) => {
       if (!currentPage) return;
+      if (!ensureEditable()) return;
 
       startTransition(async () => {
         try {
@@ -386,13 +410,14 @@ export function BookEditor({
         }
       });
     },
-    [currentPage, showNotification],
+    [currentPage, ensureEditable, showNotification],
   );
 
   // Handle drop from element palette
   const handleDropElement = useCallback(
     async (data: { type: string; x: number; y: number; emoji?: string }) => {
       if (!currentPage) return;
+      if (!ensureEditable()) return;
 
       // Map palette types to actual block types
       let blockType = data.type;
@@ -492,11 +517,12 @@ export function BookEditor({
         }
       });
     },
-    [currentPage, showNotification],
+    [currentPage, ensureEditable, showNotification],
   );
 
   const handleBlockUpdate = useCallback(
     async (blockId: string, updates: Partial<Block>) => {
+      if (!ensureEditable()) return;
       // Optimistic update
       setPages((prev) =>
         prev.map((p) => ({
@@ -522,11 +548,12 @@ export function BookEditor({
         }
       });
     },
-    [showNotification],
+    [ensureEditable, showNotification],
   );
 
   const handleBlockDelete = useCallback(
     async (blockId: string) => {
+      if (!ensureEditable()) return;
       startTransition(async () => {
         try {
           await deleteBlock(blockId);
@@ -546,11 +573,12 @@ export function BookEditor({
         }
       });
     },
-    [showNotification],
+    [ensureEditable, showNotification],
   );
 
   const handleBlockMove = useCallback(
     async (blockId: string, x: number, y: number) => {
+      if (!isEditable) return;
       // Optimistic update for smooth dragging
       setPages((prev) =>
         prev.map((p) => ({
@@ -566,11 +594,12 @@ export function BookEditor({
 
       // Debounced server update (handled by drag end)
     },
-    [],
+    [isEditable],
   );
 
   const handleBlockMoveEnd = useCallback(
     async (blockId: string, x: number, y: number) => {
+      if (!isEditable) return;
       try {
         await updateBlockPosition(blockId, { x, y });
       } catch (error) {
@@ -578,11 +607,12 @@ export function BookEditor({
         showNotification("error", "Failed to save position");
       }
     },
-    [showNotification],
+    [isEditable, showNotification],
   );
 
   const handleBlockResize = useCallback(
     async (blockId: string, width: number, height: number) => {
+      if (!isEditable) return;
       // Optimistic update
       setPages((prev) =>
         prev.map((p) => ({
@@ -604,13 +634,14 @@ export function BookEditor({
         }
       });
     },
-    [],
+    [isEditable],
   );
 
   // Page update handler
   const handlePageUpdate = useCallback(
     async (updates: Partial<Page>) => {
       if (!currentPage) return;
+      if (!ensureEditable()) return;
 
       // Optimistic update only (no network yet)
       setPages((prev) =>
@@ -636,7 +667,7 @@ export function BookEditor({
         });
       }
     },
-    [currentPage],
+    [currentPage, ensureEditable],
   );
 
   // Asset handlers
@@ -709,6 +740,7 @@ export function BookEditor({
   // Save handlers
   const handleSave = useCallback(async () => {
     if (!currentPage) return;
+    if (!ensureEditable()) return;
     setIsSaving(true);
     try {
       // Persist current page fields
@@ -727,7 +759,7 @@ export function BookEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [currentPage, showNotification]);
+  }, [currentPage, ensureEditable, showNotification]);
 
   const handlePreview = useCallback(() => {
     router.push(`/app/books/${book.id}/read`);
