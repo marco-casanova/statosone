@@ -1,11 +1,296 @@
 {
-  "nav": { "home": "Kreu", "investors": "Prezantimi për Investitorët" },
-  "hero": { "title": "Dorëzime të thjeshta kujdesi", "subtitle": "Regjistra ditorë të kujdesit dhe PDF me një klik për familjet dhe kujdestarët", "cta": "Bashkohu në pilot" },
-  "lead": { "name": "Emri", "email": "Email", "agree": "Pranoj politikën e privatësisë", "submit": "Më njofto" },
-  "footer": { "rights": "© Care Bridge" },
-  "auth": { "login": "Login", "signup": "Sign Up", "join_now": "Bashkohu tani" },
-  "common": { "language": "Gjuha" },
-  "register": { "title": "Create your account", "subtitle": "Enter basic details and (optional) address.", "role_label": "Lloj llogarie", "role_patient": "Pacient", "role_carer": "Kujdestar", "full_name": "Full name", "email": "Email", "password": "Password", "address_line1": "Address line 1", "address_line2": "Address line 2", "city": "City", "region": "Region / State", "postal_code": "Postal code", "country_code": "Country code (ISO2)", "submit": "Register", "registering": "Registering…", "success": "Registered. Check your email for confirmation (if enabled).", "disabled": "Registration disabled: Supabase env vars not configured.", "strength_0": "Very weak", "strength_1": "Weak", "strength_2": "Fair", "strength_3": "Good", "strength_4": "Strong" },
-  "error": { "name_required": "Name required", "email_invalid": "Valid email required", "password_short": "Password min 6 characters", "unknown": "Unknown error" },
-  "landing": { "top": { "services": "Shërbime", "contact": "Kontakt", "qa": "Pyetje" }, "hero": { "title": "Koordinim kujdesi përditë", "lead_line1": "Regjistro aktivitetet dhe vendos kujtesa.", "lead_line2": "Lidh familjet dhe kujdestarët.", "cta": "Shiko shërbimet" }, "problems": { "title": "Problemet që zgjidhim", "intro": "Kin Relay trajton sfidat reale të familjeve dhe ekipeve:", "items": { "fragmented": { "title": "Komunikim i copëzuar", "text": "Shumë kanale → humbje informacioni." }, "missed": { "title": "Doza të humbura", "text": "Pa strukturë harrohen ilaçe/detyra." }, "burnout": { "title": "Djégie e kujdestarëve", "text": "Stres nga mungesa koordinimit." }, "handover": { "title": "Dorëzim i paorganizuar", "text": "Ndërrimet sjellin gabime pa kalim të qartë." }, "privacy": { "title": "Rreziqe privatësie", "text": "Chat-et ekspozojnë të dhëna." }, "language": { "title": "Pengesa gjuhësore", "text": "Pa gjuhë të preferuar vështirësi." } }, "outro": "Kin Relay ofron regjistra dhe raporte." }, "services": { "title": "Çfarë ofron Kin Relay", "web": { "title": "Aplikacion Web", "text": "Regjistra dhe raporte." }, "android": { "title": "Android", "text": "Regjistrim i shpejtë." }, "admin": { "title": "Panel Admin", "text": "Klientë & analiza." }, "multi": { "title": "Shumëgjuhësh", "text": "Disa gjuhë." }, "privacy": { "title": "Privatësia", "text": "Strehim BE." }, "handover": { "title": "Raporte dorëzimi", "text": "PDF/email me klik." } }, "qa": { "title": "Pyetje", "getting_started": "Regjistrohu dhe nis.", "items": { "what": { "q": "Çfarë është Kin Relay?", "a": "Platformë koordinimi." }, "who": { "q": "Kush e përdor?", "a": "Familje & ekipe." }, "medical": { "q": "Pajisje mjekësore?", "a": "Jo." }, "privacy": { "q": "Të dhënat të sigurta?", "a": "Po." }, "platforms": { "q": "Platforma?", "a": "Web, Android." }, "export": { "q": "Eksport raporte?", "a": "Po." }, "languages": { "q": "Gjuhë?", "a": "Disa gjuhë." }, "invite": { "q": "Si ftoj?", "a": "Email në aplikacion." }, "android": { "q": "Android app?", "a": "Regjistrim në lëvizje." }, "difference": { "q": "Ndryshim nga chat?", "a": "Strukturë & privatësi." }, "multiple": { "q": "Shumë rrethe?", "a": "Po." }, "free": { "q": "Version falas?", "a": "Po." }, "support": { "q": "Mbështetje?", "a": "Në aplikacion." }, "accessibility": { "q": "Aksesueshmëri?", "a": "Kontrast i lartë." }, "getting_started": { "q": "Si filloj?", "a": "Regjistrohu dhe vazhdo." } } }, "contact": { "title": "Kontakto", "thanks": "Faleminderit!", "send": "Dërgo", "name": "Emri yt", "message": "Mesazh (ops.)" } }
+  "nav": {
+    "home": "Kreu",
+    "investors": "Prezantimi për Investitorët"
+  },
+  "hero": {
+    "title": "Dorëzime të thjeshta kujdesi",
+    "subtitle": "Regjistra ditorë të kujdesit dhe PDF me një klik për familjet dhe kujdestarët",
+    "cta": "Bashkohu në pilot"
+  },
+  "lead": {
+    "name": "Emri",
+    "email": "Email",
+    "agree": "Pranoj politikën e privatësisë",
+    "submit": "Më njofto"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "join_now": "Bashkohu"
+  },
+  "common": {
+    "language": "Gjuha"
+  },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+    "role_label": "Lloj llogarie",
+    "role_patient": "Pacient",
+    "role_carer": "Kujdestar",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  },
+  "landing": {
+    "top": {
+      "services": "Shërbime",
+      "contact": "Kontakt",
+      "qa": "Pyetje"
+    },
+    "hero": {
+      "title": "Koordinim kujdesi përditë",
+      "lead_line1": "Regjistro detyrat e kujdesit, ndaj shënime dorëzimi dhe vendos kujtesa.",
+      "lead_line2": "Lidh familjet dhe kujdestarët.",
+      "cta": "Shërbimet tona"
+    },
+    "problems": {
+      "title": "KIN RELAY zgjidh",
+      "intro": "KIN RELAY fokusohet te nevojat reale të kujdesit në shtëpi për familjet dhe kujdestarët informalë. Kjo fazë e parë nuk është për spitale, klinika apo organizata profesionale që tashmë kanë sistemet e tyre të dokumentimit.",
+      "items": {
+        "fragmented": {
+          "title": "Komunikim i copëzuar",
+          "text": "Shumë kanale → humbje informacioni."
+        },
+        "missed": {
+          "title": "Doza të humbura",
+          "text": "Pa strukturë harrohen ilaçe/detyra."
+        },
+        "burnout": {
+          "title": "Djégie e kujdestarëve",
+          "text": "Stres nga mungesa koordinimit."
+        },
+        "handover": {
+          "title": "Dorëzim i paorganizuar",
+          "text": "Ndërrimet sjellin gabime pa kalim të qartë."
+        },
+        "privacy": {
+          "title": "Rreziqe privatësie",
+          "text": "Chat-et ekspozojnë të dhëna."
+        },
+        "language": {
+          "title": "Pengesa gjuhësore",
+          "text": "Pa gjuhë të preferuar vështirësi."
+        }
+      },
+      "outro": "KIN RELAY e zgjidh këtë me detyra të strukturuara kujdesi, regjistra privatë dorëzimi, kujtesa, mbështetje shumëgjuhëshe dhe menaxhim të sigurt të të dhënave në BE për kujdesin në shtëpi."
+    },
+    "services": {
+      "title": "KIN RELAY ofron",
+      "web": {
+        "title": "Aplikacion Web",
+        "text": "Regjistro detyrat e kujdesit, rishiko dorëzimet dhe menaxho rolet e kujdesit në shtëpi."
+      },
+      "android": {
+        "title": "Android",
+        "text": "Regjistrim i shpejtë i detyrave të kujdesit, kujtesa dhe mbështetje dorëzimi në lëvizje."
+      },
+      "admin": {
+        "title": "Paneli i Kujdestarit",
+        "text": "Kontroll administrator prioritar për përfaqësuesin familjar/kujdestarin. Një modul menaxhimi me analitika mund të ofrohet në një version të mëvonshëm."
+      },
+      "multi": {
+        "title": "Shumëgjuhësh",
+        "text": "I disponueshëm në shumë gjuhë për familjet dhe kujdestarët informalë në shtëpi."
+      },
+      "privacy": {
+        "title": "Privatësia",
+        "text": "Hostim në BE, rrjedha të pëlqimit dhe praktika të përputhshme me GDPR/TDDDG. Faqja Compliance përfshin rregulloret e BE për të dhënat dhe sigurinë."
+      },
+      "handover": {
+        "title": "Raporte dorëzimi",
+        "text": "PDF/email me klik."
+      }
+    },
+    "qa": {
+      "title": "Pyetje",
+      "getting_started": "Regjistrohu dhe nis.",
+      "items": {
+        "what": {
+          "q": "Çfarë është Kin Relay?",
+          "a": "KIN RELAY është aplikacion koordinimi i kujdesit në shtëpi për familje dhe kujdestarë informalë."
+        },
+        "who": {
+          "q": "Kush e përdor?",
+          "a": "Familje, kujdestarë kryesorë dhe kujdestarë informalë në mjedis shtëpiak."
+        },
+        "medical": {
+          "q": "Pajisje mjekësore?",
+          "a": "Jo."
+        },
+        "privacy": {
+          "q": "Të dhënat të sigurta?",
+          "a": "Po. Hostim në BE, pëlqim i qartë dhe praktika të përputhshme me GDPR/TDDDG. Shihni informacionin Compliance për rregulloret e BE për të dhënat dhe sigurinë."
+        },
+        "platforms": {
+          "q": "Platforma?",
+          "a": "Web dhe Android. Në këtë fazë dashboard-i është ndërfaqe administrimi shtëpiak për kujdestarin, jo platformë enterprise."
+        },
+        "export": {
+          "q": "Eksport raporte?",
+          "a": "Po."
+        },
+        "languages": {
+          "q": "Gjuhë?",
+          "a": "Disa gjuhë."
+        },
+        "invite": {
+          "q": "Si ftoj?",
+          "a": "Ftesat menaxhohen vetëm nga administratori prioritar (kujdestari/përfaqësuesi familjar)."
+        },
+        "android": {
+          "q": "Android app?",
+          "a": "Regjistro detyrat e kujdesit, vendos kujtesa dhe mbyll dorëzimet në lëvizje."
+        },
+        "difference": {
+          "q": "Ndryshim nga chat?",
+          "a": "Regjistra të strukturuar të detyrave të kujdesit, kontroll privatësie dhe raporte me një prekje kundrejt chat-it të pastrukturuar."
+        },
+        "multiple": {
+          "q": "Shumë rrethe?",
+          "a": "Rrethi i kujdesit është grupi i personave rreth një klienti në shtëpi (p.sh. kujdestar + familjarë me akses vetëm shikimi)."
+        },
+        "free": {
+          "q": "Version falas?",
+          "a": "Po."
+        },
+        "support": {
+          "q": "Mbështetje?",
+          "a": "Në aplikacion."
+        },
+        "accessibility": {
+          "q": "Aksesueshmëri?",
+          "a": "Kontrast i lartë, tipografi e rrjedhshme, madhësi e rritur e fontit dhe opsione për lëvizje të reduktuar."
+        },
+        "getting_started": {
+          "q": "Si filloj?",
+          "a": "Regjistrohu, administratori kujdestar fton të tjerët dhe nis regjistrimin e detyrave të kujdesit."
+        }
+      }
+    },
+    "contact": {
+      "title": "Kontakto",
+      "thanks": "Faleminderit!",
+      "send": "Dërgo",
+      "name": "Emri yt",
+      "message": "Mesazh (ops.)"
+    }
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Regjistri Kryesor",
+      "sections": {
+        "quick_actions": "Veprime të Shpejta",
+        "categories": "Kategoritë",
+        "incident_types": "Llojet e Incidentit",
+        "recent_tasks": "Detyrat e Fundit"
+      },
+      "actions": {
+        "save": "Ruaj",
+        "saving": "Duke ruajtur...",
+        "cancel": "Anulo",
+        "expand": "Zgjero",
+        "collapse": "Palos"
+      },
+      "states": {
+        "loading": "Duke u ngarkuar...",
+        "no_tasks": "Ende nuk ka detyra të regjistruara.",
+        "no_clients": "Nuk ka klientë të disponueshëm"
+      },
+      "labels": {
+        "client": "Klienti",
+        "category": "Kategoria",
+        "observed_at": "Vërejtur në",
+        "assistance_level": "Niveli i ndihmës",
+        "select_level": "Zgjidh nivelin",
+        "fluid_type_optional": "Lloji i lëngut (opsional)",
+        "food_type_caregiver_input": "Lloji i ushqimit (input i kujdestarit)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Zgjidh klientin",
+        "go_back": "Kthehu",
+        "pick_incident": "Zgjidh incidentin"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Hidratimi",
+          "subtitle": "Lëngjet e konsumuara"
+        },
+        "nutrition": {
+          "label": "Ushqyerja",
+          "subtitle": "Vakte dhe ushqime të lehta"
+        },
+        "personal_care": {
+          "label": "Kujdes personal",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Incident",
+          "subtitle": "Vëzhgim shëndetësor + Tjetër"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
+  }
 }

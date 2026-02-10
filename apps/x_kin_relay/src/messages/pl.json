@@ -1,21 +1,180 @@
 {
-  "nav": { "home": "Strona główna", "investors": "Prezentacja dla inwestorów" },
+  "nav": {
+    "home": "Strona główna",
+    "investors": "Prezentacja dla inwestorów"
+  },
   "hero": {
     "title": "Proste przekazania opieki",
     "subtitle": "Codzienne dzienniki opieki i plik PDF jednym kliknięciem dla rodzin i opiekunów",
     "cta": "Dołącz do pilotażu"
   },
-  "lead": { "name": "Imię", "email": "E-mail", "agree": "Akceptuję politykę prywatności", "submit": "Powiadom mnie" },
-  "footer": { "rights": "© Care Bridge" },
-  "landing": { "top": { "services": "Usługi", "contact": "Kontakt", "qa": "Pytania" }, "hero": { "title": "Koordynacja opieki na co dzień", "lead_line1": "Rejestruj czynności, udostępniaj notatki, ustawiaj przypomnienia.", "lead_line2": "Łącz rodziny i opiekunów.", "cta": "Zobacz usługi" }, "problems": { "title": "Problemy które rozwiązujemy", "intro": "Kin Relay odpowiada na realne bolączki rodzin i zespołów opieki:", "items": { "fragmented": { "title": "Fragmentaryczna komunikacja", "text": "Różne kanały powodują utratę informacji i chaos." }, "missed": { "title": "Pominięte dawki i zadania", "text": "Bez struktury łatwo zapomnieć o lekach czy posiłkach." }, "burnout": { "title": "Wypalenie opiekunów", "text": "Stres z braku koordynacji i jasnych ról." }, "handover": { "title": "Chaotyczne przekazanie", "text": "Zmiany dyżurów bez jasnych danych powodują błędy." }, "privacy": { "title": "Ryzyko prywatności", "text": "Ogólne komunikatory narażają wrażliwe dane." }, "language": { "title": "Bariery językowe", "text": "Brak narzędzia w preferowanym języku utrudnia współpracę." } }, "outro": "Kin Relay oferuje strukturalne logi, raporty i wielojęzyczność." }, "services": { "title": "Co oferuje Kin Relay", "web": { "title": "Aplikacja Web", "text": "Logi, role i raporty." }, "android": { "title": "Aplikacja Android", "text": "Szybkie logowanie i przekazania." }, "admin": { "title": "Panel Admin", "text": "Zarządzaj klientami i danymi." }, "multi": { "title": "Wielojęzyczne wsparcie", "text": "Dostępne w wielu językach." }, "privacy": { "title": "Prywatność", "text": "Hosting UE i zgodność." }, "handover": { "title": "Raporty przekazań", "text": "PDF lub e‑mail jednym kliknięciem." } }, "qa": { "title": "Pytania", "getting_started": "Zarejestruj się i zaproś krąg.", "items": { "what": { "q": "Czym jest Kin Relay?", "a": "Platforma koordynacji opieki (Web, Android, Admin)." }, "who": { "q": "Kto może używać?", "a": "Rodziny, opiekunowie, zespoły i dostawcy." }, "medical": { "q": "Czy to wyrób medyczny?", "a": "Nie, dokumentacja i przypomnienia." }, "privacy": { "q": "Czy dane są bezpieczne?", "a": "Tak, hosting UE." }, "platforms": { "q": "Wspierane platformy?", "a": "Web, Android, panel." }, "export": { "q": "Eksport raportów?", "a": "Tak, PDF/e‑mail." }, "languages": { "q": "Dostępne języki?", "a": "Wiele języków." }, "invite": { "q": "Jak zaprosić?", "a": "Zaproszenie e‑mail w aplikacji." }, "android": { "q": "Aplikacja Android?", "a": "Logi, przypomnienia, przekazania." }, "difference": { "q": "Różnica od komunikatora?", "a": "Struktura i prywatność." }, "multiple": { "q": "Wiele kręgów?", "a": "Tak." }, "free": { "q": "Wersja darmowa?", "a": "Tak." }, "support": { "q": "Wsparcie?", "a": "W aplikacji lub formularz." }, "accessibility": { "q": "Dostępność?", "a": "Wysoki kontrast." }, "getting_started": { "q": "Jak zacząć?", "a": "Rejestracja i logowanie." } } }, "contact": { "title": "Kontakt", "thanks": "Dziękujemy! Skontaktujemy się.", "send": "Wyślij", "name": "Twoje imię", "message": "Wiadomość (opcjonalnie)" } },
-  "auth": { "login": "Login", "signup": "Sign Up", "join_now": "Dołącz teraz" },
-  "common": { "language": "Język" },
+  "lead": {
+    "name": "Imię",
+    "email": "E-mail",
+    "agree": "Akceptuję politykę prywatności",
+    "submit": "Powiadom mnie"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
+  "landing": {
+    "top": {
+      "services": "Usługi",
+      "contact": "Kontakt",
+      "qa": "Pytania"
+    },
+    "hero": {
+      "title": "Koordynacja opieki na co dzień",
+      "lead_line1": "Rejestruj zadania opiekuńcze, udostępniaj notatki przekazania i ustawiaj przypomnienia.",
+      "lead_line2": "Łącz rodziny i opiekunów.",
+      "cta": "Nasze usługi"
+    },
+    "problems": {
+      "title": "KIN RELAY rozwiązuje",
+      "intro": "KIN RELAY koncentruje się na rzeczywistych potrzebach domowej opieki rodzin i opiekunów nieformalnych. Ten pierwszy etap nie jest przeznaczony dla szpitali, klinik ani organizacji profesjonalnych z własnymi systemami dokumentacji.",
+      "items": {
+        "fragmented": {
+          "title": "Fragmentaryczna komunikacja",
+          "text": "Różne kanały powodują utratę informacji i chaos."
+        },
+        "missed": {
+          "title": "Pominięte dawki i zadania",
+          "text": "Bez struktury łatwo zapomnieć o lekach czy posiłkach."
+        },
+        "burnout": {
+          "title": "Wypalenie opiekunów",
+          "text": "Stres z braku koordynacji i jasnych ról."
+        },
+        "handover": {
+          "title": "Chaotyczne przekazanie",
+          "text": "Zmiany dyżurów bez jasnych danych powodują błędy."
+        },
+        "privacy": {
+          "title": "Ryzyko prywatności",
+          "text": "Ogólne komunikatory narażają wrażliwe dane."
+        },
+        "language": {
+          "title": "Bariery językowe",
+          "text": "Brak narzędzia w preferowanym języku utrudnia współpracę."
+        }
+      },
+      "outro": "KIN RELAY rozwiązuje to dzięki ustrukturyzowanym zadaniom opiekuńczym, prywatnym zapisom przekazania, przypomnieniom, obsłudze wielu języków i bezpiecznemu przetwarzaniu danych w UE dla opieki domowej."
+    },
+    "services": {
+      "title": "KIN RELAY oferuje",
+      "web": {
+        "title": "Aplikacja Web",
+        "text": "Rejestruj zadania opiekuńcze, przeglądaj przekazania i zarządzaj rolami opieki domowej."
+      },
+      "android": {
+        "title": "Aplikacja Android",
+        "text": "Szybkie logowanie zadań opiekuńczych, przypomnienia i wsparcie przekazania w ruchu."
+      },
+      "admin": {
+        "title": "Panel Opiekuna Głównego",
+        "text": "Priorytetowa kontrola administratora dla opiekuna/rodziny. Moduł zarządzania z analityką może być oferowany w późniejszej wersji."
+      },
+      "multi": {
+        "title": "Wielojęzyczne wsparcie",
+        "text": "Dostępne w wielu językach dla rodzin i nieformalnych opiekunów domowych."
+      },
+      "privacy": {
+        "title": "Prywatność",
+        "text": "Hosting w UE, przepływy zgód i praktyki zgodne z GDPR/TDDDG. Strona Compliance zawiera unijne regulacje dot. danych i bezpieczeństwa."
+      },
+      "handover": {
+        "title": "Raporty przekazań",
+        "text": "PDF lub e‑mail jednym kliknięciem."
+      }
+    },
+    "qa": {
+      "title": "Pytania",
+      "getting_started": "Zarejestruj się i zaproś krąg.",
+      "items": {
+        "what": {
+          "q": "Czym jest Kin Relay?",
+          "a": "KIN RELAY to aplikacja koordynacji opieki domowej dla rodzin i nieformalnych opiekunów."
+        },
+        "who": {
+          "q": "Kto może używać?",
+          "a": "Rodziny, opiekunowie główni i nieformalni opiekunowie w warunkach domowych."
+        },
+        "medical": {
+          "q": "Czy to wyrób medyczny?",
+          "a": "Nie, dokumentacja i przypomnienia."
+        },
+        "privacy": {
+          "q": "Czy dane są bezpieczne?",
+          "a": "Tak. Hosting w UE, wyraźne zgody i praktyki zgodne z GDPR/TDDDG. Zobacz informacje Compliance dotyczące regulacji UE w zakresie danych i bezpieczeństwa."
+        },
+        "platforms": {
+          "q": "Wspierane platformy?",
+          "a": "Web i Android. Dashboard na tym etapie jest domowym interfejsem administratora opiekuna, a nie platformą enterprise."
+        },
+        "export": {
+          "q": "Eksport raportów?",
+          "a": "Tak, PDF/e‑mail."
+        },
+        "languages": {
+          "q": "Dostępne języki?",
+          "a": "Wiele języków."
+        },
+        "invite": {
+          "q": "Jak zaprosić?",
+          "a": "Zaproszeniami zarządza wyłącznie administrator priorytetowy (opiekun/representant rodziny)."
+        },
+        "android": {
+          "q": "Aplikacja Android?",
+          "a": "Rejestruj zadania opiekuńcze, ustawiaj przypomnienia i zamykaj przekazania w ruchu."
+        },
+        "difference": {
+          "q": "Różnica od komunikatora?",
+          "a": "Ustrukturyzowane logi zadań opiekuńczych, kontrola prywatności i raporty jednym kliknięciem vs nieustrukturyzowany czat."
+        },
+        "multiple": {
+          "q": "Wiele kręgów?",
+          "a": "Krąg opieki to osoby wokół jednego klienta w domu (np. opiekun + członkowie rodziny z dostępem tylko do podglądu)."
+        },
+        "free": {
+          "q": "Wersja darmowa?",
+          "a": "Tak."
+        },
+        "support": {
+          "q": "Wsparcie?",
+          "a": "W aplikacji lub formularz."
+        },
+        "accessibility": {
+          "q": "Dostępność?",
+          "a": "Wysoki kontrast, płynna typografia, powiększony rozmiar czcionki i opcje ograniczenia ruchu."
+        },
+        "getting_started": {
+          "q": "Jak zacząć?",
+          "a": "Zarejestruj się, administrator-opiekun zaprasza innych i rozpocznij rejestrowanie zadań opiekuńczych."
+        }
+      }
+    },
+    "contact": {
+      "title": "Kontakt",
+      "thanks": "Dziękujemy! Skontaktujemy się.",
+      "send": "Wyślij",
+      "name": "Twoje imię",
+      "message": "Wiadomość (opcjonalnie)"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "join_now": "Dołącz"
+  },
+  "common": {
+    "language": "Język"
+  },
   "register": {
     "title": "Create your account",
     "subtitle": "Enter basic details and (optional) address.",
-  "role_label": "Typ konta",
-  "role_patient": "Pacjent",
-  "role_carer": "Opiekun",
+    "role_label": "Typ konta",
+    "role_patient": "Pacjent",
+    "role_carer": "Opiekun",
     "full_name": "Full name",
     "email": "Email",
     "password": "Password",
@@ -40,5 +199,98 @@
     "email_invalid": "Valid email required",
     "password_short": "Password min 6 characters",
     "unknown": "Unknown error"
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Główny Rejestr",
+      "sections": {
+        "quick_actions": "Szybkie Akcje",
+        "categories": "Kategorie",
+        "incident_types": "Typy Incydentów",
+        "recent_tasks": "Ostatnie Zadania"
+      },
+      "actions": {
+        "save": "Zapisz",
+        "saving": "Zapisywanie...",
+        "cancel": "Anuluj",
+        "expand": "Rozwiń",
+        "collapse": "Zwiń"
+      },
+      "states": {
+        "loading": "Ładowanie...",
+        "no_tasks": "Brak zarejestrowanych zadań.",
+        "no_clients": "Brak dostępnych klientów"
+      },
+      "labels": {
+        "client": "Klient",
+        "category": "Kategoria",
+        "observed_at": "Zaobserwowano o",
+        "assistance_level": "Poziom pomocy",
+        "select_level": "Wybierz poziom",
+        "fluid_type_optional": "Rodzaj płynu (opcjonalnie)",
+        "food_type_caregiver_input": "Rodzaj jedzenia (wpis opiekuna)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Wybierz klienta",
+        "go_back": "Wróć",
+        "pick_incident": "Wybierz incydent"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Nawodnienie",
+          "subtitle": "Spożyte płyny"
+        },
+        "nutrition": {
+          "label": "Żywienie",
+          "subtitle": "Posiłki i przekąski"
+        },
+        "personal_care": {
+          "label": "Opieka osobista",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Incydent",
+          "subtitle": "Obserwacja zdrowia + Inne"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
   }
 }

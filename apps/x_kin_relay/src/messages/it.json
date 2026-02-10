@@ -1,11 +1,296 @@
 {
-  "nav": { "home": "Home", "investors": "Presentazione Investitori" },
-  "hero": { "title": "Passaggi di cura semplici", "subtitle": "Registri quotidiani della cura e PDF con un tocco per famiglie e caregiver", "cta": "Unisciti al pilota" },
-  "lead": { "name": "Nome", "email": "Email", "agree": "Accetto l'informativa sulla privacy", "submit": "Avvisami" },
-  "footer": { "rights": "© Care Bridge" },
-  "auth": { "login": "Login", "signup": "Sign Up" },
-  "common": { "language": "Lingua" },
-  "register": { "title": "Create your account", "subtitle": "Enter basic details and (optional) address.", "role_label": "Tipo account", "role_patient": "Paziente", "role_carer": "Caregiver", "full_name": "Full name", "email": "Email", "password": "Password", "address_line1": "Address line 1", "address_line2": "Address line 2", "city": "City", "region": "Region / State", "postal_code": "Postal code", "country_code": "Country code (ISO2)", "submit": "Register", "registering": "Registering…", "success": "Registered. Check your email for confirmation (if enabled).", "disabled": "Registration disabled: Supabase env vars not configured.", "strength_0": "Very weak", "strength_1": "Weak", "strength_2": "Fair", "strength_3": "Good", "strength_4": "Strong" },
-  "error": { "name_required": "Name required", "email_invalid": "Valid email required", "password_short": "Password min 6 characters", "unknown": "Unknown error" },
-  "landing": { "top": { "services": "Servizi", "contact": "Contatto", "qa": "Domande" }, "hero": { "title": "Coordinazione della cura quotidiana", "lead_line1": "Registra attività e note.", "lead_line2": "Collega famiglie e caregiver.", "cta": "Vedi servizi" }, "problems": { "title": "Problemi che risolviamo", "intro": "Kin Relay affronta le sfide reali di famiglie e team:", "items": { "fragmented": { "title": "Comunicazione frammentata", "text": "Più canali = perdita di informazioni." }, "missed": { "title": "Compiti mancati", "text": "Senza struttura si dimenticano farmaci e attività." }, "burnout": { "title": "Burnout dei caregiver", "text": "Stress per mancanza di coordinamento." }, "handover": { "title": "Passaggio disordinato", "text": "Errori nei cambi turno senza chiarezza." }, "privacy": { "title": "Rischi privacy", "text": "Chat generiche espongono dati sensibili." }, "language": { "title": "Barriere linguistiche", "text": "Assenza della lingua preferita complica." } }, "outro": "Kin Relay offre registri strutturati e report." }, "services": { "title": "Cosa offre Kin Relay", "web": { "title": "App Web", "text": "Registri, ruoli e report." }, "android": { "title": "Android", "text": "Log rapido e passaggi turno." }, "admin": { "title": "Dashboard Admin", "text": "Clienti e analytics." }, "multi": { "title": "Supporto multilingue", "text": "Più lingue." }, "privacy": { "title": "Privacy", "text": "Hosting UE." }, "handover": { "title": "Report passaggi", "text": "PDF/email con un clic." } }, "qa": { "title": "Domande", "getting_started": "Registrati e inizia.", "items": { "what": { "q": "Cos'è Kin Relay?", "a": "Piattaforma di coordinazione (Web, Android, Admin)." }, "who": { "q": "Chi può usarla?", "a": "Famiglie e team." }, "medical": { "q": "Dispositivo medico?", "a": "No." }, "privacy": { "q": "Dati sicuri?", "a": "Sì, hosting UE." }, "platforms": { "q": "Piattaforme?", "a": "Web, Android." }, "export": { "q": "Esportare report?", "a": "Sì." }, "languages": { "q": "Lingue?", "a": "Diverse lingue." }, "invite": { "q": "Come invitare?", "a": "Email dall'app." }, "android": { "q": "App Android?", "a": "Log e promemoria in mobilità." }, "difference": { "q": "Differenza da chat?", "a": "Struttura e privacy." }, "multiple": { "q": "Più cerchi?", "a": "Sì." }, "free": { "q": "Versione gratuita?", "a": "Sì." }, "support": { "q": "Supporto?", "a": "In‑app." }, "accessibility": { "q": "Accessibilità?", "a": "Alto contrasto." }, "getting_started": { "q": "Come iniziare?", "a": "Registrati e avvia i log." } } }, "contact": { "title": "Contatto", "thanks": "Grazie! A presto.", "send": "Invia", "name": "Il tuo nome", "message": "Messaggio (opz.)" } }
+  "nav": {
+    "home": "Home",
+    "investors": "Presentazione Investitori"
+  },
+  "hero": {
+    "title": "Passaggi di cura semplici",
+    "subtitle": "Registri quotidiani della cura e PDF con un tocco per famiglie e caregiver",
+    "cta": "Unisciti al pilota"
+  },
+  "lead": {
+    "name": "Nome",
+    "email": "Email",
+    "agree": "Accetto l'informativa sulla privacy",
+    "submit": "Avvisami"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "join_now": "Unisciti"
+  },
+  "common": {
+    "language": "Lingua"
+  },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+    "role_label": "Tipo account",
+    "role_patient": "Paziente",
+    "role_carer": "Caregiver",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  },
+  "landing": {
+    "top": {
+      "services": "Servizi",
+      "contact": "Contatto",
+      "qa": "Domande"
+    },
+    "hero": {
+      "title": "Coordinazione della cura quotidiana",
+      "lead_line1": "Registra le attività di cura, condividi note di passaggio e imposta promemoria.",
+      "lead_line2": "Collega famiglie e caregiver.",
+      "cta": "I nostri servizi"
+    },
+    "problems": {
+      "title": "KIN RELAY risolve",
+      "intro": "KIN RELAY si concentra sui bisogni reali dell’assistenza domiciliare per famiglie e caregiver informali. Questa prima fase non è pensata per ospedali, cliniche o organizzazioni professionali che già usano propri sistemi di documentazione.",
+      "items": {
+        "fragmented": {
+          "title": "Comunicazione frammentata",
+          "text": "Più canali = perdita di informazioni."
+        },
+        "missed": {
+          "title": "Compiti mancati",
+          "text": "Senza struttura si dimenticano farmaci e attività."
+        },
+        "burnout": {
+          "title": "Burnout dei caregiver",
+          "text": "Stress per mancanza di coordinamento."
+        },
+        "handover": {
+          "title": "Passaggio disordinato",
+          "text": "Errori nei cambi turno senza chiarezza."
+        },
+        "privacy": {
+          "title": "Rischi privacy",
+          "text": "Chat generiche espongono dati sensibili."
+        },
+        "language": {
+          "title": "Barriere linguistiche",
+          "text": "Assenza della lingua preferita complica."
+        }
+      },
+      "outro": "KIN RELAY risolve tutto questo con attività di cura strutturate, registri privati di passaggio, promemoria, supporto multilingue e gestione sicura dei dati UE per la cura a domicilio."
+    },
+    "services": {
+      "title": "KIN RELAY offre",
+      "web": {
+        "title": "App Web",
+        "text": "Registra attività di cura, rivedi i passaggi e gestisci i ruoli della cura domestica."
+      },
+      "android": {
+        "title": "Android",
+        "text": "Registrazione rapida delle attività di cura, promemoria e supporto passaggi in mobilità."
+      },
+      "admin": {
+        "title": "Dashboard del Guardiano",
+        "text": "Controllo amministratore prioritario per rappresentanti familiari/guardiano. Un modulo di gestione con analitiche potrà essere offerto in una versione successiva."
+      },
+      "multi": {
+        "title": "Supporto multilingue",
+        "text": "Disponibile in più lingue per famiglie e caregiver informali a domicilio."
+      },
+      "privacy": {
+        "title": "Privacy",
+        "text": "Hosting UE, flussi di consenso e pratiche allineate a GDPR/TDDDG. La pagina Compliance include le normative UE su dati e sicurezza."
+      },
+      "handover": {
+        "title": "Report passaggi",
+        "text": "PDF/email con un clic."
+      }
+    },
+    "qa": {
+      "title": "Domande",
+      "getting_started": "Registrati e inizia.",
+      "items": {
+        "what": {
+          "q": "Cos'è Kin Relay?",
+          "a": "KIN RELAY è un’app di coordinamento della cura domiciliare per famiglie e caregiver informali."
+        },
+        "who": {
+          "q": "Chi può usarla?",
+          "a": "Famiglie, guardiani e caregiver informali in ambiente domestico."
+        },
+        "medical": {
+          "q": "Dispositivo medico?",
+          "a": "No."
+        },
+        "privacy": {
+          "q": "Dati sicuri?",
+          "a": "Sì. Hosting UE, consenso esplicito e pratiche allineate a GDPR/TDDDG. Consulta la sezione Compliance per le normative UE su dati e sicurezza."
+        },
+        "platforms": {
+          "q": "Piattaforme?",
+          "a": "Web e Android. In questa fase la dashboard è un’interfaccia admin domestica per il guardiano, non una piattaforma enterprise."
+        },
+        "export": {
+          "q": "Esportare report?",
+          "a": "Sì."
+        },
+        "languages": {
+          "q": "Lingue?",
+          "a": "Diverse lingue."
+        },
+        "invite": {
+          "q": "Come invitare?",
+          "a": "Gli inviti sono gestiti solo dall’amministratore prioritario (guardiano/rappresentante familiare)."
+        },
+        "android": {
+          "q": "App Android?",
+          "a": "Registra attività di cura, imposta promemoria e completa i passaggi in mobilità."
+        },
+        "difference": {
+          "q": "Differenza da chat?",
+          "a": "Registri strutturati di attività di cura, controlli privacy e report one-tap rispetto a chat non strutturate."
+        },
+        "multiple": {
+          "q": "Più cerchi?",
+          "a": "Un cerchio di cura è il gruppo di persone attorno a un cliente a casa (es.: caregiver + familiari con permessi di sola lettura)."
+        },
+        "free": {
+          "q": "Versione gratuita?",
+          "a": "Sì."
+        },
+        "support": {
+          "q": "Supporto?",
+          "a": "In‑app."
+        },
+        "accessibility": {
+          "q": "Accessibilità?",
+          "a": "Alto contrasto, tipografia fluida, dimensione font aumentata e opzioni di movimento ridotto."
+        },
+        "getting_started": {
+          "q": "Come iniziare?",
+          "a": "Registrati, il guardiano admin invita gli altri e inizia a registrare le attività di cura."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contatto",
+      "thanks": "Grazie! A presto.",
+      "send": "Invia",
+      "name": "Il tuo nome",
+      "message": "Messaggio (opz.)"
+    }
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Registro Principale",
+      "sections": {
+        "quick_actions": "Azioni Rapide",
+        "categories": "Categorie",
+        "incident_types": "Tipi di Incidente",
+        "recent_tasks": "Attività Recenti"
+      },
+      "actions": {
+        "save": "Salva",
+        "saving": "Salvataggio...",
+        "cancel": "Annulla",
+        "expand": "Espandi",
+        "collapse": "Comprimi"
+      },
+      "states": {
+        "loading": "Caricamento...",
+        "no_tasks": "Nessuna attività registrata.",
+        "no_clients": "Nessun cliente disponibile"
+      },
+      "labels": {
+        "client": "Cliente",
+        "category": "Categoria",
+        "observed_at": "Osservato alle",
+        "assistance_level": "Livello di assistenza",
+        "select_level": "Seleziona livello",
+        "fluid_type_optional": "Tipo di liquido (opzionale)",
+        "food_type_caregiver_input": "Tipo di cibo (input caregiver)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Seleziona cliente",
+        "go_back": "Indietro",
+        "pick_incident": "Seleziona incidente"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Idratazione",
+          "subtitle": "Liquidi consumati"
+        },
+        "nutrition": {
+          "label": "Nutrizione",
+          "subtitle": "Pasti e spuntini"
+        },
+        "personal_care": {
+          "label": "Cura personale",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Incidente",
+          "subtitle": "Osservazione salute + Altro"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
+  }
 }

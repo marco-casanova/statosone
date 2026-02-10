@@ -1,21 +1,180 @@
 {
-  "nav": { "home": "Ana sayfa", "investors": "Yatırımcı sunumu" },
+  "nav": {
+    "home": "Ana sayfa",
+    "investors": "Yatırımcı sunumu"
+  },
   "hero": {
     "title": "Basit bakım devirleri",
     "subtitle": "Aileler ve bakıcılar için günlük bakım kayıtları ve tek dokunuşla PDF",
     "cta": "Pilota katıl"
   },
-  "lead": { "name": "İsim", "email": "E-posta", "agree": "Gizlilik politikasını kabul ediyorum", "submit": "Beni bilgilendir" },
-  "footer": { "rights": "© Care Bridge" },
-  "landing": { "top": { "services": "Hizmetler", "contact": "İletişim", "qa": "Sorular" }, "hero": { "title": "Günlük yaşam için bakım koordinasyonu", "lead_line1": "Etkinlikleri kaydet, not paylaş, hatırlatıcı kur.", "lead_line2": "Aileleri ve bakıcıları bağlı tut.", "cta": "Hizmetleri gör" }, "problems": { "title": "Çözdüğümüz sorunlar", "intro": "Kin Relay aile ve ekiplerin gerçek sorunlarını çözer:", "items": { "fragmented": { "title": "Parçalı iletişim", "text": "Farklı kanallar bilgi kaybı yaratır." }, "missed": { "title": "Atlanan görevler", "text": "Yapı olmazsa ilaç ve görevler unutulur." }, "burnout": { "title": "Tükenmişlik", "text": "Koordinasyon eksikliği strese yol açar." }, "handover": { "title": "Düzensiz devir", "text": "Net aktarım yoksa vardiya hataları olur." }, "privacy": { "title": "Gizlilik riskleri", "text": "Genel sohbet uygulamaları veriyi açığa çıkarır." }, "language": { "title": "Dil engelleri", "text": "Araç dil desteği olmayınca zorluk." } }, "outro": "Kin Relay yapılandırılmış kayıtlar ve raporlar sunar." }, "services": { "title": "Kin Relay ne sunar", "web": { "title": "Web Uygulaması", "text": "Kayıtlar, roller, raporlar." }, "android": { "title": "Android", "text": "Hızlı kayıt ve devir." }, "admin": { "title": "Yönetim Paneli", "text": "Müşteri ve analiz." }, "multi": { "title": "Çok dilli", "text": "Birden çok dil." }, "privacy": { "title": "Gizlilik", "text": "AB barındırma." }, "handover": { "title": "Devir raporları", "text": "PDF/e‑posta tek dokunuş." } }, "qa": { "title": "Sorular", "getting_started": "Kayıt ol ve başla.", "items": { "what": { "q": "Kin Relay nedir?", "a": "Bakım koordinasyon platformu." }, "who": { "q": "Kimler kullanabilir?", "a": "Aileler ve ekipler." }, "medical": { "q": "Tıbbi cihaz mı?", "a": "Hayır." }, "privacy": { "q": "Veriler güvenli mi?", "a": "Evet AB barındırma." }, "platforms": { "q": "Platformlar?", "a": "Web, Android." }, "export": { "q": "Rapor dışa aktarım?", "a": "Evet." }, "languages": { "q": "Diller?", "a": "Birçok dil." }, "invite": { "q": "Nasıl davet ederim?", "a": "Uygulamada e‑posta." }, "android": { "q": "Android uygulaması?", "a": "Mobil kayıt." }, "difference": { "q": "Sohbetten farkı?", "a": "Yapı ve gizlilik." }, "multiple": { "q": "Birden çok çevre?", "a": "Evet." }, "free": { "q": "Ücretsiz sürüm?", "a": "Evet." }, "support": { "q": "Destek?", "a": "Uygulamada." }, "accessibility": { "q": "Erişilebilirlik?", "a": "Yüksek kontrast." }, "getting_started": { "q": "Nasıl başlarım?", "a": "Kayıt ol giriş yap." } } }, "contact": { "title": "İletişim", "thanks": "Teşekkürler! Yakında.", "send": "Gönder", "name": "Adınız", "message": "Mesaj (opsiyonel)" } },
-  "auth": { "login": "Login", "signup": "Sign Up", "join_now": "Hemen katıl" },
-  "common": { "language": "Dil" },
+  "lead": {
+    "name": "İsim",
+    "email": "E-posta",
+    "agree": "Gizlilik politikasını kabul ediyorum",
+    "submit": "Beni bilgilendir"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
+  "landing": {
+    "top": {
+      "services": "Hizmetler",
+      "contact": "İletişim",
+      "qa": "Sorular"
+    },
+    "hero": {
+      "title": "Günlük yaşam için bakım koordinasyonu",
+      "lead_line1": "Bakım görevlerini kaydedin, devir notlarını paylaşın ve hatırlatıcılar oluşturun.",
+      "lead_line2": "Aileleri ve bakıcıları bağlı tut.",
+      "cta": "Hizmetlerimiz"
+    },
+    "problems": {
+      "title": "KIN RELAY çözer",
+      "intro": "KIN RELAY, aileler ve gayriresmi bakım verenler için gerçek evde bakım ihtiyaçlarına odaklanır. Bu ilk aşama; hastaneler, klinikler veya kendi dokümantasyon sistemine sahip profesyonel kuruluşlar için tasarlanmamıştır.",
+      "items": {
+        "fragmented": {
+          "title": "Parçalı iletişim",
+          "text": "Farklı kanallar bilgi kaybı yaratır."
+        },
+        "missed": {
+          "title": "Atlanan görevler",
+          "text": "Yapı olmazsa ilaç ve görevler unutulur."
+        },
+        "burnout": {
+          "title": "Tükenmişlik",
+          "text": "Koordinasyon eksikliği strese yol açar."
+        },
+        "handover": {
+          "title": "Düzensiz devir",
+          "text": "Net aktarım yoksa vardiya hataları olur."
+        },
+        "privacy": {
+          "title": "Gizlilik riskleri",
+          "text": "Genel sohbet uygulamaları veriyi açığa çıkarır."
+        },
+        "language": {
+          "title": "Dil engelleri",
+          "text": "Araç dil desteği olmayınca zorluk."
+        }
+      },
+      "outro": "KIN RELAY bunu yapılandırılmış bakım görevleri, özel devir kayıtları, hatırlatıcılar, çok dilli destek ve evde bakım için AB tabanlı güvenli veri yönetimi ile çözer."
+    },
+    "services": {
+      "title": "KIN RELAY sunar",
+      "web": {
+        "title": "Web Uygulaması",
+        "text": "Bakım görevlerini kaydedin, devirleri gözden geçirin ve evde bakım rollerini yönetin."
+      },
+      "android": {
+        "title": "Android",
+        "text": "Hızlı bakım görevi kaydı, hatırlatıcılar ve hareket halindeyken devir desteği."
+      },
+      "admin": {
+        "title": "Vasi Paneli",
+        "text": "Aile temsilcisi/vasi için öncelikli yönetici kontrolü. Analitik içeren bir yönetim modülü daha sonraki bir sürümde sunulabilir."
+      },
+      "multi": {
+        "title": "Çok dilli",
+        "text": "Aileler ve gayriresmi evde bakım verenler için birden çok dilde kullanılabilir."
+      },
+      "privacy": {
+        "title": "Gizlilik",
+        "text": "AB barındırma, açık rıza akışları ve GDPR/TDDDG uyumlu uygulamalar. Compliance sayfası AB veri ve güvenlik düzenlemelerini içerir."
+      },
+      "handover": {
+        "title": "Devir raporları",
+        "text": "PDF/e‑posta tek dokunuş."
+      }
+    },
+    "qa": {
+      "title": "Sorular",
+      "getting_started": "Kayıt ol ve başla.",
+      "items": {
+        "what": {
+          "q": "Kin Relay nedir?",
+          "a": "KIN RELAY, aileler ve gayriresmi bakım verenler için evde bakım koordinasyon uygulamasıdır."
+        },
+        "who": {
+          "q": "Kimler kullanabilir?",
+          "a": "Ev ortamında aileler, vasiler ve gayriresmi bakım verenler."
+        },
+        "medical": {
+          "q": "Tıbbi cihaz mı?",
+          "a": "Hayır."
+        },
+        "privacy": {
+          "q": "Veriler güvenli mi?",
+          "a": "Evet. AB barındırma, açık rıza akışları ve GDPR/TDDDG uyumlu uygulamalar. AB veri ve güvenlik düzenlemeleri için Compliance bilgilerine bakın."
+        },
+        "platforms": {
+          "q": "Platformlar?",
+          "a": "Web ve Android. Bu aşamada dashboard, kurumsal platform değil, evde bakım vasi yönetim arayüzüdür."
+        },
+        "export": {
+          "q": "Rapor dışa aktarım?",
+          "a": "Evet."
+        },
+        "languages": {
+          "q": "Diller?",
+          "a": "Birçok dil."
+        },
+        "invite": {
+          "q": "Nasıl davet ederim?",
+          "a": "Davetler yalnızca öncelikli yönetici (vasi/aile temsilcisi) tarafından yönetilir."
+        },
+        "android": {
+          "q": "Android uygulaması?",
+          "a": "Bakım görevlerini kaydedin, hatırlatıcı kurun ve devirleri hareket halindeyken tamamlayın."
+        },
+        "difference": {
+          "q": "Sohbetten farkı?",
+          "a": "Yapılandırılmış bakım görevi kayıtları, gizlilik kontrolleri ve tek dokunuş raporları; yapılandırılmamış sohbete karşı."
+        },
+        "multiple": {
+          "q": "Birden çok çevre?",
+          "a": "Bakım çemberi, evde tek bir danışan etrafındaki kişilerden oluşur (ör. bakım veren + görüntüleme izni olan aile üyeleri)."
+        },
+        "free": {
+          "q": "Ücretsiz sürüm?",
+          "a": "Evet."
+        },
+        "support": {
+          "q": "Destek?",
+          "a": "Uygulamada."
+        },
+        "accessibility": {
+          "q": "Erişilebilirlik?",
+          "a": "Yüksek kontrast, akışkan tipografi, büyütülmüş yazı boyutu ve azaltılmış hareket seçenekleri."
+        },
+        "getting_started": {
+          "q": "Nasıl başlarım?",
+          "a": "Kaydolun, vasi yönetici diğerlerini davet etsin, ardından bakım görevlerini kaydetmeye başlayın."
+        }
+      }
+    },
+    "contact": {
+      "title": "İletişim",
+      "thanks": "Teşekkürler! Yakında.",
+      "send": "Gönder",
+      "name": "Adınız",
+      "message": "Mesaj (opsiyonel)"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "join_now": "Katıl"
+  },
+  "common": {
+    "language": "Dil"
+  },
   "register": {
     "title": "Create your account",
     "subtitle": "Enter basic details and (optional) address.",
-  "role_label": "Hesap türü",
-  "role_patient": "Hasta",
-  "role_carer": "Bakıcı",
+    "role_label": "Hesap türü",
+    "role_patient": "Hasta",
+    "role_carer": "Bakıcı",
     "full_name": "Full name",
     "email": "Email",
     "password": "Password",
@@ -40,5 +199,98 @@
     "email_invalid": "Valid email required",
     "password_short": "Password min 6 characters",
     "unknown": "Unknown error"
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Ana Kayıt",
+      "sections": {
+        "quick_actions": "Hızlı İşlemler",
+        "categories": "Kategoriler",
+        "incident_types": "Olay Türleri",
+        "recent_tasks": "Son Görevler"
+      },
+      "actions": {
+        "save": "Kaydet",
+        "saving": "Kaydediliyor...",
+        "cancel": "İptal",
+        "expand": "Genişlet",
+        "collapse": "Daralt"
+      },
+      "states": {
+        "loading": "Yükleniyor...",
+        "no_tasks": "Henüz görev kaydı yok.",
+        "no_clients": "Uygun danışan yok"
+      },
+      "labels": {
+        "client": "Danışan",
+        "category": "Kategori",
+        "observed_at": "Gözlem zamanı",
+        "assistance_level": "Destek seviyesi",
+        "select_level": "Seviye seç",
+        "fluid_type_optional": "Sıvı türü (opsiyonel)",
+        "food_type_caregiver_input": "Yemek türü (bakıcı girişi)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Danışan seç",
+        "go_back": "Geri dön",
+        "pick_incident": "Olay seç"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Hidrasyon",
+          "subtitle": "Tüketilen sıvılar"
+        },
+        "nutrition": {
+          "label": "Beslenme",
+          "subtitle": "Öğünler ve atıştırmalar"
+        },
+        "personal_care": {
+          "label": "Kişisel Bakım",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Olay",
+          "subtitle": "Sağlık Gözlemi + Diğer"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
   }
 }

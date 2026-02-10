@@ -1,12 +1,22 @@
 {
-  "nav": { "home": "Home", "investors": "Investor Deck" },
+  "nav": {
+    "home": "Home",
+    "investors": "Investor Deck"
+  },
   "hero": {
     "title": "Simple care handovers",
     "subtitle": "Daily care logs and one-tap PDF for families and carers",
     "cta": "Join the pilot"
   },
-  "lead": { "name": "Name", "email": "Email", "agree": "I agree to the privacy policy", "submit": "Notify me" },
-  "footer": { "rights": "© Care Bridge" },
+  "lead": {
+    "name": "Name",
+    "email": "Email",
+    "agree": "I agree to the privacy policy",
+    "submit": "Notify me"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
   "landing": {
     "top": {
       "services": "Services",
@@ -15,13 +25,13 @@
     },
     "hero": {
       "title": "Care coordination for everyday life",
-      "lead_line1": "Log activities, share handover notes, set reminders.",
+      "lead_line1": "Log care tasks, share handover notes, set reminders.",
       "lead_line2": "Keep families & carers connected.",
-      "cta": "See our services"
+      "cta": "Our services"
     },
     "problems": {
-      "title": "Problems We Solve",
-      "intro": "Kin Relay addresses the real-world pain points faced by families, informal caregivers, and professional care teams:",
+      "title": "KIN RELAY solves",
+      "intro": "KIN RELAY focuses on real home-care needs for families and informal caregivers. This first stage is not designed for hospitals, clinics, or professional organizations that already use their own documentation systems.",
       "items": {
         "fragmented": {
           "title": "Fragmented Communication",
@@ -48,39 +58,108 @@
           "text": "Multilingual teams struggle when tools aren't available in their preferred language."
         }
       },
-      "outro": "Kin Relay solves these with structured, privacy-first logging, one-tap handover reports, reminders, multilingual support, and secure EU-based data handling."
+      "outro": "KIN RELAY solves these with structured care tasks, private handover records, reminders, multilingual support, and secure EU-based data handling for home-care management."
     },
     "services": {
-      "title": "What Kin Relay offers",
-      "web": { "title": "Web App", "text": "Log care, view handovers, manage roles, and export reports." },
-      "android": { "title": "Android App", "text": "Quick logging, reminders, and shift handover for carers on the go." },
-      "admin": { "title": "Admin Dashboard", "text": "Manage clients, branches, and analytics in a secure dashboard." },
-      "multi": { "title": "Multilingual Support", "text": "Available in multiple languages for diverse care teams." },
-      "privacy": { "title": "Privacy & Compliance", "text": "EU hosting, consent flows, and regulatory compliance." },
-      "handover": { "title": "One-tap Handover Reports", "text": "Generate daily or shift reports as PDF or email." }
+      "title": "KIN RELAY offers",
+      "web": {
+        "title": "Web App",
+        "text": "Log care tasks, review handovers, and manage home-care roles."
+      },
+      "android": {
+        "title": "Android App",
+        "text": "Quick care-task logging, reminders, and handover support on the go."
+      },
+      "admin": {
+        "title": "Guardian Dashboard",
+        "text": "Priority administrator control for guardian/family representatives. A management module with analytics can be offered in a later version."
+      },
+      "multi": {
+        "title": "Multilingual Support",
+        "text": "Available in multiple languages for families and informal home caregivers."
+      },
+      "privacy": {
+        "title": "Privacy & Compliance",
+        "text": "EU hosting, consent flows, and GDPR/TDDDG-aligned practices. Compliance page includes EU data and security regulations."
+      },
+      "handover": {
+        "title": "One-tap Handover Reports",
+        "text": "Generate daily or shift reports as PDF or email."
+      }
     },
     "qa": {
       "title": "Q&A",
       "getting_started": "Sign up, invite your care circle, and start logging.",
       "items": {
-        "what": { "q": "What is Kin Relay?", "a": "Kin Relay is a care coordination platform for families and professional carers, offering web, Android, and admin tools." },
-        "who": { "q": "Who can use Kin Relay?", "a": "Families, informal caregivers, professional care teams and providers." },
-        "medical": { "q": "Is Kin Relay a medical device?", "a": "No. It focuses on documentation, reminders and handovers—not diagnostics or treatment." },
-        "privacy": { "q": "Is my data private and secure?", "a": "Yes. EU hosting, explicit consent flows and GDPR/TDDDG compliance." },
-        "platforms": { "q": "What platforms are supported?", "a": "Web app, Android app and an admin dashboard." },
-        "export": { "q": "Can I export handover reports?", "a": "Yes. Generate daily or shift PDFs or send by email." },
-        "languages": { "q": "Is it available in my language?", "a": "Multiple languages with more coming." },
-        "invite": { "q": "How do I invite others?", "a": "Invite by email inside the app and assign roles." },
-        "android": { "q": "What does the Android app do?", "a": "Log activities, set reminders and complete handovers on the go." },
-        "difference": { "q": "How is it different from chat apps?", "a": "Structured logs, privacy controls and one‑tap reports vs unstructured chat." },
-        "multiple": { "q": "Multiple care circles?", "a": "Yes. Switch between circles easily." },
-        "free": { "q": "Is there a free version?", "a": "Yes. A free family tier is available." },
-        "support": { "q": "How do I get support?", "a": "Via in‑app support or the contact form." },
-  "accessibility": { "q": "Accessibility features?", "a": "High contrast, fluid type and reduced motion options." },
-  "getting_started": { "q": "How do I get started?", "a": "Sign up, invite your circle and start logging right away." }
+        "what": {
+          "q": "What is Kin Relay?",
+          "a": "KIN RELAY is a home-care coordination app focused on families and informal caregivers."
+        },
+        "who": {
+          "q": "Who can use Kin Relay?",
+          "a": "Families, guardians, and informal caregivers in home settings."
+        },
+        "medical": {
+          "q": "Is Kin Relay a medical device?",
+          "a": "No. It focuses on documentation, reminders and handovers—not diagnostics or treatment."
+        },
+        "privacy": {
+          "q": "Is my data private and secure?",
+          "a": "Yes. EU hosting, explicit consent flows, and GDPR/TDDDG-aligned practices. See the Compliance information for EU data and security regulations."
+        },
+        "platforms": {
+          "q": "What platforms are supported?",
+          "a": "Web and Android. The dashboard is a home-care guardian admin interface, not an enterprise platform in this stage."
+        },
+        "export": {
+          "q": "Can I export handover reports?",
+          "a": "Yes. Generate daily or shift PDFs or send by email."
+        },
+        "languages": {
+          "q": "Is it available in my language?",
+          "a": "Multiple languages with more coming."
+        },
+        "invite": {
+          "q": "How do I invite others?",
+          "a": "Invitations are managed only by the priority administrator (guardian/family representative)."
+        },
+        "android": {
+          "q": "What does the Android app do?",
+          "a": "Log care tasks, set reminders, and complete handovers on the go."
+        },
+        "difference": {
+          "q": "How is it different from chat apps?",
+          "a": "Structured care-task logs, privacy controls, and one-tap reports vs unstructured chat."
+        },
+        "multiple": {
+          "q": "Multiple care circles?",
+          "a": "A care circle is the people around one client at home (for example: caregiver + family members with view permissions)."
+        },
+        "free": {
+          "q": "Is there a free version?",
+          "a": "Yes. A free family tier is available."
+        },
+        "support": {
+          "q": "How do I get support?",
+          "a": "Via in‑app support or the contact form."
+        },
+        "accessibility": {
+          "q": "Accessibility features?",
+          "a": "High contrast, fluid type, enlarged font size, and reduced motion options."
+        },
+        "getting_started": {
+          "q": "How do I get started?",
+          "a": "Sign up, the guardian admin invites others, and start logging care tasks."
+        }
       }
     },
-    "contact": { "title": "Get in touch", "thanks": "Thanks! We will contact you soon.", "send": "Send", "name": "Your name", "message": "Message (optional)" }
+    "contact": {
+      "title": "Get in touch",
+      "thanks": "Thanks! We will contact you soon.",
+      "send": "Send",
+      "name": "Your name",
+      "message": "Message (optional)"
+    }
   },
   "common": {
     "language": "Language",
@@ -90,7 +169,7 @@
   "auth": {
     "login": "Login",
     "signup": "Sign Up",
-    "join_now": "Join now",
+    "join_now": "Join",
     "forgot": "Forgot password?",
     "no_account": "Don't have an account? Sign up",
     "reset_request_title": "Reset your password",
@@ -108,9 +187,9 @@
   "register": {
     "title": "Create your account",
     "subtitle": "Enter basic details and (optional) address.",
-  "role_label": "Account type",
-  "role_patient": "Patient",
-  "role_carer": "Carer",
+    "role_label": "Account type",
+    "role_patient": "Patient",
+    "role_carer": "Carer",
     "full_name": "Full name",
     "email": "Email",
     "password": "Password",
@@ -135,5 +214,98 @@
     "email_invalid": "Valid email required",
     "password_short": "Password min 6 characters",
     "unknown": "Unknown error"
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Main Log",
+      "sections": {
+        "quick_actions": "Quick Actions",
+        "categories": "Categories",
+        "incident_types": "Incident Types",
+        "recent_tasks": "Recent Tasks"
+      },
+      "actions": {
+        "save": "Save",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "expand": "Expand",
+        "collapse": "Collapse"
+      },
+      "states": {
+        "loading": "Loading...",
+        "no_tasks": "No tasks logged yet.",
+        "no_clients": "No clients available"
+      },
+      "labels": {
+        "client": "Client",
+        "category": "Category",
+        "observed_at": "Observed at",
+        "assistance_level": "Assistance level",
+        "select_level": "Select level",
+        "fluid_type_optional": "Fluid type (optional)",
+        "food_type_caregiver_input": "Food type (caregiver input)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Select client",
+        "go_back": "Go back",
+        "pick_incident": "Pick incident"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Hydration",
+          "subtitle": "Fluids consumed"
+        },
+        "nutrition": {
+          "label": "Nutrition",
+          "subtitle": "Meals and snacks"
+        },
+        "personal_care": {
+          "label": "Personal Care",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Incident",
+          "subtitle": "Health Observation + Other"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
   }
 }

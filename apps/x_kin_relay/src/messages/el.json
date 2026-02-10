@@ -1,11 +1,296 @@
 {
-  "nav": { "home": "Αρχική", "investors": "Παρουσίαση Επενδυτών" },
-  "hero": { "title": "Απλές παραδόσεις φροντίδας", "subtitle": "Ημερήσια ημερολόγια φροντίδας και PDF με ένα πάτημα για οικογένειες και φροντιστές", "cta": "Συμμετοχή στο πιλοτικό" },
-  "lead": { "name": "Όνομα", "email": "Email", "agree": "Συμφωνώ με την πολιτική απορρήτου", "submit": "Ενημέρωσέ με" },
-  "footer": { "rights": "© Care Bridge" },
-  "auth": { "login": "Login", "signup": "Sign Up" },
-  "common": { "language": "Γλώσσα" },
-  "register": { "title": "Create your account", "subtitle": "Enter basic details and (optional) address.", "role_label": "Τύπος λογαριασμού", "role_patient": "Ασθενής", "role_carer": "Φροντιστής", "full_name": "Full name", "email": "Email", "password": "Password", "address_line1": "Address line 1", "address_line2": "Address line 2", "city": "City", "region": "Region / State", "postal_code": "Postal code", "country_code": "Country code (ISO2)", "submit": "Register", "registering": "Registering…", "success": "Registered. Check your email for confirmation (if enabled).", "disabled": "Registration disabled: Supabase env vars not configured.", "strength_0": "Very weak", "strength_1": "Weak", "strength_2": "Fair", "strength_3": "Good", "strength_4": "Strong" },
-  "error": { "name_required": "Name required", "email_invalid": "Valid email required", "password_short": "Password min 6 characters", "unknown": "Unknown error" },
-  "landing": { "top": { "services": "Υπηρεσίες", "contact": "Επικοινωνία", "qa": "Ερωτήσεις" }, "hero": { "title": "Συντονισμός φροντίδας στην καθημερινότητα", "lead_line1": "Καταγράψτε δραστηριότητες, μοιραστείτε σημειώσεις.", "lead_line2": "Κρατήστε οικογένειες και φροντιστές συνδεδεμένους.", "cta": "Δείτε τις υπηρεσίες" }, "problems": { "title": "Προβλήματα που λύνουμε", "intro": "Η Kin Relay αντιμετωπίζει πραγματικές ανάγκες οικογενειών και ομάδων φροντίδας:", "items": { "fragmented": { "title": "Κατακερματισμένη επικοινωνία", "text": "Πολλά κανάλια → απώλεια πληροφορίας." }, "missed": { "title": "Χαμένες δόσεις", "text": "Χωρίς δομή ξεχνιούνται φάρμακα/καθήκοντα." }, "burnout": { "title": "Εξουθένωση φροντιστών", "text": "Άγχος λόγω έλλειψης συντονισμού." }, "handover": { "title": "Αδόμητη παράδοση", "text": "Λάθη σε αλλαγές βάρδιας." }, "privacy": { "title": "Κίνδυνοι ιδιωτικότητας", "text": "Γενικές εφαρμογές εκθέτουν δεδομένα." }, "language": { "title": "Γλωσσικά εμπόδια", "text": "Χωρίς γλώσσα προτίμησης δυσκολία." } }, "outro": "Η Kin Relay παρέχει δομημένα αρχεία και αναφορές." }, "services": { "title": "Τι προσφέρει", "web": { "title": "Ιστού", "text": "Καταγραφή και αναφορές." }, "android": { "title": "Android", "text": "Γρήγορες καταχωρήσεις." }, "admin": { "title": "Πίνακας", "text": "Πελάτες & αναλύσεις." }, "multi": { "title": "Πολυγλωσσικό", "text": "Πολλές γλώσσες." }, "privacy": { "title": "Ιδιωτικότητα", "text": "Φιλοξενία ΕΕ." }, "handover": { "title": "Αναφορές", "text": "PDF/email με κλικ." } }, "qa": { "title": "Ερωτήσεις", "getting_started": "Εγγραφείτε και αρχίστε.", "items": { "what": { "q": "Τι είναι η Kin Relay;", "a": "Πλατφόρμα συντονισμού." }, "who": { "q": "Ποιοι τη χρησιμοποιούν;", "a": "Οικογένειες & ομάδες." }, "medical": { "q": "Ιατρική συσκευή;", "a": "Όχι." }, "privacy": { "q": "Ασφάλεια δεδομένων;", "a": "Ναι." }, "platforms": { "q": "Πλατφόρμες;", "a": "Web, Android." }, "export": { "q": "Εξαγωγή αναφορών;", "a": "Ναι." }, "languages": { "q": "Γλώσσες;", "a": "Πολλές." }, "invite": { "q": "Πρόσκληση άλλων;", "a": "Email μέσα στην εφαρμογή." }, "android": { "q": "Εφαρμογή Android;", "a": "Κινητές καταχωρήσεις." }, "difference": { "q": "Διαφορά από chat;", "a": "Δομή & ιδιωτικότητα." }, "multiple": { "q": "Πολλοί κύκλοι;", "a": "Ναι." }, "free": { "q": "Δωρεάν έκδοση;", "a": "Ναι." }, "support": { "q": "Υποστήριξη;", "a": "Εντός εφαρμογής." }, "accessibility": { "q": "Προσβασιμότητα;", "a": "Υψηλή αντίθεση." }, "getting_started": { "q": "Πώς ξεκινώ;", "a": "Εγγραφή και χρήση." } } }, "contact": { "title": "Επικοινωνία", "thanks": "Ευχαριστούμε!", "send": "Αποστολή", "name": "Όνομα", "message": "Μήνυμα (προαιρ.)" } }
+  "nav": {
+    "home": "Αρχική",
+    "investors": "Παρουσίαση Επενδυτών"
+  },
+  "hero": {
+    "title": "Απλές παραδόσεις φροντίδας",
+    "subtitle": "Ημερήσια ημερολόγια φροντίδας και PDF με ένα πάτημα για οικογένειες και φροντιστές",
+    "cta": "Συμμετοχή στο πιλοτικό"
+  },
+  "lead": {
+    "name": "Όνομα",
+    "email": "Email",
+    "agree": "Συμφωνώ με την πολιτική απορρήτου",
+    "submit": "Ενημέρωσέ με"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "join_now": "Συμμετοχή"
+  },
+  "common": {
+    "language": "Γλώσσα"
+  },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Enter basic details and (optional) address.",
+    "role_label": "Τύπος λογαριασμού",
+    "role_patient": "Ασθενής",
+    "role_carer": "Φροντιστής",
+    "full_name": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "address_line1": "Address line 1",
+    "address_line2": "Address line 2",
+    "city": "City",
+    "region": "Region / State",
+    "postal_code": "Postal code",
+    "country_code": "Country code (ISO2)",
+    "submit": "Register",
+    "registering": "Registering…",
+    "success": "Registered. Check your email for confirmation (if enabled).",
+    "disabled": "Registration disabled: Supabase env vars not configured.",
+    "strength_0": "Very weak",
+    "strength_1": "Weak",
+    "strength_2": "Fair",
+    "strength_3": "Good",
+    "strength_4": "Strong"
+  },
+  "error": {
+    "name_required": "Name required",
+    "email_invalid": "Valid email required",
+    "password_short": "Password min 6 characters",
+    "unknown": "Unknown error"
+  },
+  "landing": {
+    "top": {
+      "services": "Υπηρεσίες",
+      "contact": "Επικοινωνία",
+      "qa": "Ερωτήσεις"
+    },
+    "hero": {
+      "title": "Συντονισμός φροντίδας στην καθημερινότητα",
+      "lead_line1": "Καταγράψτε εργασίες φροντίδας, μοιραστείτε σημειώσεις παράδοσης και ορίστε υπενθυμίσεις.",
+      "lead_line2": "Κρατήστε οικογένειες και φροντιστές συνδεδεμένους.",
+      "cta": "Οι υπηρεσίες μας"
+    },
+    "problems": {
+      "title": "Το KIN RELAY λύνει",
+      "intro": "Το KIN RELAY εστιάζει στις πραγματικές ανάγκες οικιακής φροντίδας για οικογένειες και άτυπους φροντιστές. Αυτή η πρώτη φάση δεν απευθύνεται σε νοσοκομεία, κλινικές ή επαγγελματικούς οργανισμούς με δικά τους συστήματα τεκμηρίωσης.",
+      "items": {
+        "fragmented": {
+          "title": "Κατακερματισμένη επικοινωνία",
+          "text": "Πολλά κανάλια → απώλεια πληροφορίας."
+        },
+        "missed": {
+          "title": "Χαμένες δόσεις",
+          "text": "Χωρίς δομή ξεχνιούνται φάρμακα/καθήκοντα."
+        },
+        "burnout": {
+          "title": "Εξουθένωση φροντιστών",
+          "text": "Άγχος λόγω έλλειψης συντονισμού."
+        },
+        "handover": {
+          "title": "Αδόμητη παράδοση",
+          "text": "Λάθη σε αλλαγές βάρδιας."
+        },
+        "privacy": {
+          "title": "Κίνδυνοι ιδιωτικότητας",
+          "text": "Γενικές εφαρμογές εκθέτουν δεδομένα."
+        },
+        "language": {
+          "title": "Γλωσσικά εμπόδια",
+          "text": "Χωρίς γλώσσα προτίμησης δυσκολία."
+        }
+      },
+      "outro": "Το KIN RELAY το λύνει με δομημένες εργασίες φροντίδας, ιδιωτικά αρχεία παράδοσης, υπενθυμίσεις, πολυγλωσσική υποστήριξη και ασφαλή διαχείριση δεδομένων στην ΕΕ για οικιακή φροντίδα."
+    },
+    "services": {
+      "title": "Το KIN RELAY προσφέρει",
+      "web": {
+        "title": "Ιστού",
+        "text": "Καταγράψτε εργασίες φροντίδας, δείτε παραδόσεις και διαχειριστείτε ρόλους οικιακής φροντίδας."
+      },
+      "android": {
+        "title": "Android",
+        "text": "Γρήγορη καταγραφή εργασιών φροντίδας, υπενθυμίσεις και υποστήριξη παράδοσης εν κινήσει."
+      },
+      "admin": {
+        "title": "Πίνακας Κηδεμόνα",
+        "text": "Έλεγχος διαχειριστή προτεραιότητας για εκπρόσωπο οικογένειας/κηδεμόνα. Μονάδα διαχείρισης με αναλυτικά μπορεί να προσφερθεί σε επόμενη έκδοση."
+      },
+      "multi": {
+        "title": "Πολυγλωσσικό",
+        "text": "Διαθέσιμο σε πολλαπλές γλώσσες για οικογένειες και άτυπους οικιακούς φροντιστές."
+      },
+      "privacy": {
+        "title": "Ιδιωτικότητα",
+        "text": "Φιλοξενία στην ΕΕ, ροές συναίνεσης και πρακτικές ευθυγραμμισμένες με GDPR/TDDDG. Η σελίδα Compliance περιλαμβάνει κανονισμούς ΕΕ για δεδομένα και ασφάλεια."
+      },
+      "handover": {
+        "title": "Αναφορές",
+        "text": "PDF/email με κλικ."
+      }
+    },
+    "qa": {
+      "title": "Ερωτήσεις",
+      "getting_started": "Εγγραφείτε και αρχίστε.",
+      "items": {
+        "what": {
+          "q": "Τι είναι η Kin Relay;",
+          "a": "Το KIN RELAY είναι εφαρμογή συντονισμού οικιακής φροντίδας για οικογένειες και άτυπους φροντιστές."
+        },
+        "who": {
+          "q": "Ποιοι τη χρησιμοποιούν;",
+          "a": "Οικογένειες, κηδεμόνες και άτυποι φροντιστές σε οικιακό περιβάλλον."
+        },
+        "medical": {
+          "q": "Ιατρική συσκευή;",
+          "a": "Όχι."
+        },
+        "privacy": {
+          "q": "Ασφάλεια δεδομένων;",
+          "a": "Ναι. Φιλοξενία στην ΕΕ, ρητές ροές συναίνεσης και πρακτικές ευθυγραμμισμένες με GDPR/TDDDG. Δείτε τις πληροφορίες Compliance για κανονισμούς ΕΕ σχετικά με δεδομένα και ασφάλεια."
+        },
+        "platforms": {
+          "q": "Πλατφόρμες;",
+          "a": "Web και Android. Ο πίνακας είναι σε αυτό το στάδιο οικιακή διαχειριστική διεπαφή κηδεμόνα, όχι εταιρική πλατφόρμα."
+        },
+        "export": {
+          "q": "Εξαγωγή αναφορών;",
+          "a": "Ναι."
+        },
+        "languages": {
+          "q": "Γλώσσες;",
+          "a": "Πολλές."
+        },
+        "invite": {
+          "q": "Πρόσκληση άλλων;",
+          "a": "Οι προσκλήσεις διαχειρίζονται μόνο από τον διαχειριστή προτεραιότητας (κηδεμόνα/οικογενειακό εκπρόσωπο)."
+        },
+        "android": {
+          "q": "Εφαρμογή Android;",
+          "a": "Καταγράψτε εργασίες φροντίδας, ορίστε υπενθυμίσεις και ολοκληρώστε παραδόσεις εν κινήσει."
+        },
+        "difference": {
+          "q": "Διαφορά από chat;",
+          "a": "Δομημένα αρχεία εργασιών φροντίδας, έλεγχοι απορρήτου και αναφορές με ένα πάτημα έναντι μη δομημένης συνομιλίας."
+        },
+        "multiple": {
+          "q": "Πολλοί κύκλοι;",
+          "a": "Ο κύκλος φροντίδας είναι τα άτομα γύρω από έναν πελάτη στο σπίτι (π.χ. φροντιστής + μέλη οικογένειας με δικαιώματα προβολής)."
+        },
+        "free": {
+          "q": "Δωρεάν έκδοση;",
+          "a": "Ναι."
+        },
+        "support": {
+          "q": "Υποστήριξη;",
+          "a": "Εντός εφαρμογής."
+        },
+        "accessibility": {
+          "q": "Προσβασιμότητα;",
+          "a": "Υψηλή αντίθεση, ρευστή τυπογραφία, μεγαλύτερο μέγεθος γραμματοσειράς και επιλογές μειωμένης κίνησης."
+        },
+        "getting_started": {
+          "q": "Πώς ξεκινώ;",
+          "a": "Εγγραφείτε, ο κηδεμόνας-διαχειριστής προσκαλεί άλλους και ξεκινήστε την καταγραφή εργασιών φροντίδας."
+        }
+      }
+    },
+    "contact": {
+      "title": "Επικοινωνία",
+      "thanks": "Ευχαριστούμε!",
+      "send": "Αποστολή",
+      "name": "Όνομα",
+      "message": "Μήνυμα (προαιρ.)"
+    }
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Κύριο Αρχείο",
+      "sections": {
+        "quick_actions": "Γρήγορες Ενέργειες",
+        "categories": "Κατηγορίες",
+        "incident_types": "Τύποι Συμβάντων",
+        "recent_tasks": "Πρόσφατες Εργασίες"
+      },
+      "actions": {
+        "save": "Αποθήκευση",
+        "saving": "Αποθήκευση...",
+        "cancel": "Ακύρωση",
+        "expand": "Επέκταση",
+        "collapse": "Σύμπτυξη"
+      },
+      "states": {
+        "loading": "Φόρτωση...",
+        "no_tasks": "Δεν υπάρχουν ακόμη καταγεγραμμένες εργασίες.",
+        "no_clients": "Δεν υπάρχουν διαθέσιμοι πελάτες"
+      },
+      "labels": {
+        "client": "Πελάτης",
+        "category": "Κατηγορία",
+        "observed_at": "Παρατηρήθηκε στις",
+        "assistance_level": "Επίπεδο υποστήριξης",
+        "select_level": "Επιλογή επιπέδου",
+        "fluid_type_optional": "Τύπος υγρού (προαιρετικό)",
+        "food_type_caregiver_input": "Τύπος φαγητού (είσοδος φροντιστή)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Επιλογή πελάτη",
+        "go_back": "Πίσω",
+        "pick_incident": "Επιλογή συμβάντος"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Ενυδάτωση",
+          "subtitle": "Υγρά που καταναλώθηκαν"
+        },
+        "nutrition": {
+          "label": "Διατροφή",
+          "subtitle": "Γεύματα και σνακ"
+        },
+        "personal_care": {
+          "label": "Προσωπική φροντίδα",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Συμβάν",
+          "subtitle": "Παρατήρηση υγείας + Άλλο"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
+  }
 }

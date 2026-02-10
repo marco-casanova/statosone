@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { supabase, hasSupabase } from "../lib/supabaseClient";
 import {
   IncidentCategory,
@@ -158,23 +159,23 @@ const FOOD_SUGGESTIONS = [
 const ASSISTANCE_LEVELS = [
   {
     value: "independent",
-    label: "Independent",
-    desc: "Person completes task without help",
+    labelKey: "assistance_levels.independent.label",
+    descKey: "assistance_levels.independent.desc",
   },
   {
     value: "supervision",
-    label: "Supervision",
-    desc: "Caregiver observes for safety (keep an eye)",
+    labelKey: "assistance_levels.supervision.label",
+    descKey: "assistance_levels.supervision.desc",
   },
   {
     value: "prompted",
-    label: "Prompted",
-    desc: "Needs cues or setup (e.g., cut food into pieces)",
+    labelKey: "assistance_levels.prompted.label",
+    descKey: "assistance_levels.prompted.desc",
   },
   {
     value: "assisted",
-    label: "Assisted",
-    desc: "Hands-on help with parts or most of the task",
+    labelKey: "assistance_levels.assisted.label",
+    descKey: "assistance_levels.assisted.desc",
   },
 ];
 
@@ -189,6 +190,7 @@ interface ActivityRow {
 
 // Tooltip component for assistance help
 function AssistanceTooltip() {
+  const t = useTranslations("app.activity_form");
   const [show, setShow] = useState(false);
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -198,18 +200,18 @@ function AssistanceTooltip() {
         onMouseLeave={() => setShow(false)}
         onClick={() => setShow(!show)}
         role="button"
-        aria-label="Show assistance level explanations"
+        aria-label={t("aria.show_assistance_info")}
         tabIndex={0}
       >
         ?
       </span>
       {show && (
         <div style={tooltipBox}>
-          <div style={tooltipTitle}>Assistance Levels</div>
+          <div style={tooltipTitle}>{t("assistance_levels.title")}</div>
           {ASSISTANCE_LEVELS.map((lvl) => (
             <div key={lvl.value} style={tooltipItem}>
-              <strong style={{ color: "#fff" }}>{lvl.label}:</strong>{" "}
-              <span style={{ color: "#B6C0D1" }}>{lvl.desc}</span>
+              <strong style={{ color: "#fff" }}>{t(lvl.labelKey)}:</strong>{" "}
+              <span style={{ color: "#B6C0D1" }}>{t(lvl.descKey)}</span>
             </div>
           ))}
         </div>
@@ -219,6 +221,7 @@ function AssistanceTooltip() {
 }
 
 export function ActivityForm() {
+  const t = useTranslations("app.activity_form");
   const [phase, setPhase] = useState<Phase>("browse");
   const [mainCategory, setMainCategory] = useState<MainCategory | null>(null);
   const [category, setCategory] = useState<IncidentCategory | null>(null);
@@ -231,6 +234,9 @@ export function ActivityForm() {
   const [foodType, setFoodType] = useState("");
   const [incidentLabel, setIncidentLabel] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageTone, setMessageTone] = useState<"success" | "error" | null>(
+    null
+  );
   const [saving, setSaving] = useState(false);
 
   const [quickActions, setQuickActions] = useState<QuickAction[]>([]);
@@ -301,6 +307,7 @@ export function ActivityForm() {
     setFoodType("");
     setIncidentLabel(null);
     setMessage(null);
+    setMessageTone(null);
     setRecentExpanded(false);
   }
 
@@ -317,6 +324,7 @@ export function ActivityForm() {
     setIncidentLabel(null);
     setAssistanceLevel("");
     setMessage(null);
+    setMessageTone(null);
     setPhase(id === "incident" ? "category" : "confirm");
   }
 
@@ -340,6 +348,7 @@ export function ActivityForm() {
     setIncidentLabel(action.subtype ? formatSubtype(action.subtype) : null);
     setAssistanceLevel("");
     setMessage(null);
+    setMessageTone(null);
     setPhase("confirm");
   }
 
@@ -398,11 +407,13 @@ export function ActivityForm() {
   async function save() {
     if (!category) return;
     if (isIncident && !subtype) {
-      setMessage("Pick incident type");
+      setMessage(t("messages.pick_incident_type"));
+      setMessageTone("error");
       return;
     }
     if (!supabase) {
-      setMessage("(demo) Saved");
+      setMessage(t("messages.saved_demo"));
+      setMessageTone("success");
       resetAll();
       return;
     }
@@ -446,10 +457,12 @@ export function ActivityForm() {
 
       const { error } = await supabase.from("kr_activities").insert(payload);
       if (error) throw error;
-      setMessage("Saved");
+      setMessage(t("messages.saved"));
+      setMessageTone("success");
       resetAll();
     } catch (e: any) {
-      setMessage(e.message || "Save error");
+      setMessage(e.message || t("messages.save_error"));
+      setMessageTone("error");
     } finally {
       setSaving(false);
     }
@@ -480,25 +493,47 @@ export function ActivityForm() {
   const currentMainLabel = MAIN_CATEGORIES.find(
     (c) => c.id === mainCategory
   )?.label;
+  const mainCategoryText: Record<MainCategory, { label: string; subtitle: string }> =
+    {
+      hydration: {
+        label: t("main_categories.hydration.label"),
+        subtitle: t("main_categories.hydration.subtitle"),
+      },
+      nutrition: {
+        label: t("main_categories.nutrition.label"),
+        subtitle: t("main_categories.nutrition.subtitle"),
+      },
+      personal_care: {
+        label: t("main_categories.personal_care.label"),
+        subtitle: t("main_categories.personal_care.subtitle"),
+      },
+      incident: {
+        label: t("main_categories.incident.label"),
+        subtitle: t("main_categories.incident.subtitle"),
+      },
+    };
+  const localizedCurrentMainLabel = mainCategory
+    ? mainCategoryText[mainCategory].label
+    : null;
   const displayCategoryLabel = mainCategory
-    ? currentMainLabel || "Category"
+    ? localizedCurrentMainLabel || currentMainLabel || t("labels.category")
     : category
       ? formatCategory(category)
-      : "Category";
+      : t("labels.category");
   const clientSelector = (
     <>
-      <label style={miniLabel}>Client</label>
+      <label style={miniLabel}>{t("labels.client")}</label>
       <select
         value={selectedClientId}
         onChange={(e) => setSelectedClientId(e.target.value)}
         style={input}
-        aria-label="Select client"
+        aria-label={t("aria.select_client")}
         disabled={loadingClients}
       >
         {loadingClients ? (
-          <option>Loading...</option>
+          <option>{t("states.loading")}</option>
         ) : clients.length === 0 ? (
-          <option value="">No clients available</option>
+          <option value="">{t("states.no_clients")}</option>
         ) : (
           clients.map((c) => (
             <option key={c.id} value={c.id}>
@@ -514,20 +549,20 @@ export function ActivityForm() {
     <div style={shell} aria-labelledby="af-title">
       <div style={headerRow}>
         {phase !== "browse" && (
-          <button onClick={goBack} style={backButton} aria-label="Go back">
+          <button onClick={goBack} style={backButton} aria-label={t("aria.go_back")}>
             ←
           </button>
         )}
         {phase === "browse" && (
           <>
             <h3 id="af-title" style={titleH3}>
-              Main Log
+              {t("main_log")}
             </h3>
             <button
               onClick={() => setShowManager(true)}
               style={settingsBtn}
-              aria-label="Configure quick log"
-              title="Configure quick actions"
+              aria-label={t("aria.configure_quick_log")}
+              title={t("aria.configure_quick_actions")}
             >
               ⚙️
             </button>
@@ -539,14 +574,14 @@ export function ActivityForm() {
         <>
           {quickActions.length > 0 && (
             <>
-              <div style={sectionLabel}>Quick Actions</div>
+              <div style={sectionLabel}>{t("sections.quick_actions")}</div>
               <div style={quickGrid}>
                 {quickActions.map((q, idx) => (
                   <button
                     key={`${q.category}-${q.subtype}-${idx}`}
                     style={quickCard(q.category)}
                     onClick={() => pickQuickAction(q)}
-                    aria-label={`${q.label} quick action`}
+                    aria-label={`${q.label} ${t("aria.quick_action")}`}
                   >
                     <span
                       style={iconBadge(q.category)}
@@ -564,28 +599,31 @@ export function ActivityForm() {
               </div>
             </>
           )}
-          <div style={sectionLabel}>Categories</div>
+          <div style={sectionLabel}>{t("sections.categories")}</div>
           <div style={grid}>
-            {MAIN_CATEGORIES.map((c) => (
-              <button
-                key={c.id}
-                style={mainCategoryCard(c.id)}
-                onClick={() => pickMainCategory(c.id)}
-                aria-label={`Select ${c.label} category`}
-              >
-                <span
-                  style={iconBadge(c.category)}
-                  role="img"
-                  aria-label={a11yLabel(c.category, c.subtype)}
+            {MAIN_CATEGORIES.map((c) => {
+              const txt = mainCategoryText[c.id];
+              return (
+                <button
+                  key={c.id}
+                  style={mainCategoryCard(c.id)}
+                  onClick={() => pickMainCategory(c.id)}
+                  aria-label={`${t("aria.select")} ${txt.label} ${t("sections.categories").toLowerCase()}`}
                 >
-                  {iconFor(c.category, c.subtype)}
-                </span>
-                <div>
-                  <span style={cardTitle}>{c.label}</span>
-                  <div style={cardSub}>{c.subtitle}</div>
-                </div>
-              </button>
-            ))}
+                  <span
+                    style={iconBadge(c.category)}
+                    role="img"
+                    aria-label={a11yLabel(c.category, c.subtype)}
+                  >
+                    {iconFor(c.category, c.subtype)}
+                  </span>
+                  <div>
+                    <span style={cardTitle}>{txt.label}</span>
+                    <div style={cardSub}>{txt.subtitle}</div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </>
       )}
@@ -593,7 +631,7 @@ export function ActivityForm() {
       {phase === "category" && isIncident && (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           {clientSelector}
-          <div style={sectionLabel}>Incident Types</div>
+          <div style={sectionLabel}>{t("sections.incident_types")}</div>
           {INCIDENT_GROUPS.map((group) => (
             <div
               key={group.label}
@@ -610,7 +648,7 @@ export function ActivityForm() {
                       )
                     }
                     onClick={() => pickIncidentSubtype(item.value, item.label)}
-                    aria-label={`Pick incident ${item.label}`}
+                    aria-label={`${t("aria.pick_incident")} ${item.label}`}
                   >
                     <span
                       style={iconBadge("health_observation")}
@@ -652,20 +690,20 @@ export function ActivityForm() {
 
           {clientSelector}
 
-          <label style={miniLabel}>Observed at</label>
+          <label style={miniLabel}>{t("labels.observed_at")}</label>
           <input
             type="datetime-local"
             value={observedAt}
             onChange={(e) => setObservedAt(e.target.value)}
             style={input}
-            aria-label="Observed at"
+            aria-label={t("labels.observed_at")}
           />
 
           {showAssistance && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <label style={{ ...miniLabel, marginTop: 0 }}>
-                  Assistance level
+                  {t("labels.assistance_level")}
                 </label>
                 <AssistanceTooltip />
               </div>
@@ -673,12 +711,12 @@ export function ActivityForm() {
                 value={assistanceLevel}
                 onChange={(e) => setAssistanceLevel(e.target.value)}
                 style={input}
-                aria-label="Assistance level"
+                aria-label={t("labels.assistance_level")}
               >
-                <option value="">Select level</option>
+                <option value="">{t("labels.select_level")}</option>
                 {ASSISTANCE_LEVELS.map((lvl) => (
                   <option key={lvl.value} value={lvl.value}>
-                    {lvl.label}
+                    {t(lvl.labelKey)}
                   </option>
                 ))}
               </select>
@@ -689,9 +727,7 @@ export function ActivityForm() {
             <>
               <label style={miniLabel}>{getOptionLabel(subtype)}</label>
               {isHydration && (
-                <div style={helperText}>
-                  Select multiple amounts to add them up.
-                </div>
+                <div style={helperText}>{t("helpers.hydration_multi")}</div>
               )}
               <div style={optionGrid}>
                 {SUBTYPE_OPTIONS[subtype].map((opt) => {
@@ -726,35 +762,39 @@ export function ActivityForm() {
                 })}
               </div>
               {isHydration && hydrationTotal > 0 && (
-                <div style={helperText}>Total: {hydrationTotal} ml</div>
+                <div style={helperText}>
+                  {t("helpers.total_ml", { value: hydrationTotal })}
+                </div>
               )}
             </>
           )}
 
           {isHydration && (
             <>
-              <label style={miniLabel}>Fluid type (optional)</label>
+              <label style={miniLabel}>{t("labels.fluid_type_optional")}</label>
               <input
                 type="text"
                 value={fluidType}
                 onChange={(e) => setFluidType(e.target.value)}
                 style={input}
-                placeholder="Water, tea, juice, etc."
-                aria-label="Fluid type"
+                placeholder={t("placeholders.fluid_type")}
+                aria-label={t("labels.fluid_type_optional")}
               />
             </>
           )}
 
           {isNutrition && (
             <>
-              <label style={miniLabel}>Food type (caregiver input)</label>
+              <label style={miniLabel}>
+                {t("labels.food_type_caregiver_input")}
+              </label>
               <input
                 type="text"
                 value={foodType}
                 onChange={(e) => setFoodType(e.target.value)}
                 style={input}
-                placeholder="Examples: pasta bolognesa, soup, chicken pasta..."
-                aria-label="Food type"
+                placeholder={t("placeholders.food_type")}
+                aria-label={t("labels.food_type_caregiver_input")}
               />
               <div style={chipRow}>
                 {FOOD_SUGGESTIONS.map((suggestion) => (
@@ -773,19 +813,19 @@ export function ActivityForm() {
 
           <div style={recentSection}>
             <div style={recentHeader}>
-              <div style={miniLabel}>Recent Tasks</div>
+              <div style={miniLabel}>{t("sections.recent_tasks")}</div>
               <button
                 type="button"
                 style={linkBtn}
                 onClick={() => setRecentExpanded((v) => !v)}
               >
-                {recentExpanded ? "Collapse" : "Expand"}
+                {recentExpanded ? t("actions.collapse") : t("actions.expand")}
               </button>
             </div>
             {recentLoading ? (
-              <div style={helperText}>Loading...</div>
+              <div style={helperText}>{t("states.loading")}</div>
             ) : recentActivities.length === 0 ? (
-              <div style={helperText}>No tasks logged yet.</div>
+              <div style={helperText}>{t("states.no_tasks")}</div>
             ) : (
               <div style={recentList}>
                 {recentActivities.map((a) => (
@@ -809,10 +849,10 @@ export function ActivityForm() {
               }}
               aria-disabled={!canConfirm || saving}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? t("actions.saving") : t("actions.save")}
             </button>
             <button onClick={resetAll} style={resetBtn}>
-              Cancel
+              {t("actions.cancel")}
             </button>
           </div>
           {message && (
@@ -821,10 +861,10 @@ export function ActivityForm() {
                 fontSize: 13,
                 padding: "10px 14px",
                 borderRadius: 10,
-                background: message.toLowerCase().includes("saved")
+                background: messageTone === "success"
                   ? "rgba(34, 197, 94, 0.15)"
                   : "rgba(239, 68, 68, 0.15)",
-                color: message.toLowerCase().includes("saved")
+                color: messageTone === "success"
                   ? "#22C55E"
                   : "#EF4444",
               }}

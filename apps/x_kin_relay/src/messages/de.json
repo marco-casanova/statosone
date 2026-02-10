@@ -1,23 +1,37 @@
 {
-  "nav": { "home": "Startseite", "investors": "Investorenpräsentation" },
+  "nav": {
+    "home": "Startseite",
+    "investors": "Investorenpräsentation"
+  },
   "hero": {
     "title": "Einfache Pflegeübergaben",
     "subtitle": "Tägliche Pflegeprotokolle und PDF mit einem Tipp für Familien und Pflegekräfte",
     "cta": "Am Pilot teilnehmen"
   },
-  "lead": { "name": "Name", "email": "E-Mail", "agree": "Ich stimme der Datenschutzerklärung zu", "submit": "Benachrichtige mich" },
-  "footer": { "rights": "© Care Bridge" },
+  "lead": {
+    "name": "Name",
+    "email": "E-Mail",
+    "agree": "Ich stimme der Datenschutzerklärung zu",
+    "submit": "Benachrichtige mich"
+  },
+  "footer": {
+    "rights": "© Care Bridge"
+  },
   "landing": {
-    "top": { "services": "Leistungen", "contact": "Kontakt", "qa": "FAQ" },
+    "top": {
+      "services": "Leistungen",
+      "contact": "Kontakt",
+      "qa": "FAQ"
+    },
     "hero": {
       "title": "Pflegekoordination für den Alltag",
-      "lead_line1": "Aktivitäten protokollieren, Übergaben teilen, Erinnerungen setzen.",
+      "lead_line1": "Pflegeaufgaben protokollieren, Übergaben teilen, Erinnerungen setzen.",
       "lead_line2": "Familien und Pflegekräfte vernetzt halten.",
-      "cta": "Unsere Leistungen ansehen"
+      "cta": "Unsere Leistungen"
     },
     "problems": {
-      "title": "Die Probleme, die wir lösen",
-      "intro": "Kin Relay adressiert die realen Herausforderungen von Familien, informellen Pflegepersonen und professionellen Pflegeteams:",
+      "title": "KIN RELAY löst",
+      "intro": "KIN RELAY konzentriert sich auf reale häusliche Pflegebedürfnisse von Familien und informellen Pflegepersonen. Diese erste Phase ist nicht für Krankenhäuser, Kliniken oder professionelle Organisationen gedacht, die bereits eigene Dokumentationssysteme nutzen.",
       "items": {
         "fragmented": {
           "title": "Zersplitterte Kommunikation",
@@ -33,7 +47,7 @@
         },
         "handover": {
           "title": "Unstrukturierte Übergabe",
-            "text": "Schichtwechsel führen zu Fehlern, wenn Informationen nicht klar übergeben werden – Vorfälle, Flüssigkeitszufuhr oder Einträge bleiben unvollständig."
+          "text": "Schichtwechsel führen zu Fehlern, wenn Informationen nicht klar übergeben werden – Vorfälle, Flüssigkeitszufuhr oder Einträge bleiben unvollständig."
         },
         "privacy": {
           "title": "Datenschutz- & Compliance-Risiken",
@@ -44,44 +58,113 @@
           "text": "Mehrsprachige Teams haben Mühe, wenn Werkzeuge nicht in ihrer bevorzugten Sprache verfügbar sind."
         }
       },
-      "outro": "Kin Relay löst dies mit strukturierter, datenschutzorientierter Dokumentation, Ein-Klick-Übergabeberichten, Erinnerungen, Mehrsprachigkeit und sicherem EU-Hosting."
+      "outro": "KIN RELAY löst dies mit strukturierten Pflegeaufgaben, privaten Übergabeprotokollen, Erinnerungen, Mehrsprachigkeit und sicherer EU‑Datenverarbeitung für die häusliche Pflege."
     },
     "services": {
-      "title": "Was Kin Relay bietet",
-      "web": { "title": "Web-App", "text": "Pflege protokollieren, Übergaben ansehen, Rollen verwalten und Berichte exportieren." },
-      "android": { "title": "Android-App", "text": "Schnelles Protokollieren, Erinnerungen und Übergaben für unterwegs." },
-      "admin": { "title": "Admin-Dashboard", "text": "Klienten, Standorte und Auswertungen sicher verwalten." },
-      "multi": { "title": "Mehrsprachige Unterstützung", "text": "In mehreren Sprachen für vielfältige Teams verfügbar." },
-      "privacy": { "title": "Datenschutz & Compliance", "text": "EU-Hosting, Einwilligungsflüsse und regulatorische Sicherheit." },
-      "handover": { "title": "Übergabeberichte mit einem Tipp", "text": "Tägliche oder Schichtberichte als PDF oder E-Mail erzeugen." }
+      "title": "KIN RELAY bietet",
+      "web": {
+        "title": "Web-App",
+        "text": "Pflegeaufgaben erfassen, Übergaben prüfen und Rollen in der häuslichen Pflege verwalten."
+      },
+      "android": {
+        "title": "Android-App",
+        "text": "Schnelle Erfassung von Pflegeaufgaben, Erinnerungen und Übergabeunterstützung unterwegs."
+      },
+      "admin": {
+        "title": "Guardian-Dashboard",
+        "text": "Priorisierte Administratorsteuerung für Vertreter der Familie/Guardian. Ein Management-Modul mit Analysen kann in einer späteren Version angeboten werden."
+      },
+      "multi": {
+        "title": "Mehrsprachige Unterstützung",
+        "text": "Verfügbar in mehreren Sprachen für Familien und informelle Pflege im Haushalt."
+      },
+      "privacy": {
+        "title": "Datenschutz & Compliance",
+        "text": "EU-Hosting, Einwilligungsflüsse und an GDPR/TDDDG ausgerichtete Praktiken. Die Compliance-Seite enthält EU‑Regelungen zu Daten und Sicherheit."
+      },
+      "handover": {
+        "title": "Übergabeberichte mit einem Tipp",
+        "text": "Tägliche oder Schichtberichte als PDF oder E-Mail erzeugen."
+      }
     },
     "qa": {
       "title": "FAQ",
       "getting_started": "Registrieren, Pflegekreis einladen und sofort starten.",
       "items": {
-        "what": { "q": "Was ist Kin Relay?", "a": "Kin Relay ist eine Plattform zur Pflegekoordination für Familien und professionelle Teams (Web, Android, Admin)." },
-        "who": { "q": "Wer kann Kin Relay nutzen?", "a": "Familien, informelle Pflegepersonen, professionelle Pflegeteams und Anbieter." },
-        "medical": { "q": "Ist Kin Relay ein Medizinprodukt?", "a": "Nein. Fokus auf Dokumentation, Erinnerungen und Übergaben – keine Diagnostik oder Therapie." },
-        "privacy": { "q": "Sind meine Daten sicher?", "a": "Ja. EU‑Hosting, explizite Einwilligungen und DSGVO/TDDDG‑Konformität." },
-        "platforms": { "q": "Welche Plattformen werden unterstützt?", "a": "Web‑App, Android‑App und Admin‑Dashboard." },
-        "export": { "q": "Kann ich Übergaben exportieren?", "a": "Ja, tägliche oder Schichtberichte als PDF oder E‑Mail." },
-        "languages": { "q": "Verfügbar in meiner Sprache?", "a": "Mehrere Sprachen, laufend erweitert." },
-        "invite": { "q": "Wie lade ich andere ein?", "a": "Im Produkt per E‑Mail einladen und Rollen vergeben." },
-        "android": { "q": "Was kann die Android‑App?", "a": "Aktivitäten protokollieren, Erinnerungen setzen, Übergaben unterwegs abschließen." },
-        "difference": { "q": "Unterschied zu Chat‑Apps?", "a": "Strukturierte Protokolle, Datenschutzkontrollen, Ein‑Klick‑Berichte statt ungeordneter Chats." },
-        "multiple": { "q": "Mehrere Pflegekreise?", "a": "Ja, einfach zwischen Kreisen wechseln." },
-        "free": { "q": "Gibt es eine Gratisversion?", "a": "Ja, eine kostenlose Familien-Stufe." },
-        "support": { "q": "Wie erhalte ich Support?", "a": "Über die App oder das Kontaktformular." },
-        "accessibility": { "q": "Barrierefreiheitsfunktionen?", "a": "Hoher Kontrast, flexible Typografie, reduziertes Bewegungslayout." },
-        "getting_started": { "q": "Wie starte ich?", "a": "Registrieren, Kreis einladen und sofort protokollieren." }
+        "what": {
+          "q": "Was ist Kin Relay?",
+          "a": "KIN RELAY ist eine Home‑Care‑Koordinations-App für Familien und informelle Pflegepersonen."
+        },
+        "who": {
+          "q": "Wer kann Kin Relay nutzen?",
+          "a": "Familien, Guardians und informelle Pflegepersonen im häuslichen Umfeld."
+        },
+        "medical": {
+          "q": "Ist Kin Relay ein Medizinprodukt?",
+          "a": "Nein. Fokus auf Dokumentation, Erinnerungen und Übergaben – keine Diagnostik oder Therapie."
+        },
+        "privacy": {
+          "q": "Sind meine Daten sicher?",
+          "a": "Ja. EU-Hosting, ausdrückliche Einwilligungsflüsse und an GDPR/TDDDG ausgerichtete Praktiken. Siehe Compliance-Informationen zu EU‑Vorschriften für Daten und Sicherheit."
+        },
+        "platforms": {
+          "q": "Welche Plattformen werden unterstützt?",
+          "a": "Web und Android. Das Dashboard ist in dieser Phase eine häusliche Guardian-Admin-Oberfläche, keine Unternehmensplattform."
+        },
+        "export": {
+          "q": "Kann ich Übergaben exportieren?",
+          "a": "Ja, tägliche oder Schichtberichte als PDF oder E‑Mail."
+        },
+        "languages": {
+          "q": "Verfügbar in meiner Sprache?",
+          "a": "Mehrere Sprachen, laufend erweitert."
+        },
+        "invite": {
+          "q": "Wie lade ich andere ein?",
+          "a": "Einladungen werden ausschließlich durch den priorisierten Administrator (Guardian/Familienvertretung) verwaltet."
+        },
+        "android": {
+          "q": "Was kann die Android‑App?",
+          "a": "Pflegeaufgaben protokollieren, Erinnerungen setzen und Übergaben unterwegs abschließen."
+        },
+        "difference": {
+          "q": "Unterschied zu Chat‑Apps?",
+          "a": "Strukturierte Pflegeaufgaben-Protokolle, Datenschutzkontrollen und Ein-Klick-Berichte statt unstrukturiertem Chat."
+        },
+        "multiple": {
+          "q": "Mehrere Pflegekreise?",
+          "a": "Ein Care Circle sind die Personen rund um einen Klienten zu Hause (z. B. Pflegeperson + Familienmitglieder mit Leserechten)."
+        },
+        "free": {
+          "q": "Gibt es eine Gratisversion?",
+          "a": "Ja, eine kostenlose Familien-Stufe."
+        },
+        "support": {
+          "q": "Wie erhalte ich Support?",
+          "a": "Über die App oder das Kontaktformular."
+        },
+        "accessibility": {
+          "q": "Barrierefreiheitsfunktionen?",
+          "a": "Hoher Kontrast, fließende Typografie, vergrößerte Schrift und Optionen für reduzierte Bewegung."
+        },
+        "getting_started": {
+          "q": "Wie starte ich?",
+          "a": "Registrieren, Guardian-Admin lädt andere ein, dann Pflegeaufgaben starten."
+        }
       }
     },
-    "contact": { "title": "Kontakt aufnehmen", "thanks": "Danke! Wir melden uns bald.", "send": "Senden", "name": "Ihr Name", "message": "Nachricht (optional)" }
+    "contact": {
+      "title": "Kontakt aufnehmen",
+      "thanks": "Danke! Wir melden uns bald.",
+      "send": "Senden",
+      "name": "Ihr Name",
+      "message": "Nachricht (optional)"
+    }
   },
   "auth": {
     "login": "Anmelden",
     "signup": "Registrieren",
-    "join_now": "Jetzt beitreten"
+    "join_now": "Beitreten"
   },
   "common": {
     "language": "Sprache"
@@ -89,9 +172,9 @@
   "register": {
     "title": "Erstelle dein Konto",
     "subtitle": "Gib grundlegende Daten und (optional) Adresse ein.",
-  "role_label": "Kontotyp",
-  "role_patient": "Patient",
-  "role_carer": "Pflegekraft",
+    "role_label": "Kontotyp",
+    "role_patient": "Patient",
+    "role_carer": "Pflegekraft",
     "full_name": "Vollständiger Name",
     "email": "E-Mail",
     "password": "Passwort",
@@ -116,5 +199,98 @@
     "email_invalid": "Gültige E-Mail erforderlich",
     "password_short": "Passwort min. 6 Zeichen",
     "unknown": "Unbekannter Fehler"
+  },
+  "app": {
+    "activity_form": {
+      "main_log": "Hauptprotokoll",
+      "sections": {
+        "quick_actions": "Schnellaktionen",
+        "categories": "Kategorien",
+        "incident_types": "Vorfalltypen",
+        "recent_tasks": "Letzte Aufgaben"
+      },
+      "actions": {
+        "save": "Speichern",
+        "saving": "Speichert...",
+        "cancel": "Abbrechen",
+        "expand": "Erweitern",
+        "collapse": "Einklappen"
+      },
+      "states": {
+        "loading": "Lädt...",
+        "no_tasks": "Noch keine Aufgaben erfasst.",
+        "no_clients": "Keine Klienten verfügbar"
+      },
+      "labels": {
+        "client": "Klient",
+        "category": "Kategorie",
+        "observed_at": "Beobachtet um",
+        "assistance_level": "Unterstützungsniveau",
+        "select_level": "Niveau wählen",
+        "fluid_type_optional": "Flüssigkeitstyp (optional)",
+        "food_type_caregiver_input": "Art der Nahrung (Eingabe Pflegeperson)"
+      },
+      "placeholders": {
+        "fluid_type": "Water, tea, juice, etc.",
+        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+      },
+      "helpers": {
+        "hydration_multi": "Select multiple amounts to add them up.",
+        "total_ml": "Total: {value} ml"
+      },
+      "messages": {
+        "pick_incident_type": "Pick incident type",
+        "saved_demo": "(demo) Saved",
+        "saved": "Saved",
+        "save_error": "Save error"
+      },
+      "aria": {
+        "show_assistance_info": "Show assistance level explanations",
+        "configure_quick_log": "Configure quick log",
+        "configure_quick_actions": "Configure quick actions",
+        "quick_action": "quick action",
+        "select": "Select",
+        "select_client": "Klient auswählen",
+        "go_back": "Zurück",
+        "pick_incident": "Vorfall auswählen"
+      },
+      "main_categories": {
+        "hydration": {
+          "label": "Hydration",
+          "subtitle": "Aufgenommene Flüssigkeiten"
+        },
+        "nutrition": {
+          "label": "Ernährung",
+          "subtitle": "Mahlzeiten und Snacks"
+        },
+        "personal_care": {
+          "label": "Persönliche Pflege",
+          "subtitle": "Bathing Hygiene [Personal Care]"
+        },
+        "incident": {
+          "label": "Vorfall",
+          "subtitle": "Gesundheitsbeobachtung + Sonstiges"
+        }
+      },
+      "assistance_levels": {
+        "title": "Assistance Levels",
+        "independent": {
+          "label": "Independent",
+          "desc": "Person completes task without help"
+        },
+        "supervision": {
+          "label": "Supervision",
+          "desc": "Caregiver observes for safety (keep an eye)"
+        },
+        "prompted": {
+          "label": "Prompted",
+          "desc": "Needs cues or setup (e.g., cut food into pieces)"
+        },
+        "assisted": {
+          "label": "Assisted",
+          "desc": "Hands-on help with parts or most of the task"
+        }
+      }
+    }
   }
 }
