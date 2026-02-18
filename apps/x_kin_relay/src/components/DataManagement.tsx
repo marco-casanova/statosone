@@ -221,10 +221,30 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
   }
 
   const NAV_SHORTCUTS = [
-    { key: "quick-log", label: "Quick Log", icon: "📝", href: `/${locale}/app?view=dashboard` },
-    { key: "network", label: "Care Network", icon: "💛", href: `/${locale}/app?view=network` },
-    { key: "analytics", label: "Analytics", icon: "📊", href: `/${locale}/admin` },
-    { key: "handover", label: "Handover", icon: "📄", href: `/${locale}/app/reports` },
+    {
+      key: "quick-log",
+      label: "Quick Log",
+      icon: "📝",
+      href: `/${locale}/app?view=dashboard`,
+    },
+    {
+      key: "network",
+      label: "Care Network",
+      icon: "💛",
+      href: `/${locale}/app?view=network`,
+    },
+    {
+      key: "analytics",
+      label: "Analytics",
+      icon: "📊",
+      href: `/${locale}/admin`,
+    },
+    {
+      key: "handover",
+      label: "Handover",
+      icon: "📄",
+      href: `/${locale}/app/reports`,
+    },
   ];
 
   return (
@@ -256,10 +276,25 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
           ))}
 
           {/* Divider */}
-          <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "8px 12px" }} />
+          <div
+            style={{
+              height: 1,
+              background: "rgba(0,0,0,0.08)",
+              margin: "8px 12px",
+            }}
+          />
 
           {/* Navigation Shortcuts */}
-          <div style={{ padding: "4px 12px 2px", fontSize: 10, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.8 }}>
+          <div
+            style={{
+              padding: "4px 12px 2px",
+              fontSize: 10,
+              fontWeight: 600,
+              color: "#9CA3AF",
+              textTransform: "uppercase",
+              letterSpacing: 0.8,
+            }}
+          >
             Navigate
           </div>
           {NAV_SHORTCUTS.map((n) => (
