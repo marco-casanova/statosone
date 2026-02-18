@@ -22,17 +22,26 @@ export function LoginForm() {
   async function login(e: React.FormEvent) {
     e.preventDefault();
     if (!hasSupabase || !supabase) {
-      push("Auth disabled", "error");
+      push("Auth disabled (demo mode). Redirecting...", "info");
+      router.replace(`/${locale}/app?view=dashboard`);
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pw,
-    });
-    setLoading(false);
-    if (error) return push(error.message, "error");
-    router.push(`/${locale}/app?view=dashboard`);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: pw,
+      });
+      if (error) return push(error.message, "error");
+      router.replace(`/${locale}/app?view=dashboard`);
+      setTimeout(() => {
+        if (typeof window !== "undefined") {
+          window.location.assign(`/${locale}/app?view=dashboard`);
+        }
+      }, 250);
+    } finally {
+      setLoading(false);
+    }
   }
   async function sendReset(e: React.FormEvent) {
     e.preventDefault();

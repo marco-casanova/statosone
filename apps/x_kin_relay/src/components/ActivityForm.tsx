@@ -6,148 +6,21 @@ import {
   IncidentCategory,
   CATEGORY_TO_SUBTYPES,
   SUBTYPE_OPTIONS,
+  CARE_UI_CATEGORIES,
+  SUBTYPE_OPTION_LABELS,
+  UiCareCategoryId,
+  UiCareSubtypeItem,
 } from "../types/schema";
 import { iconFor, a11yLabel } from "./activityIcons";
 import {
   QuickActionsManager,
   QuickAction,
   loadQuickActions,
+  saveQuickActions,
 } from "./QuickActionsManager";
 
 type Phase = "browse" | "category" | "confirm";
-type MainCategory = "hydration" | "nutrition" | "personal_care" | "incident";
-
-const MAIN_CATEGORIES: {
-  id: MainCategory;
-  label: string;
-  subtitle: string;
-  category: IncidentCategory;
-  subtype?: string;
-}[] = [
-  {
-    id: "hydration",
-    label: "Hydration",
-    subtitle: "Fluids consumed",
-    category: "adl",
-    subtype: "hydration",
-  },
-  {
-    id: "nutrition",
-    label: "Nutrition",
-    subtitle: "Meals and snacks",
-    category: "adl",
-    subtype: "nutrition_meal",
-  },
-  {
-    id: "personal_care",
-    label: "Personal Care",
-    subtitle: "Bathing Hygiene [Personal Care]",
-    category: "adl",
-    subtype: "bathing_hygiene",
-  },
-  {
-    id: "incident",
-    label: "Incident",
-    subtitle: "Health Observation + Other",
-    category: "health_observation",
-  },
-];
-
-const INCIDENT_GROUPS: {
-  label: string;
-  items: { label: string; value: string }[];
-}[] = [
-  {
-    label: "Respiratory",
-    items: [
-      { label: "Breathing difficulty", value: "breathing_difficulty" },
-      { label: "Cough", value: "cough_sputum" },
-      { label: "Obstruction", value: "airway_obstruction" },
-      { label: "Phlegm/sputum", value: "cough_sputum" },
-    ],
-  },
-  {
-    label: "Skin Change",
-    items: [
-      { label: "Burn", value: "burn" },
-      { label: "Rash", value: "rash" },
-      { label: "Redness", value: "redness" },
-      { label: "Cut/wound", value: "cut" },
-      { label: "Bruise", value: "bruise" },
-      { label: "Paleness", value: "pale" },
-      { label: "Inflammation", value: "inflammation" },
-      { label: "Bites", value: "bites" },
-      { label: "Bed sore", value: "skin_breakdown" },
-    ],
-  },
-  {
-    label: "Mobility",
-    items: [
-      { label: "Fall", value: "falls" },
-      { label: "Near miss", value: "near_miss" },
-      { label: "Weakness", value: "weakness" },
-      { label: "Unstable", value: "loss_of_balance" },
-    ],
-  },
-  {
-    label: "Sleep Disturbance",
-    items: [
-      { label: "Insomnia", value: "restlessness" },
-      { label: "Drowsiness", value: "drowsiness" },
-      { label: "Sleep apnea", value: "breathing_difficulty" },
-      { label: "Restless legs syndrome", value: "restlessness" },
-    ],
-  },
-  {
-    label: "Gastrointestinal",
-    items: [
-      { label: "Urine leak", value: "urine_leak" },
-      { label: "Bowel leak", value: "bowel_leak" },
-      { label: "Diarrhea", value: "diarrhoea" },
-      { label: "Vomiting", value: "vomiting" },
-      { label: "Inappetence", value: "upset_stomach" },
-    ],
-  },
-  {
-    label: "Cognition/Behaviour",
-    items: [
-      { label: "Loss of consciousness", value: "loss_of_consciousness" },
-      { label: "Confusion", value: "confusion" },
-      { label: "Challenging behaviour", value: "challenging_behaviour" },
-      { label: "Anxiety", value: "anxiety" },
-      { label: "Hallucination", value: "hallucination" },
-      { label: "Delusion", value: "behaviour_change" },
-      { label: "Grief/sadness", value: "behaviour_change" },
-    ],
-  },
-  {
-    label: "Medication Error",
-    items: [
-      { label: "Missed dose", value: "medication_error" },
-      { label: "Overdose", value: "medication_error" },
-      { label: "Wrong med", value: "medication_error" },
-      { label: "Wrong time", value: "medication_error" },
-      { label: "Wrong route", value: "medication_error" },
-      { label: "Refusal", value: "medication_error" },
-    ],
-  },
-  {
-    label: "Environmental Hazard",
-    items: [
-      { label: "Furniture", value: "environment_hazard" },
-      { label: "Poor lighting", value: "environment_hazard" },
-      { label: "Inadequate access", value: "environment_hazard" },
-      { label: "Mould", value: "environment_hazard" },
-      { label: "Chemicals", value: "environment_hazard" },
-      { label: "Flooring", value: "environment_hazard" },
-      { label: "Infestation", value: "environment_hazard" },
-    ],
-  },
-  {
-    label: "Other",
-    items: [{ label: "Other", value: "behaviour_change" }],
-  },
-];
+type MainCategory = UiCareCategoryId;
 
 const FOOD_SUGGESTIONS = [
   "Pasta bolognesa y pan tostado",
@@ -226,16 +99,24 @@ export function ActivityForm() {
   const [mainCategory, setMainCategory] = useState<MainCategory | null>(null);
   const [category, setCategory] = useState<IncidentCategory | null>(null);
   const [subtype, setSubtype] = useState<string | null>(null);
-  const [subtypeValue, setSubtypeValue] = useState<string | number | null>(null);
+  const [subtypeValue, setSubtypeValue] = useState<string | number | null>(
+    null,
+  );
   const [hydrationValues, setHydrationValues] = useState<number[]>([]);
   const [observedAt, setObservedAt] = useState(nowLocal());
   const [assistanceLevel, setAssistanceLevel] = useState("");
   const [fluidType, setFluidType] = useState("");
   const [foodType, setFoodType] = useState("");
-  const [incidentLabel, setIncidentLabel] = useState<string | null>(null);
+  const [selectedSubtypeLabel, setSelectedSubtypeLabel] = useState<
+    string | null
+  >(null);
+  const [subtypeDetailsPreset, setSubtypeDetailsPreset] = useState<Record<
+    string,
+    string | number | boolean
+  > | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"success" | "error" | null>(
-    null
+    null,
   );
   const [saving, setSaving] = useState(false);
 
@@ -254,11 +135,19 @@ export function ActivityForm() {
   const [recentExpanded, setRecentExpanded] = useState(false);
   const [recentLoading, setRecentLoading] = useState(false);
 
-  const isHydration = mainCategory === "hydration";
-  const isNutrition = mainCategory === "nutrition";
-  const isPersonalCare = mainCategory === "personal_care";
+  const selectedMainCategory = useMemo(
+    () => CARE_UI_CATEGORIES.find((c) => c.id === mainCategory) || null,
+    [mainCategory],
+  );
+  const selectedSubtypeGroups = selectedMainCategory?.groups || [];
+  const selectedSubtypeItems = useMemo(
+    () => selectedSubtypeGroups.flatMap((group) => group.items),
+    [selectedSubtypeGroups],
+  );
+  const isHydration = subtype === "hydration";
+  const isNutrition = subtype === "nutrition_meal" || subtype === "feeding";
   const isIncident = mainCategory === "incident";
-  const showAssistance = !isIncident;
+  const showAssistance = category === "adl";
 
   // Load clients on mount
   useEffect(() => {
@@ -305,70 +194,161 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
-    setIncidentLabel(null);
+    setSelectedSubtypeLabel(null);
+    setSubtypeDetailsPreset(null);
     setMessage(null);
     setMessageTone(null);
     setRecentExpanded(false);
   }
 
+  function applySubtypeSelection(item: UiCareSubtypeItem, label?: string) {
+    setCategory(item.category);
+    setSubtype(item.subtype);
+    setSubtypeValue(null);
+    setSelectedSubtypeLabel(label || item.label || formatSubtype(item.subtype));
+    setSubtypeDetailsPreset(item.detailsPreset || null);
+    if (typeof item.detailsPreset?.fluid_type === "string") {
+      setFluidType(item.detailsPreset.fluid_type);
+    }
+  }
+
   function pickMainCategory(id: MainCategory) {
-    const meta = MAIN_CATEGORIES.find((c) => c.id === id);
+    const meta = CARE_UI_CATEGORIES.find((c) => c.id === id);
     if (!meta) return;
+    const items = meta.groups.flatMap((group) => group.items);
     setMainCategory(id);
-    setCategory(meta.category);
-    setSubtype(meta.subtype || null);
     setSubtypeValue(null);
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
-    setIncidentLabel(null);
+    setSelectedSubtypeLabel(null);
+    setSubtypeDetailsPreset(null);
     setAssistanceLevel("");
     setMessage(null);
     setMessageTone(null);
-    setPhase(id === "incident" ? "category" : "confirm");
+
+    if (items.length === 1) {
+      applySubtypeSelection(items[0]);
+      setPhase("confirm");
+      return;
+    }
+
+    setCategory(null);
+    setSubtype(null);
+    setPhase("category");
   }
 
   function pickQuickAction(action: QuickAction) {
-    const matchedMain = MAIN_CATEGORIES.find(
-      (c) => c.category === action.category && c.subtype === action.subtype,
-    );
-    if (matchedMain) {
-      setMainCategory(matchedMain.id);
-    } else if (action.category === "health_observation") {
-      setMainCategory("incident");
-    } else {
-      setMainCategory(null);
-    }
-    setCategory(action.category);
-    setSubtype(action.subtype);
+    const matchedMain = action.mainCategoryId
+      ? CARE_UI_CATEGORIES.find((c) => c.id === action.mainCategoryId)
+      : CARE_UI_CATEGORIES.find((c) =>
+          c.groups.some((group) =>
+            group.items.some(
+              (item) =>
+                item.category === action.category &&
+                item.subtype === action.subtype &&
+                item.label === action.label,
+            ),
+          ),
+        );
+
+    const matchedItem = matchedMain?.groups
+      .flatMap((group) => group.items)
+      .find(
+        (item) =>
+          item.category === action.category &&
+          item.subtype === action.subtype &&
+          item.label === action.label,
+      );
+
     setSubtypeValue(null);
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
-    setIncidentLabel(action.subtype ? formatSubtype(action.subtype) : null);
     setAssistanceLevel("");
     setMessage(null);
     setMessageTone(null);
+
+    if (matchedMain && matchedItem) {
+      setMainCategory(matchedMain.id);
+      applySubtypeSelection(
+        {
+          ...matchedItem,
+          detailsPreset: action.detailsPreset || matchedItem.detailsPreset,
+        },
+        action.label,
+      );
+      setPhase("confirm");
+      return;
+    }
+
+    setMainCategory(null);
+    setCategory(action.category);
+    setSubtype(action.subtype);
+    setSelectedSubtypeLabel(action.label || formatSubtype(action.subtype));
+    setSubtypeDetailsPreset(action.detailsPreset || null);
     setPhase("confirm");
   }
 
-  function pickIncidentSubtype(value: string, label: string) {
-    setSubtype(value);
-    setIncidentLabel(label);
-    setSubtypeValue(null);
+  function pickSubtype(item: UiCareSubtypeItem) {
+    applySubtypeSelection(item);
     setPhase("confirm");
+  }
+
+  function isInQuickActions(item: UiCareSubtypeItem): boolean {
+    return quickActions.some(
+      (qa) =>
+        qa.category === item.category &&
+        qa.subtype === item.subtype &&
+        qa.label === item.label &&
+        qa.mainCategoryId === mainCategory,
+    );
+  }
+
+  function toggleQuickAction(item: UiCareSubtypeItem, event: React.MouseEvent) {
+    event.stopPropagation();
+    const inQuickActions = isInQuickActions(item);
+    let newActions: QuickAction[];
+
+    if (inQuickActions) {
+      newActions = quickActions.filter(
+        (qa) =>
+          !(
+            qa.category === item.category &&
+            qa.subtype === item.subtype &&
+            qa.label === item.label &&
+            qa.mainCategoryId === mainCategory
+          ),
+      );
+    } else {
+      const newAction: QuickAction = {
+        category: item.category,
+        subtype: item.subtype,
+        label: item.label,
+        mainCategoryId: mainCategory || undefined,
+        detailsPreset: item.detailsPreset,
+      };
+      newActions = [...quickActions, newAction];
+    }
+
+    setQuickActions(newActions);
+    saveQuickActions(newActions);
   }
 
   function toggleHydrationValue(value: number) {
     setHydrationValues((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
   }
 
   async function loadRecentActivities() {
     if (!selectedClientId) return;
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
     const startIso = startOfDay.toISOString();
 
     if (!hasSupabase || !supabase) {
@@ -406,7 +386,7 @@ export function ActivityForm() {
 
   async function save() {
     if (!category) return;
-    if (isIncident && !subtype) {
+    if (!subtype) {
       setMessage(t("messages.pick_incident_type"));
       setMessageTone("error");
       return;
@@ -419,16 +399,27 @@ export function ActivityForm() {
     }
     setSaving(true);
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Unauthorized");
+      }
+
       const metaDef = CATEGORY_TO_SUBTYPES[category];
       const payload: any = {
         category,
         observed_at: new Date(observedAt).toISOString(),
         recipient_id: selectedClientId || null,
+        recorded_by: user.id,
       };
       if (subtype) payload[metaDef.key] = subtype;
       if (assistanceLevel) payload.assistance_level = assistanceLevel;
 
       const details: Record<string, any> = {};
+      if (subtypeDetailsPreset) {
+        Object.assign(details, subtypeDetailsPreset);
+      }
 
       if (isHydration) {
         if (hydrationValues.length) {
@@ -449,13 +440,32 @@ export function ActivityForm() {
       if (isNutrition && foodType.trim()) {
         details.food_type = foodType.trim();
       }
-      if (isIncident && incidentLabel) {
-        details.incident_label = incidentLabel;
+      if (selectedSubtypeLabel) {
+        details.subcategory_label = selectedSubtypeLabel;
       }
 
       if (Object.keys(details).length) payload.details = details;
 
-      const { error } = await supabase.from("kr_activities").insert(payload);
+      // Support mixed DB variants:
+      // - strict RLS expects created_by/caregiver_id ownership
+      // - lightweight schema may not have those columns
+      const insertWithOwners = {
+        ...payload,
+        created_by: user.id,
+        caregiver_id: user.id,
+      };
+
+      let { error } = await supabase
+        .from("kr_activities")
+        .insert(insertWithOwners);
+      if (
+        error &&
+        /column .* does not exist|created_by|caregiver_id/i.test(
+          error.message || "",
+        )
+      ) {
+        ({ error } = await supabase.from("kr_activities").insert(payload));
+      }
       if (error) throw error;
       setMessage(t("messages.saved"));
       setMessageTone("success");
@@ -468,14 +478,17 @@ export function ActivityForm() {
     }
   }
 
-  const canConfirm = !!category && (!isIncident || !!subtype);
+  const canConfirm = !!category && !!subtype;
 
   // Go back one step
   function goBack() {
     if (phase === "confirm") {
-      if (isIncident) {
+      if (selectedSubtypeItems.length > 1) {
+        setCategory(null);
         setSubtype(null);
         setSubtypeValue(null);
+        setSelectedSubtypeLabel(null);
+        setSubtypeDetailsPreset(null);
         setPhase("category");
       } else {
         resetAll();
@@ -490,36 +503,16 @@ export function ActivityForm() {
     return hydrationValues.reduce((sum, v) => sum + Number(v), 0);
   }, [hydrationValues]);
 
-  const currentMainLabel = MAIN_CATEGORIES.find(
-    (c) => c.id === mainCategory
-  )?.label;
-  const mainCategoryText: Record<MainCategory, { label: string; subtitle: string }> =
-    {
-      hydration: {
-        label: t("main_categories.hydration.label"),
-        subtitle: t("main_categories.hydration.subtitle"),
-      },
-      nutrition: {
-        label: t("main_categories.nutrition.label"),
-        subtitle: t("main_categories.nutrition.subtitle"),
-      },
-      personal_care: {
-        label: t("main_categories.personal_care.label"),
-        subtitle: t("main_categories.personal_care.subtitle"),
-      },
-      incident: {
-        label: t("main_categories.incident.label"),
-        subtitle: t("main_categories.incident.subtitle"),
-      },
-    };
-  const localizedCurrentMainLabel = mainCategory
-    ? mainCategoryText[mainCategory].label
-    : null;
   const displayCategoryLabel = mainCategory
-    ? localizedCurrentMainLabel || currentMainLabel || t("labels.category")
+    ? selectedMainCategory?.label || t("labels.category")
     : category
       ? formatCategory(category)
       : t("labels.category");
+  const displaySubtypeLabel =
+    selectedSubtypeLabel || (subtype ? formatSubtype(subtype) : null);
+  const subcategorySectionLabel = isIncident
+    ? t("sections.incident_types")
+    : "Subcategories";
   const clientSelector = (
     <>
       <label style={miniLabel}>{t("labels.client")}</label>
@@ -549,7 +542,11 @@ export function ActivityForm() {
     <div style={shell} aria-labelledby="af-title">
       <div style={headerRow}>
         {phase !== "browse" && (
-          <button onClick={goBack} style={backButton} aria-label={t("aria.go_back")}>
+          <button
+            onClick={goBack}
+            style={backButton}
+            aria-label={t("aria.go_back")}
+          >
             ←
           </button>
         )}
@@ -601,25 +598,25 @@ export function ActivityForm() {
           )}
           <div style={sectionLabel}>{t("sections.categories")}</div>
           <div style={grid}>
-            {MAIN_CATEGORIES.map((c) => {
-              const txt = mainCategoryText[c.id];
+            {CARE_UI_CATEGORIES.map((c) => {
+              const firstItem = c.groups[0]?.items[0];
               return (
                 <button
                   key={c.id}
                   style={mainCategoryCard(c.id)}
                   onClick={() => pickMainCategory(c.id)}
-                  aria-label={`${t("aria.select")} ${txt.label} ${t("sections.categories").toLowerCase()}`}
+                  aria-label={`${t("aria.select")} ${c.label} ${t("sections.categories").toLowerCase()}`}
                 >
                   <span
-                    style={iconBadge(c.category)}
+                    style={iconBadge(c.iconCategory)}
                     role="img"
-                    aria-label={a11yLabel(c.category, c.subtype)}
+                    aria-label={a11yLabel(c.iconCategory, firstItem?.subtype)}
                   >
-                    {iconFor(c.category, c.subtype)}
+                    {iconFor(c.iconCategory, firstItem?.subtype)}
                   </span>
                   <div>
-                    <span style={cardTitle}>{txt.label}</span>
-                    <div style={cardSub}>{txt.subtitle}</div>
+                    <span style={cardTitle}>{c.label}</span>
+                    <div style={cardSub}>{c.subtitle}</div>
                   </div>
                 </button>
               );
@@ -628,38 +625,61 @@ export function ActivityForm() {
         </>
       )}
 
-      {phase === "category" && isIncident && (
+      {phase === "category" && selectedMainCategory && (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           {clientSelector}
-          <div style={sectionLabel}>{t("sections.incident_types")}</div>
-          {INCIDENT_GROUPS.map((group) => (
+          <div style={sectionLabel}>{subcategorySectionLabel}</div>
+          {selectedMainCategory.groups.map((group) => (
             <div
               key={group.label}
               style={{ display: "flex", flexDirection: "column", gap: 10 }}
             >
               <div style={groupLabel}>{group.label}</div>
               <div style={grid}>
-                {group.items.map((item) => (
-                  <button
-                    key={`${group.label}-${item.value}-${item.label}`}
-                    style={
-                      incidentCard(
-                        subtype === item.value && incidentLabel === item.label
-                      )
-                    }
-                    onClick={() => pickIncidentSubtype(item.value, item.label)}
-                    aria-label={`${t("aria.pick_incident")} ${item.label}`}
-                  >
-                    <span
-                      style={iconBadge("health_observation")}
-                      role="img"
-                      aria-label={a11yLabel("health_observation", item.value)}
+                {group.items.map((item) => {
+                  const isInQuick = isInQuickActions(item);
+                  return (
+                    <button
+                      key={`${group.label}-${item.subtype}-${item.label}-${item.category}`}
+                      style={incidentCard(
+                        subtype === item.subtype &&
+                          category === item.category &&
+                          selectedSubtypeLabel === item.label,
+                      )}
+                      onClick={() => pickSubtype(item)}
+                      aria-label={
+                        isIncident
+                          ? `${t("aria.pick_incident")} ${item.label}`
+                          : `${t("aria.select")} ${item.label}`
+                      }
                     >
-                      {iconFor("health_observation", item.value)}
-                    </span>
-                    <span style={cardTitle}>{item.label}</span>
-                  </button>
-                ))}
+                      <button
+                        style={starButton(isInQuick)}
+                        onClick={(e) => toggleQuickAction(item, e)}
+                        aria-label={
+                          isInQuick
+                            ? t("aria.remove_from_quick_log")
+                            : t("aria.add_to_quick_log")
+                        }
+                        title={
+                          isInQuick
+                            ? t("aria.remove_from_quick_log")
+                            : t("aria.add_to_quick_log")
+                        }
+                      >
+                        {isInQuick ? "★" : "☆"}
+                      </button>
+                      <span
+                        style={iconBadge(item.category)}
+                        role="img"
+                        aria-label={a11yLabel(item.category, item.subtype)}
+                      >
+                        {iconFor(item.category, item.subtype)}
+                      </span>
+                      <span style={cardTitle}>{item.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -680,10 +700,8 @@ export function ActivityForm() {
               <div style={categoryTitle}>
                 {displayCategoryLabel.toUpperCase()}
               </div>
-              {isIncident && subtype && (
-                <div style={categorySubtitle}>
-                  {incidentLabel || formatSubtype(subtype)}
-                </div>
+              {displaySubtypeLabel && (
+                <div style={categorySubtitle}>{displaySubtypeLabel}</div>
               )}
             </div>
           </div>
@@ -861,12 +879,11 @@ export function ActivityForm() {
                 fontSize: 13,
                 padding: "10px 14px",
                 borderRadius: 10,
-                background: messageTone === "success"
-                  ? "rgba(34, 197, 94, 0.15)"
-                  : "rgba(239, 68, 68, 0.15)",
-                color: messageTone === "success"
-                  ? "#22C55E"
-                  : "#EF4444",
+                background:
+                  messageTone === "success"
+                    ? "rgba(34, 197, 94, 0.15)"
+                    : "rgba(239, 68, 68, 0.15)",
+                color: messageTone === "success" ? "#22C55E" : "#EF4444",
               }}
             >
               {message}
@@ -890,7 +907,7 @@ function nowLocal() {
   const d = new Date();
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(
-    d.getHours()
+    d.getHours(),
   )}:${p(d.getMinutes())}`;
 }
 function formatCategory(s: string) {
@@ -910,7 +927,7 @@ function formattedTime(iso: string) {
 
 function primaryLabel(a: ActivityRow) {
   const subK = Object.keys(a).find(
-    (k) => k.startsWith("subtype_") && a[k] && typeof a[k] === "string"
+    (k) => k.startsWith("subtype_") && a[k] && typeof a[k] === "string",
   );
   const subtype = subK ? a[subK] : null;
   if (subtype) return formatSubtype(subtype);
@@ -919,90 +936,30 @@ function primaryLabel(a: ActivityRow) {
 
 // Get label for subtype options based on subtype
 function getOptionLabel(subtype: string): string {
-  const labels: Record<string, string> = {
-    // Safety
-    falls: "Severity",
-    safeguarding: "Type",
-    medication_error: "Error type",
-    missing_client: "Duration",
-    fire_disaster: "Type",
-    theft_security: "Type",
-    team_accident: "Severity",
-    equipment_issue: "Issue type",
-    poisoning: "Status",
-    death: "Type",
-    near_miss: "Type",
-    // Health Observation / Incident
-    breathing_difficulty: "Severity",
-    cough_sputum: "Type",
-    airway_obstruction: "Status",
-    chest_pain: "Severity",
-    pale: "Severity",
-    weakness: "Severity",
-    loss_of_consciousness: "Duration",
-    seizure: "Type",
-    drowsiness: "Severity",
-    headache: "Severity",
-    stroke_like_signs: "Sign type",
-    rash: "Extent",
-    burn: "Severity",
-    skin_breakdown: "Stage",
-    infection_concern: "Status",
-    vomiting: "Frequency",
-    diarrhoea: "Severity",
-    urinary_symptoms: "Type",
-    diabetes_symptom: "Type",
-    glucose_value: "Level",
-    catheter_issue: "Issue type",
-    behaviour_change: "Type",
-    environment_hazard: "Hazard type",
-    // ADL
-    hydration: "Amount",
-    nutrition_meal: "Portion eaten",
-    feeding: "Portion eaten",
-    toileting: "Outcome",
-    continence_bladder: "Status",
-    continence_bowel: "Status",
-    sleep_rest: "Sleep quality",
-    vital_sign: "Type",
-    weight_entry: "Weight range",
-    mobility_transfer: "Assistance needed",
-    transfer: "Assistance needed",
-    ambulation_walk: "Duration",
-    bathing_hygiene: "Type",
-    dressing_grooming: "Assistance",
-    // Environment
-    home_hazard: "Hazard type",
-    moving_handling: "Issue type",
-    service_visit_issue: "Issue type",
-    // Service
-    visit_issue: "Issue type",
-    access_problem: "Problem type",
-    late_arrival: "Delay",
-    cancelled_visit: "Reason",
-    other: "Type",
-    // Engagement
-    reading: "Duration",
-    video_game: "Duration",
-    tv_viewing: "Duration",
-    music_listening: "Duration",
-    social_visit: "Duration",
-    puzzle_brain: "Duration",
-    exercise_light: "Duration",
-    exercise_moderate: "Duration",
-    outdoor_walk: "Duration",
-    art_craft: "Duration",
-  };
-  return labels[subtype] || "Select option";
+  return SUBTYPE_OPTION_LABELS[subtype] || "Select option";
 }
 
-const MAIN_CATEGORY_COLORS: Record<MainCategory, { color: string; bg: string }> =
-  {
-    hydration: { color: "#3B82F6", bg: "rgba(59, 130, 246, 0.18)" },
-    nutrition: { color: "#22C55E", bg: "rgba(34, 197, 94, 0.18)" },
-    personal_care: { color: "#F59E0B", bg: "rgba(245, 158, 11, 0.18)" },
-    incident: { color: "#14B8A6", bg: "rgba(20, 184, 166, 0.18)" },
-  };
+const MAIN_CATEGORY_COLORS: Record<
+  MainCategory,
+  { color: string; bg: string }
+> = {
+  sleep_pattern: { color: "#0EA5E9", bg: "rgba(14, 165, 233, 0.18)" },
+  personal_care: { color: "#F59E0B", bg: "rgba(245, 158, 11, 0.18)" },
+  hydration: { color: "#3B82F6", bg: "rgba(59, 130, 246, 0.18)" },
+  nutrition: { color: "#22C55E", bg: "rgba(34, 197, 94, 0.18)" },
+  mobility: { color: "#F97316", bg: "rgba(249, 115, 22, 0.18)" },
+  continence_incontinence: {
+    color: "#8B5CF6",
+    bg: "rgba(139, 92, 246, 0.18)",
+  },
+  activity: { color: "#14B8A6", bg: "rgba(20, 184, 166, 0.18)" },
+  medication_administration: {
+    color: "#FBBF24",
+    bg: "rgba(251, 191, 36, 0.18)",
+  },
+  behavior_pattern: { color: "#475569", bg: "rgba(71, 85, 105, 0.18)" },
+  incident: { color: "#14B8A6", bg: "rgba(20, 184, 166, 0.18)" },
+};
 
 const categoryColors: Record<string, { color: string; bg: string }> = {
   safety: { color: "#F97316", bg: "rgba(249, 115, 22, 0.18)" },
@@ -1143,6 +1100,28 @@ const incidentCard = (isSelected = false): React.CSSProperties => {
     minHeight: 70,
     transition: "all 0.2s ease",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
+    position: "relative",
+  };
+};
+
+const starButton = (isActive: boolean): React.CSSProperties => {
+  return {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: "50%",
+    border: "none",
+    background: isActive ? "rgba(251, 191, 36, 0.25)" : "rgba(0, 0, 0, 0.06)",
+    color: isActive ? "#FBBF24" : "#9CA3AF",
+    fontSize: 16,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease",
+    zIndex: 1,
   };
 };
 

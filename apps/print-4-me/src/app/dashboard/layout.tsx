@@ -68,8 +68,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    {
+      href: "/dashboard/pipeline/orders",
+      label: "Print Orders",
+      icon: Printer,
+    },
+    { href: "/dashboard/pipeline/new", label: "New Print", icon: Box },
     { href: "/dashboard/models", label: "My Models", icon: Box },
-    { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
+    { href: "/dashboard/orders", label: "Legacy Orders", icon: ShoppingBag },
     { href: "/dashboard/custom-design", label: "Custom Design", icon: Palette },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
@@ -190,6 +196,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex-1" />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 font-medium transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </header>
 
           {/* Page content */}

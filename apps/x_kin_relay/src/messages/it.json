@@ -252,7 +252,9 @@
         "select": "Select",
         "select_client": "Seleziona cliente",
         "go_back": "Indietro",
-        "pick_incident": "Seleziona incidente"
+        "pick_incident": "Seleziona incidente",
+        "add_to_quick_log": "Aggiungi al log rapido",
+        "remove_from_quick_log": "Rimuovi dal log rapido"
       },
       "main_categories": {
         "hydration": {

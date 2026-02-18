@@ -47,7 +47,8 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!hasSupabase || !supabase) {
-      push("Auth disabled", "error");
+      push("Auth disabled (demo mode). Redirecting...", "info");
+      router.replace(`/${locale}/app?view=dashboard`);
       return;
     }
     setLoading(true);
@@ -65,12 +66,18 @@ export default function LoginPage() {
       push("Login successful!", "success");
       console.log("Login successful, session:", data.session?.user?.email);
 
-      // Use window.location for full page reload to ensure cookies are read
-      window.location.href = `/${locale}/app?view=dashboard`;
+      // Client navigation first; hard reload fallback for cookie/session edge cases.
+      router.replace(`/${locale}/app?view=dashboard`);
+      setTimeout(() => {
+        if (typeof window !== "undefined") {
+          window.location.assign(`/${locale}/app?view=dashboard`);
+        }
+      }, 250);
     } catch (err) {
-      setLoading(false);
       push("Login failed. Please try again.", "error");
       console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   }
 

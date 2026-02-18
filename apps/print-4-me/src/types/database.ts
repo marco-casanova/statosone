@@ -103,6 +103,7 @@ export interface Database {
           model_id: string;
           user_id: string;
           material: Material;
+          color: string;
           quality: Quality;
           quantity: number;
           price_cents: number;
@@ -121,6 +122,7 @@ export interface Database {
           model_id: string;
           user_id: string;
           material: Material;
+          color?: string;
           quality: Quality;
           quantity: number;
           price_cents: number;
@@ -139,6 +141,7 @@ export interface Database {
           model_id?: string;
           user_id?: string;
           material?: Material;
+          color?: string;
           quality?: Quality;
           quantity?: number;
           price_cents?: number;
@@ -162,9 +165,11 @@ export interface Database {
           quote_id: string;
           status: OrderStatus;
           material: Material;
+          color: string;
           quality: Quality;
           quantity: number;
           total_cents: number;
+          tracking_token: string;
           shipping_address: ShippingAddress;
           stripe_session_id: string | null;
           stripe_payment_intent_id: string | null;
@@ -180,9 +185,11 @@ export interface Database {
           quote_id: string;
           status?: OrderStatus;
           material: Material;
+          color?: string;
           quality: Quality;
           quantity: number;
           total_cents: number;
+          tracking_token?: string;
           shipping_address: ShippingAddress;
           stripe_session_id?: string | null;
           stripe_payment_intent_id?: string | null;
@@ -198,9 +205,11 @@ export interface Database {
           quote_id?: string;
           status?: OrderStatus;
           material?: Material;
+          color?: string;
           quality?: Quality;
           quantity?: number;
           total_cents?: number;
+          tracking_token?: string;
           shipping_address?: ShippingAddress;
           stripe_session_id?: string | null;
           stripe_payment_intent_id?: string | null;

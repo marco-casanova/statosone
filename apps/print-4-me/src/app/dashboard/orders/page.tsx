@@ -178,6 +178,10 @@ export default function OrdersPage() {
                         {order.quote?.material}
                       </span>
                       <span>
+                        <strong className="text-gray-700">Color:</strong>{" "}
+                        {order.color}
+                      </span>
+                      <span>
                         <strong className="text-gray-700">Quality:</strong>{" "}
                         {order.quote?.quality}
                       </span>
@@ -187,7 +191,7 @@ export default function OrdersPage() {
                       </span>
                       <span>
                         <strong className="text-gray-700">Total:</strong>{" "}
-                        {formatPrice(order.quote?.price_cents || 0)}
+                        {formatPrice(order.total_cents || 0)}
                       </span>
                     </div>
 

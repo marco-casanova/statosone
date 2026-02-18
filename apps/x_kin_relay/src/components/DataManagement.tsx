@@ -4,6 +4,7 @@ import { ActivityReviewList } from "./ActivityReviewList";
 import { useState, useEffect } from "react";
 import MedicationSearch from "./MedicationSearch";
 import { supabase, hasSupabase } from "@/lib/supabaseClient";
+import { useRouter, usePathname } from "next/navigation";
 
 // Client selector component for recipient_id fields (supports multi-select)
 function ClientSelector({
@@ -210,6 +211,21 @@ function SectionHeader({ tabKey }: { tabKey: string }) {
 
 export function DataManagement({ embedded = false }: { embedded?: boolean }) {
   const [tab, setTab] = useState("kr_clients");
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split("/").filter(Boolean)[0] || "en";
+
+  async function handleLogout() {
+    if (hasSupabase && supabase) await supabase.auth.signOut();
+    window.location.href = `/${locale}/login`;
+  }
+
+  const NAV_SHORTCUTS = [
+    { key: "quick-log", label: "Quick Log", icon: "📝", href: `/${locale}/app?view=dashboard` },
+    { key: "network", label: "Care Network", icon: "💛", href: `/${locale}/app?view=network` },
+    { key: "analytics", label: "Analytics", icon: "📊", href: `/${locale}/admin` },
+    { key: "handover", label: "Handover", icon: "📄", href: `/${locale}/app/reports` },
+  ];
 
   return (
     <div style={embedded ? embeddedContainer : mainContainer}>
@@ -238,6 +254,31 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
               <span>{t.label}</span>
             </button>
           ))}
+
+          {/* Divider */}
+          <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "8px 12px" }} />
+
+          {/* Navigation Shortcuts */}
+          <div style={{ padding: "4px 12px 2px", fontSize: 10, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.8 }}>
+            Navigate
+          </div>
+          {NAV_SHORTCUTS.map((n) => (
+            <button
+              key={n.key}
+              onClick={() => router.push(n.href)}
+              style={sidebarNavBtn}
+            >
+              <span style={{ fontSize: 16 }}>{n.icon}</span>
+              <span>{n.label}</span>
+            </button>
+          ))}
+          <button
+            onClick={handleLogout}
+            style={{ ...sidebarNavBtn, color: "#9CA3AF" }}
+          >
+            <span style={{ fontSize: 16 }}>🚪</span>
+            <span>Logout</span>
+          </button>
         </nav>
 
         {/* Content Area */}
@@ -503,6 +544,23 @@ const sidebarBtnActive: React.CSSProperties = {
   borderLeft: "3px solid #F5D547",
   color: "#1A1A1A",
   fontWeight: 600,
+};
+
+const sidebarNavBtn: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  padding: "9px 16px",
+  background: "transparent",
+  border: "none",
+  borderLeft: "3px solid transparent",
+  borderRadius: 0,
+  color: "#6B7280",
+  fontSize: 13,
+  fontWeight: 500,
+  cursor: "pointer",
+  textAlign: "left",
+  transition: "all 0.15s ease",
 };
 
 const contentArea: React.CSSProperties = {

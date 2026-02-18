@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { STLLoader } from "three/addons/loaders/STLLoader.js";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {
   Maximize2,
@@ -21,7 +22,6 @@ import {
 import type { ModelDimensions, ValidationResult } from "@/types/model";
 import {
   calculateBoundingBox,
-  calculateMeshDimensions,
   validateModelSize,
   calculateScaleToFit,
   applyScaleToDimensions,
@@ -36,6 +36,10 @@ import {
 interface EnhancedModelViewerProps {
   /** URL or path to STL file */
   modelUrl: string;
+  /** File type */
+  fileType?: "stl" | "obj";
+  /** Preview color */
+  modelColor?: string;
   /** Callback when dimensions change */
   onDimensionsChange?: (
     dimensions: ModelDimensions,
@@ -57,6 +61,8 @@ interface EnhancedModelViewerProps {
 
 export default function EnhancedModelViewer({
   modelUrl,
+  fileType = "stl",
+  modelColor = "#ed7420",
   onDimensionsChange,
   onModelLoaded,
   onValidationChange,
@@ -71,8 +77,9 @@ export default function EnhancedModelViewer({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
-  const meshRef = useRef<THREE.Mesh | null>(null);
+  const modelRef = useRef<THREE.Object3D | null>(null);
   const buildVolumeRef = useRef<THREE.LineSegments | null>(null);
+  const modelBoundingBoxRef = useRef<THREE.Group | null>(null);
 
   // State
   const [loading, setLoading] = useState(true);
@@ -90,6 +97,212 @@ export default function EnhancedModelViewer({
     y: "",
     z: "",
   });
+  // cm inputs for width/depth/height
+  const [cmInputs, setCmInputs] = useState({
+    width: "",
+    depth: "",
+    height: "",
+  });
+  const [showBoundingBoxMeasure, setShowBoundingBoxMeasure] = useState(true);
+
+  function disposeObject3D(object: THREE.Object3D) {
+    object.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+
+      mesh.geometry?.dispose();
+
+      const materials = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      materials.forEach((material) => material?.dispose());
+    });
+  }
+
+  function applyColor(object: THREE.Object3D, colorHex: string) {
+    const color = new THREE.Color(colorHex);
+
+    object.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+
+      const oldMaterials = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      oldMaterials.forEach((material) => material?.dispose());
+
+      mesh.material = new THREE.MeshPhongMaterial({
+        color,
+        specular: 0x111111,
+        shininess: 200,
+      });
+    });
+  }
+
+  function getObjectDimensions(object: THREE.Object3D): ModelDimensions {
+    const bounds = new THREE.Box3().setFromObject(object);
+    const size = bounds.getSize(new THREE.Vector3());
+    return {
+      x: size.x,
+      y: size.y,
+      z: size.z,
+    };
+  }
+
+  /** Create a text sprite for dimension labels */
+  function createTextSprite(text: string, color = "#ffffff"): THREE.Sprite {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+    canvas.width = 256;
+    canvas.height = 64;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Background pill
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.font = "bold 24px monospace";
+    const textWidth = ctx.measureText(text).width;
+    const pillW = Math.min(canvas.width, Math.max(100, textWidth + 40));
+    const pillH = 40;
+    const pillX = (canvas.width - pillW) / 2;
+    const pillY = (canvas.height - pillH) / 2;
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillW, pillH, 8);
+    ctx.fill();
+    // Text
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      depthTest: false,
+    });
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(60, 15, 1);
+    return sprite;
+  }
+
+  /** Create a measurement line between two points */
+  function createMeasurementLine(
+    start: THREE.Vector3,
+    end: THREE.Vector3,
+    color: number,
+  ): THREE.Group {
+    const group = new THREE.Group();
+
+    // Dashed line
+    const points = [start, end];
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineDashedMaterial({
+      color,
+      dashSize: 3,
+      gapSize: 2,
+      linewidth: 1,
+    });
+    const line = new THREE.Line(geometry, material);
+    line.computeLineDistances();
+    group.add(line);
+
+    // End caps (small perpendicular lines)
+    const dir = new THREE.Vector3().subVectors(end, start).normalize();
+    const perpA = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar(3);
+
+    for (const pt of [start, end]) {
+      const capGeom = new THREE.BufferGeometry().setFromPoints([
+        pt.clone().add(perpA.clone().negate()),
+        pt.clone().add(perpA),
+      ]);
+      const capLine = new THREE.Line(
+        capGeom,
+        new THREE.LineBasicMaterial({ color }),
+      );
+      group.add(capLine);
+    }
+
+    return group;
+  }
+
+  /** Build/update the model bounding box with cm dimension labels */
+  function updateModelBoundingBox(dims: ModelDimensions) {
+    if (!sceneRef.current) return;
+
+    // Remove existing
+    if (modelBoundingBoxRef.current) {
+      sceneRef.current.remove(modelBoundingBoxRef.current);
+      modelBoundingBoxRef.current = null;
+    }
+
+    if (!showBoundingBoxMeasure) return;
+
+    const group = new THREE.Group();
+
+    const w = dims.x; // width (X)
+    const d = dims.y; // depth (Y)
+    const h = dims.z; // height (Z)
+
+    // Wireframe cube centered on origin, bottom at y=0 if model is centered
+    const boxGeo = new THREE.BoxGeometry(w, h, d);
+    const edges = new THREE.EdgesGeometry(boxGeo);
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0x00ccff,
+      opacity: 0.6,
+      transparent: true,
+    });
+    const wireframe = new THREE.LineSegments(edges, lineMat);
+    group.add(wireframe);
+
+    // Convert to cm for labels
+    const wCm = (w / 10).toFixed(1);
+    const dCm = (d / 10).toFixed(1);
+    const hCm = (h / 10).toFixed(1);
+
+    // Measurement offset from the box
+    const offset = 15;
+
+    // Width label (X axis) — along bottom front edge
+    const widthLabel = createTextSprite(`${wCm} cm`, "#ff6666");
+    widthLabel.position.set(0, -h / 2 - offset, d / 2 + offset);
+    group.add(widthLabel);
+
+    // Width measurement line
+    const widthLine = createMeasurementLine(
+      new THREE.Vector3(-w / 2, -h / 2 - offset / 2, d / 2 + offset / 2),
+      new THREE.Vector3(w / 2, -h / 2 - offset / 2, d / 2 + offset / 2),
+      0xff6666,
+    );
+    group.add(widthLine);
+
+    // Depth label (Z in three.js / Y in model dims) — along bottom right edge
+    const depthLabel = createTextSprite(`${dCm} cm`, "#66ff66");
+    depthLabel.position.set(w / 2 + offset, -h / 2 - offset, 0);
+    group.add(depthLabel);
+
+    // Depth measurement line
+    const depthLine = createMeasurementLine(
+      new THREE.Vector3(w / 2 + offset / 2, -h / 2 - offset / 2, -d / 2),
+      new THREE.Vector3(w / 2 + offset / 2, -h / 2 - offset / 2, d / 2),
+      0x66ff66,
+    );
+    group.add(depthLine);
+
+    // Height label (Y in three.js / Z in model dims) — along right front vertical edge
+    const heightLabel = createTextSprite(`${hCm} cm`, "#6666ff");
+    heightLabel.position.set(w / 2 + offset, 0, d / 2 + offset);
+    group.add(heightLabel);
+
+    // Height measurement line
+    const heightLine = createMeasurementLine(
+      new THREE.Vector3(w / 2 + offset / 2, -h / 2, d / 2 + offset / 2),
+      new THREE.Vector3(w / 2 + offset / 2, h / 2, d / 2 + offset / 2),
+      0x6666ff,
+    );
+    group.add(heightLine);
+
+    modelBoundingBoxRef.current = group;
+    sceneRef.current.add(group);
+  }
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -180,6 +393,15 @@ export default function EnhancedModelViewer({
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
+      if (modelRef.current) {
+        scene.remove(modelRef.current);
+        disposeObject3D(modelRef.current);
+        modelRef.current = null;
+      }
+      if (modelBoundingBoxRef.current) {
+        scene.remove(modelBoundingBoxRef.current);
+        modelBoundingBoxRef.current = null;
+      }
       renderer.dispose();
       controls.dispose();
       if (containerRef.current && renderer.domElement) {
@@ -188,72 +410,106 @@ export default function EnhancedModelViewer({
     };
   }, [showBuildVolume, buildVolume]);
 
-  // Load STL model
+  // Load model (STL/OBJ)
   useEffect(() => {
     if (!sceneRef.current || !modelUrl) return;
 
     setLoading(true);
     setError("");
+    const scene = sceneRef.current;
+
+    const removePreviousModel = () => {
+      if (!modelRef.current) return;
+      scene.remove(modelRef.current);
+      disposeObject3D(modelRef.current);
+      modelRef.current = null;
+    };
+
+    const finishModelSetup = (
+      object: THREE.Object3D,
+      baseDimensions?: ModelDimensions,
+    ) => {
+      removePreviousModel();
+
+      let dims = baseDimensions || getObjectDimensions(object);
+      if (isLikelyInches(dims)) {
+        object.scale.multiplyScalar(25.4);
+        dims = baseDimensions ? inchesToMm(dims) : getObjectDimensions(object);
+      }
+
+      const bounds = new THREE.Box3().setFromObject(object);
+      const center = bounds.getCenter(new THREE.Vector3());
+      object.position.sub(center);
+
+      applyColor(object, modelColor);
+      modelRef.current = object;
+      scene.add(object);
+
+      const startScale = initialScale > 0 ? initialScale : 1;
+      object.scale.set(startScale, startScale, startScale);
+      const scaledDims = applyScaleToDimensions(dims, startScale);
+
+      setOriginalDimensions(dims);
+      setCurrentDimensions(scaledDims);
+      setScaleFactor(startScale);
+      setScaleInput((startScale * 100).toFixed(0));
+      setDimensionInputs({
+        x: scaledDims.x.toFixed(2),
+        y: scaledDims.y.toFixed(2),
+        z: scaledDims.z.toFixed(2),
+      });
+      setCmInputs({
+        width: (scaledDims.x / 10).toFixed(2),
+        depth: (scaledDims.y / 10).toFixed(2),
+        height: (scaledDims.z / 10).toFixed(2),
+      });
+
+      const validationResult = validateModelSize(scaledDims, buildVolume);
+      setValidation(validationResult);
+      updateModelBoundingBox(scaledDims);
+
+      onModelLoaded?.(dims);
+      onDimensionsChange?.(scaledDims, startScale);
+      onValidationChange?.(validationResult);
+      setLoading(false);
+    };
+
+    if (fileType === "obj") {
+      const loader = new OBJLoader();
+      loader.load(
+        modelUrl,
+        (object) => {
+          finishModelSetup(object);
+        },
+        undefined,
+        (err) => {
+          console.error("Error loading OBJ:", err);
+          setError("Failed to load 3D model");
+          setLoading(false);
+        },
+      );
+      return;
+    }
 
     const loader = new STLLoader();
     loader.load(
       modelUrl,
       (geometry) => {
-        // Remove old mesh if exists
-        if (meshRef.current) {
-          sceneRef.current!.remove(meshRef.current);
-          meshRef.current.geometry.dispose();
-          (meshRef.current.material as THREE.Material).dispose();
-        }
-
-        // Calculate original dimensions
         let dims = calculateBoundingBox(geometry).size;
-
-        // Check if likely in inches
         if (isLikelyInches(dims)) {
-          dims = inchesToMm(dims);
-          // Scale geometry
           geometry.scale(25.4, 25.4, 25.4);
+          dims = inchesToMm(dims);
         }
 
-        setOriginalDimensions(dims);
-        setCurrentDimensions(dims);
-        setDimensionInputs({
-          x: dims.x.toFixed(2),
-          y: dims.y.toFixed(2),
-          z: dims.z.toFixed(2),
-        });
-
-        // Validate
-        const validationResult = validateModelSize(dims, buildVolume);
-        setValidation(validationResult);
-
-        // Create mesh
-        const material = new THREE.MeshPhongMaterial({
-          color: 0xed7420,
-          specular: 0x111111,
-          shininess: 200,
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-
-        // Center mesh
-        geometry.computeBoundingBox();
-        const bbox = geometry.boundingBox!;
-        const center = new THREE.Vector3(
-          (bbox.min.x + bbox.max.x) / 2,
-          (bbox.min.y + bbox.max.y) / 2,
-          (bbox.min.z + bbox.max.z) / 2,
+        const mesh = new THREE.Mesh(
+          geometry,
+          new THREE.MeshPhongMaterial({
+            color: 0xed7420,
+            specular: 0x111111,
+            shininess: 200,
+          }),
         );
-        mesh.position.set(-center.x, -center.y, -center.z);
-
-        meshRef.current = mesh;
-        sceneRef.current!.add(mesh);
-
-        // Callbacks
-        onModelLoaded?.(dims);
-        onValidationChange?.(validationResult);
-
-        setLoading(false);
+        finishModelSetup(mesh, dims);
       },
       undefined,
       (err) => {
@@ -262,13 +518,27 @@ export default function EnhancedModelViewer({
         setLoading(false);
       },
     );
-  }, [modelUrl, buildVolume, onModelLoaded, onValidationChange]);
+  }, [
+    modelUrl,
+    fileType,
+    initialScale,
+    buildVolume,
+    onModelLoaded,
+    onDimensionsChange,
+    onValidationChange,
+  ]);
+
+  // Apply preview color without reloading geometry
+  useEffect(() => {
+    if (!modelRef.current) return;
+    applyColor(modelRef.current, modelColor);
+  }, [modelColor]);
 
   // Apply scale to mesh
   const applyScale = (newScaleFactor: number) => {
-    if (!meshRef.current || !originalDimensions) return;
+    if (!modelRef.current || !originalDimensions) return;
 
-    meshRef.current.scale.set(newScaleFactor, newScaleFactor, newScaleFactor);
+    modelRef.current.scale.set(newScaleFactor, newScaleFactor, newScaleFactor);
     const newDims = applyScaleToDimensions(originalDimensions, newScaleFactor);
     setCurrentDimensions(newDims);
     setScaleFactor(newScaleFactor);
@@ -280,6 +550,16 @@ export default function EnhancedModelViewer({
       y: newDims.y.toFixed(2),
       z: newDims.z.toFixed(2),
     });
+
+    // Update cm inputs
+    setCmInputs({
+      width: (newDims.x / 10).toFixed(2),
+      depth: (newDims.y / 10).toFixed(2),
+      height: (newDims.z / 10).toFixed(2),
+    });
+
+    // Update bounding box
+    updateModelBoundingBox(newDims);
 
     // Validate
     const validationResult = validateModelSize(newDims, buildVolume);
@@ -315,10 +595,48 @@ export default function EnhancedModelViewer({
       applyScale(newScaleFactor);
     } else {
       // Non-uniform scaling not implemented in this version
-      // Would require separate scale factors for each axis
       console.warn("Non-uniform scaling not yet supported");
     }
   };
+
+  // Handle cm dimension input change
+  const handleCmDimensionChange = (
+    dim: "width" | "depth" | "height",
+    value: string,
+  ) => {
+    setCmInputs((prev) => ({ ...prev, [dim]: value }));
+
+    if (!originalDimensions) return;
+
+    const targetCm = parseFloat(value);
+    if (isNaN(targetCm) || targetCm <= 0) return;
+
+    // Convert cm to mm
+    const targetMm = targetCm * 10;
+
+    // Map dim to axis
+    const axisMap: Record<string, "x" | "y" | "z"> = {
+      width: "x",
+      depth: "y",
+      height: "z",
+    };
+    const axis = axisMap[dim];
+
+    const newScaleFactor = targetMm / originalDimensions[axis];
+
+    if (lockAspectRatio) {
+      applyScale(newScaleFactor);
+    } else {
+      console.warn("Non-uniform scaling not yet supported");
+    }
+  };
+
+  // Rebuild bounding box when toggle changes
+  useEffect(() => {
+    if (currentDimensions) {
+      updateModelBoundingBox(currentDimensions);
+    }
+  }, [showBoundingBoxMeasure]);
 
   // Scale to fit printer
   const handleScaleToFit = () => {
@@ -381,35 +699,59 @@ export default function EnhancedModelViewer({
           </h3>
 
           <div className="space-y-4">
-            {/* Current dimensions */}
+            {/* Width / Depth / Height in cm */}
             {currentDimensions && (
               <div>
-                <div className="text-sm text-gray-600 mb-2">
-                  Current Size (mm)
+                <div className="text-sm text-gray-600 mb-2 font-semibold">
+                  Size (cm)
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["x", "y", "z"] as const).map((axis) => (
-                    <div key={axis}>
-                      <label className="text-xs text-gray-500 uppercase">
-                        {axis}
+                <div className="space-y-2">
+                  {[
+                    {
+                      key: "width" as const,
+                      label: "Width",
+                      color: "text-red-500",
+                      borderColor: "border-red-300 focus:border-red-500",
+                    },
+                    {
+                      key: "depth" as const,
+                      label: "Depth",
+                      color: "text-green-500",
+                      borderColor: "border-green-300 focus:border-green-500",
+                    },
+                    {
+                      key: "height" as const,
+                      label: "Height",
+                      color: "text-blue-500",
+                      borderColor: "border-blue-300 focus:border-blue-500",
+                    },
+                  ].map(({ key, label, color, borderColor }) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <label className={`text-sm font-semibold w-14 ${color}`}>
+                        {label}
                       </label>
                       <input
                         type="number"
-                        value={dimensionInputs[axis]}
+                        value={cmInputs[key]}
                         onChange={(e) =>
-                          handleDimensionChange(axis, e.target.value)
+                          handleCmDimensionChange(key, e.target.value)
                         }
-                        disabled={!lockAspectRatio}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                        className={`flex-1 px-3 py-2 border rounded-lg text-sm font-mono ${borderColor} focus:outline-none focus:ring-1`}
                         step="0.1"
                         min="0"
                       />
+                      <span className="text-xs text-gray-400 w-6">cm</span>
                     </div>
                   ))}
                 </div>
-                <div className="text-sm text-gray-600 mt-2">
-                  {formatDimensions(currentDimensions)}
-                </div>
+              </div>
+            )}
+
+            {/* Current dimensions in mm (compact) */}
+            {currentDimensions && (
+              <div className="text-sm text-gray-500 pt-2 border-t">
+                <span className="font-medium text-gray-600">mm:</span>{" "}
+                {formatDimensions(currentDimensions)}
               </div>
             )}
 
@@ -435,6 +777,19 @@ export default function EnhancedModelViewer({
                 className="w-4 h-4 text-forge-500 rounded"
               />
               <span className="text-sm text-gray-700">Lock aspect ratio</span>
+            </label>
+
+            {/* Show bounding box measurements */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showBoundingBoxMeasure}
+                onChange={(e) => setShowBoundingBoxMeasure(e.target.checked)}
+                className="w-4 h-4 text-cyan-500 rounded"
+              />
+              <span className="text-sm text-gray-700">
+                Show dimension guides
+              </span>
             </label>
           </div>
         </div>

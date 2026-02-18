@@ -208,12 +208,12 @@ export default function AdminOrdersPage() {
                         {order.quote?.material} / {order.quote?.quality}
                       </p>
                       <p className="text-xs text-gray-400">
-                        Qty: {order.quote?.quantity}
+                        Qty: {order.quote?.quantity} • Color: {order.color}
                       </p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-semibold text-white">
-                        {formatPrice(order.quote?.price_cents || 0)}
+                        {formatPrice(order.total_cents || 0)}
                       </p>
                     </td>
                     <td className="px-6 py-4">

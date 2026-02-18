@@ -1,11 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ActivityForm } from "./ActivityForm";
 import { ActivityLogCards } from "./ActivityLogCards";
 import { DataManagement } from "./DataManagement";
+type DashboardTab = "overview" | "data";
 
-export function Dashboard() {
-  const [tab, setTab] = useState<"overview" | "data">("overview");
+export function Dashboard({ initialTab }: { initialTab?: string }) {
+  const [tab, setTab] = useState<DashboardTab>(
+    (initialTab as DashboardTab) || "overview",
+  );
+
+  useEffect(() => {
+    if (initialTab && ["overview", "data"].includes(initialTab)) {
+      setTab(initialTab as DashboardTab);
+    }
+  }, [initialTab]);
 
   return (
     <div style={mainContainer}>
@@ -38,14 +47,9 @@ export function Dashboard() {
         </div>
       )}
 
-      {tab === "data" && <DataManagementContent />}
+      {tab === "data" && <DataManagement embedded />}
     </div>
   );
-}
-
-// Inline DataManagement content to avoid layout nesting issues
-function DataManagementContent() {
-  return <DataManagement embedded />;
 }
 
 // Styles
@@ -98,4 +102,5 @@ const tabBtnActive: React.CSSProperties = {
   ...tabBtn,
   background: "#F5D547",
   color: "#1A1A1A",
+  fontWeight: 600,
 };

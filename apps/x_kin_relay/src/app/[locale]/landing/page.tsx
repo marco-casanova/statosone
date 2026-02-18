@@ -11,12 +11,30 @@ function VideoBackground() {
   const videos = ["/v1.mp4", "/v2.mp4", "/v3.mp4"];
   const [idx, setIdx] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load();
-      videoRef.current.play();
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Let the browser handle source swapping; just try to play and ignore
+    // expected interruptions when a new source is loaded quickly.
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch((err: unknown) => {
+        if (
+          !(err instanceof DOMException && err.name === "AbortError") &&
+          !(typeof err === "object" &&
+            err !== null &&
+            "name" in err &&
+            (err as { name?: string }).name === "AbortError")
+        ) {
+          // eslint-disable-next-line no-console
+          console.error("Video playback failed", err);
+        }
+      });
     }
   }, [idx]);
+
   return (
     <div className={s.videoBg}>
       <video

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, hasSupabase } from "@/lib/supabase/client";
 import { useToast } from "@/components/Toast";
 import type { Order, Quote, Model } from "@/types/database";
@@ -17,6 +17,8 @@ import {
   XCircle,
   MapPin,
   ExternalLink,
+  Copy,
+  Link2,
 } from "lucide-react";
 
 type OrderWithDetails = Order & {
@@ -39,14 +41,35 @@ interface PageProps {
 export default function OrderDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { push } = useToast();
 
   const [order, setOrder] = useState<OrderWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const paymentParam = searchParams.get("payment");
 
   useEffect(() => {
     loadOrder();
   }, [id]);
+
+  useEffect(() => {
+    if (paymentParam === "success") {
+      push("Payment successful. Your order is now queued for review.", "success");
+    } else if (paymentParam === "cancelled") {
+      push("Payment cancelled. You can complete it anytime from this page.", "warning");
+    }
+  }, [paymentParam, push]);
+
+  useEffect(() => {
+    if (!order?.tracking_token) {
+      setTrackingUrl("");
+      return;
+    }
+
+    setTrackingUrl(`${window.location.origin}/track/${order.tracking_token}`);
+  }, [order?.tracking_token]);
 
   async function loadOrder() {
     if (!hasSupabase || !supabase) {
@@ -87,18 +110,29 @@ export default function OrderDetailPage({ params }: PageProps) {
 
   async function handleCheckout() {
     if (!order) return;
+    setCheckoutLoading(true);
 
-    // In production, this would create a Stripe Checkout session
-    // For MVP, we'll simulate the payment
-    push("Redirecting to Stripe Checkout...", "info");
+    try {
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
 
-    // TODO: Implement actual Stripe checkout
-    // const response = await fetch("/api/stripe/checkout", {
-    //   method: "POST",
-    //   body: JSON.stringify({ orderId: order.id }),
-    // });
-    // const { url } = await response.json();
-    // window.location.href = url;
+      const data = await response.json();
+
+      if (!response.ok || !data.url) {
+        push(data.error || "Unable to start Stripe checkout", "error");
+        return;
+      }
+
+      push("Redirecting to secure Stripe checkout...", "info");
+      window.location.href = data.url;
+    } catch {
+      push("Unable to start checkout. Please try again.", "error");
+    } finally {
+      setCheckoutLoading(false);
+    }
   }
 
   if (loading) {
@@ -113,6 +147,16 @@ export default function OrderDetailPage({ params }: PageProps) {
 
   const currentStepIndex = STEPS.findIndex((s) => s.status === order.status);
   const isCancelled = order.status === "cancelled";
+
+  async function copyTrackingUrl() {
+    if (!trackingUrl) return;
+    try {
+      await navigator.clipboard.writeText(trackingUrl);
+      push("Status link copied to clipboard", "success");
+    } catch {
+      push("Unable to copy link. Please copy it manually.", "warning");
+    }
+  }
 
   return (
     <div>
@@ -246,6 +290,10 @@ export default function OrderDetailPage({ params }: PageProps) {
                     <p className="font-medium">{order.quote?.material}</p>
                   </div>
                   <div>
+                    <p className="text-gray-500">Color</p>
+                    <p className="font-medium">{order.color}</p>
+                  </div>
+                  <div>
                     <p className="text-gray-500">Quality</p>
                     <p className="font-medium capitalize">
                       {order.quote?.quality}
@@ -302,7 +350,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                   {order.quote?.material} × {order.quote?.quantity}
                 </span>
                 <span className="text-gray-900">
-                  {formatPrice((order.quote?.price_cents || 0) - 499)}
+                  {formatPrice((order.total_cents || 0) - 499)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -313,7 +361,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
                   <span className="text-forge-600">
-                    {formatPrice(order.quote?.price_cents || 0)}
+                    {formatPrice(order.total_cents || 0)}
                   </span>
                 </div>
               </div>
@@ -332,11 +380,49 @@ export default function OrderDetailPage({ params }: PageProps) {
               </p>
               <button
                 onClick={handleCheckout}
-                className="btn-primary w-full flex items-center justify-center gap-2"
+                disabled={checkoutLoading}
+                className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-60"
               >
-                <CreditCard className="w-5 h-5" />
-                Pay Now
+                {checkoutLoading ? (
+                  <div className="spinner" />
+                ) : (
+                  <>
+                    <CreditCard className="w-5 h-5" />
+                    Pay Now
+                  </>
+                )}
               </button>
+            </div>
+          )}
+
+          {/* Public Status Link */}
+          {order.tracking_token && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <Link2 className="w-4 h-4" />
+                Status Link
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Share this link to check order status without logging in.
+              </p>
+              <div className="flex gap-2">
+                <a
+                  href={trackingUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 truncate"
+                  title={trackingUrl}
+                >
+                  {trackingUrl}
+                </a>
+                <button
+                  onClick={copyTrackingUrl}
+                  className="px-3 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                  title="Copy status link"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
 

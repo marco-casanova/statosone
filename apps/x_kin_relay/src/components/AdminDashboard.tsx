@@ -516,17 +516,18 @@ const title: React.CSSProperties = {
   fontSize: 28,
   fontWeight: 700,
   marginBottom: 4,
+  color: "#1A1A1A",
 };
 
 const subtitle: React.CSSProperties = {
   fontSize: 14,
-  opacity: 0.6,
+  color: "#6B7280",
 };
 
 const timeFilter: React.CSSProperties = {
   display: "flex",
   gap: 8,
-  background: "rgba(255,255,255,0.05)",
+  background: "rgba(0,0,0,0.06)",
   padding: 4,
   borderRadius: 12,
 };
@@ -534,7 +535,7 @@ const timeFilter: React.CSSProperties = {
 const timeFilterBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  color: "#94a3b8",
+  color: "#6B7280",
   padding: "8px 16px",
   borderRadius: 8,
   fontSize: 13,
@@ -543,8 +544,9 @@ const timeFilterBtn: React.CSSProperties = {
 
 const timeFilterActive: React.CSSProperties = {
   ...timeFilterBtn,
-  background: "linear-gradient(135deg, #2563eb, #7c3aed)",
-  color: "#fff",
+  background: "#F5D547",
+  color: "#1A1A1A",
+  fontWeight: 600,
 };
 
 const loadingBox: React.CSSProperties = {
@@ -561,12 +563,13 @@ const metricsGrid: React.CSSProperties = {
 };
 
 const metricCard: React.CSSProperties = {
-  background:
-    "linear-gradient(180deg, rgba(30,32,45,0.9), rgba(20,22,30,0.95))",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.75)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(0,0,0,0.08)",
   borderRadius: 16,
   padding: 20,
   textAlign: "center",
+  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
 };
 
 const metricIcon: React.CSSProperties = {
@@ -578,11 +581,12 @@ const metricValue: React.CSSProperties = {
   fontSize: 32,
   fontWeight: 700,
   marginBottom: 4,
+  color: "#1A1A1A",
 };
 
 const metricLabel: React.CSSProperties = {
   fontSize: 12,
-  opacity: 0.6,
+  color: "#6B7280",
   textTransform: "uppercase",
   letterSpacing: 0.5,
 };
@@ -595,17 +599,19 @@ const chartsRow: React.CSSProperties = {
 };
 
 const chartCard: React.CSSProperties = {
-  background:
-    "linear-gradient(180deg, rgba(30,32,45,0.9), rgba(20,22,30,0.95))",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.75)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(0,0,0,0.08)",
   borderRadius: 20,
   padding: 24,
+  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
 };
 
 const chartTitle: React.CSSProperties = {
   fontSize: 16,
   fontWeight: 600,
   marginBottom: 20,
+  color: "#1A1A1A",
 };
 
 const barChart: React.CSSProperties = {
@@ -623,13 +629,13 @@ const barRow: React.CSSProperties = {
 const barLabel: React.CSSProperties = {
   minWidth: 140,
   fontSize: 13,
-  opacity: 0.85,
+  color: "#374151",
 };
 
 const barContainer: React.CSSProperties = {
   flex: 1,
   height: 8,
-  background: "rgba(255,255,255,0.08)",
+  background: "rgba(0,0,0,0.08)",
   borderRadius: 4,
   overflow: "hidden",
 };
@@ -675,7 +681,7 @@ const lineChartFill: React.CSSProperties = {
 
 const lineChartLabel: React.CSSProperties = {
   fontSize: 10,
-  opacity: 0.6,
+  color: "#6B7280",
   marginTop: 8,
 };
 
@@ -702,19 +708,21 @@ const th: React.CSSProperties = {
   textTransform: "uppercase",
   letterSpacing: 0.5,
   opacity: 0.6,
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid rgba(0,0,0,0.08)",
+  color: "#6B7280",
 };
 
 const td: React.CSSProperties = {
   padding: "12px",
   fontSize: 13,
-  borderBottom: "1px solid rgba(255,255,255,0.05)",
+  color: "#374151",
+  borderBottom: "1px solid rgba(0,0,0,0.05)",
 };
 
 const miniBar: React.CSSProperties = {
   width: 80,
   height: 6,
-  background: "rgba(255,255,255,0.08)",
+  background: "rgba(0,0,0,0.08)",
   borderRadius: 3,
   overflow: "hidden",
 };
@@ -746,7 +754,7 @@ const incidentCount: React.CSSProperties = {
 
 const incidentType: React.CSSProperties = {
   fontSize: 11,
-  opacity: 0.7,
+  color: "#6B7280",
   marginTop: 4,
 };
 
@@ -757,7 +765,7 @@ const summaryGrid: React.CSSProperties = {
 };
 
 const summaryItem: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
+  background: "rgba(0,0,0,0.03)",
   borderRadius: 12,
   padding: 16,
   textAlign: "center",
@@ -766,12 +774,12 @@ const summaryItem: React.CSSProperties = {
 const summaryValue: React.CSSProperties = {
   fontSize: 28,
   fontWeight: 700,
-  color: "#60a5fa",
+  color: "#4A7A72",
 };
 
 const summaryLabel: React.CSSProperties = {
   fontSize: 11,
-  opacity: 0.6,
+  color: "#6B7280",
   marginTop: 4,
 };
 
@@ -785,7 +793,7 @@ const alertItem: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 16,
-  background: "rgba(255,255,255,0.03)",
+  background: "rgba(0,0,0,0.02)",
   borderRadius: 12,
   padding: "14px 16px",
   borderLeft: "3px solid",
@@ -798,18 +806,19 @@ const alertIcon: React.CSSProperties = {
 const alertTitle: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 500,
+  color: "#1A1A1A",
 };
 
 const alertMeta: React.CSSProperties = {
   fontSize: 12,
-  opacity: 0.6,
+  color: "#9CA3AF",
   marginTop: 2,
 };
 
 const alertBadge: React.CSSProperties = {
   marginLeft: "auto",
-  background: "rgba(239, 68, 68, 0.2)",
-  color: "#f87171",
+  background: "rgba(239, 68, 68, 0.12)",
+  color: "#dc2626",
   padding: "4px 10px",
   borderRadius: 20,
   fontSize: 11,

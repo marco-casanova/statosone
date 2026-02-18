@@ -1,18 +1,78 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { IncidentCategory, CATEGORY_TO_SUBTYPES } from "../types/schema";
-import { iconFor, a11yLabel } from "./activityIcons";
+import React, { useState } from "react";
+import {
+  IncidentCategory,
+  CARE_UI_CATEGORIES,
+  UiCareCategoryId,
+  UiCareSubtypeItem,
+} from "../types/schema";
+import { iconFor } from "./activityIcons";
 
 export interface QuickAction {
   category: IncidentCategory;
   subtype: string;
   label: string;
+  mainCategoryId?: UiCareCategoryId;
+  detailsPreset?: Record<string, string | number | boolean>;
 }
 
-const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
-  { category: "adl", subtype: "hydration", label: "Hydration" },
-  { category: "safety", subtype: "falls", label: "Fall" },
-];
+interface QuickActionLeaf extends UiCareSubtypeItem {
+  mainCategoryId: UiCareCategoryId;
+  mainCategoryLabel: string;
+  groupLabel: string;
+}
+
+const QUICK_ACTION_LEAVES: QuickActionLeaf[] = CARE_UI_CATEGORIES.flatMap((cat) =>
+  cat.groups.flatMap((group) =>
+    group.items.map((item) => ({
+      ...item,
+      mainCategoryId: cat.id,
+      mainCategoryLabel: cat.label,
+      groupLabel: group.label,
+    })),
+  ),
+);
+
+const leafFromAction = (action: QuickAction): QuickActionLeaf | null => {
+  if (action.mainCategoryId && action.label) {
+    const byMainAndLabel = QUICK_ACTION_LEAVES.find(
+      (leaf) =>
+        leaf.mainCategoryId === action.mainCategoryId &&
+        leaf.label === action.label &&
+        leaf.category === action.category &&
+        leaf.subtype === action.subtype,
+    );
+    if (byMainAndLabel) return byMainAndLabel;
+  }
+
+  const matches = QUICK_ACTION_LEAVES.filter(
+    (leaf) => leaf.category === action.category && leaf.subtype === action.subtype,
+  );
+  if (matches.length !== 1) return null;
+  return matches[0];
+};
+
+const toQuickAction = (leaf: QuickActionLeaf): QuickAction => ({
+  category: leaf.category,
+  subtype: leaf.subtype,
+  label: leaf.label,
+  mainCategoryId: leaf.mainCategoryId,
+  detailsPreset: leaf.detailsPreset,
+});
+
+const DEFAULT_QUICK_ACTIONS: QuickAction[] = (() => {
+  const preferred = [
+    QUICK_ACTION_LEAVES.find(
+      (leaf) => leaf.mainCategoryId === "hydration" && leaf.label === "Water",
+    ),
+    QUICK_ACTION_LEAVES.find(
+      (leaf) => leaf.mainCategoryId === "incident" && leaf.label === "Fall",
+    ),
+  ].filter((leaf): leaf is QuickActionLeaf => !!leaf);
+
+  if (preferred.length > 0) return preferred.map(toQuickAction);
+  return QUICK_ACTION_LEAVES.slice(0, 2).map(toQuickAction);
+})();
 
 const STORAGE_KEY = "kr_quick_actions";
 
@@ -22,7 +82,13 @@ export function loadQuickActions(): QuickAction[] {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const normalized = parsed
+          .map((item) => leafFromAction(item as QuickAction))
+          .filter((leaf): leaf is QuickActionLeaf => !!leaf)
+          .map(toQuickAction);
+        if (normalized.length > 0) return normalized;
+      }
     }
   } catch {}
   return DEFAULT_QUICK_ACTIONS;
@@ -36,9 +102,6 @@ export function saveQuickActions(actions: QuickAction[]) {
 // Format helpers
 function formatCategory(c: string) {
   return c.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-}
-function formatSubtype(s: string) {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 // Category colors
@@ -62,21 +125,26 @@ export function QuickActionsManager({
   onSave,
   currentActions,
 }: Props) {
-  const [actions, setActions] = useState<QuickAction[]>(currentActions);
+  const [actions, setActions] = useState<QuickAction[]>(
+    currentActions
+      .map((a) => leafFromAction(a))
+      .filter((leaf): leaf is QuickActionLeaf => !!leaf)
+      .map(toQuickAction),
+  );
   const [addMode, setAddMode] = useState(false);
   const [selectedCategory, setSelectedCategory] =
-    useState<IncidentCategory | null>(null);
+    useState<UiCareCategoryId | null>(null);
 
-  function addAction(category: IncidentCategory, subtype: string) {
+  function addAction(leaf: QuickActionLeaf) {
     const exists = actions.some(
-      (a) => a.category === category && a.subtype === subtype,
+      (a) =>
+        a.mainCategoryId === leaf.mainCategoryId &&
+        a.label === leaf.label &&
+        a.category === leaf.category &&
+        a.subtype === leaf.subtype,
     );
     if (exists) return;
-    const newAction: QuickAction = {
-      category,
-      subtype,
-      label: formatSubtype(subtype),
-    };
+    const newAction = toQuickAction(leaf);
     setActions([...actions, newAction]);
     setAddMode(false);
     setSelectedCategory(null);
@@ -112,7 +180,14 @@ export function QuickActionsManager({
     onClose();
   }
 
-  const categories = Object.keys(CATEGORY_TO_SUBTYPES) as IncidentCategory[];
+  const categories = CARE_UI_CATEGORIES;
+  const selectedCategoryMeta =
+    categories.find((cat) => cat.id === selectedCategory) || null;
+  const selectedLeaves = selectedCategoryMeta
+    ? QUICK_ACTION_LEAVES.filter(
+        (leaf) => leaf.mainCategoryId === selectedCategoryMeta.id,
+      )
+    : [];
 
   return (
     <div style={overlay}>
@@ -201,15 +276,15 @@ export function QuickActionsManager({
               <div style={sectionLabel}>Select Category</div>
               <div style={catGrid}>
                 {categories.map((cat) => {
-                  const colors = categoryColors[cat] || {
+                  const colors = categoryColors[cat.iconCategory] || {
                     color: "#6C7CFF",
                     bg: "rgba(108,124,255,0.18)",
                   };
-                  const isSelected = selectedCategory === cat;
+                  const isSelected = selectedCategory === cat.id;
                   return (
                     <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
                       style={{
                         ...catBtn,
                         background: isSelected ? colors.color : colors.bg,
@@ -217,32 +292,33 @@ export function QuickActionsManager({
                         borderColor: colors.color,
                       }}
                     >
-                      <span>{iconFor(cat)}</span>
-                      <span>{formatCategory(cat)}</span>
+                      <span>{iconFor(cat.iconCategory)}</span>
+                      <span>{cat.label}</span>
                     </button>
                   );
                 })}
               </div>
 
-              {selectedCategory && (
+              {selectedCategoryMeta && (
                 <>
                   <div style={sectionLabel}>Select Subtype</div>
                   <div style={subtypeGrid}>
-                    {CATEGORY_TO_SUBTYPES[selectedCategory].values.map(
-                      (sub) => {
+                    {selectedLeaves.map((leaf) => {
                         const alreadyAdded = actions.some(
                           (a) =>
-                            a.category === selectedCategory &&
-                            a.subtype === sub,
+                            a.mainCategoryId === leaf.mainCategoryId &&
+                            a.label === leaf.label &&
+                            a.category === leaf.category &&
+                            a.subtype === leaf.subtype,
                         );
-                        const colors = categoryColors[selectedCategory] || {
+                        const colors = categoryColors[leaf.category] || {
                           color: "#6C7CFF",
                           bg: "rgba(108,124,255,0.18)",
                         };
                         return (
                           <button
-                            key={sub}
-                            onClick={() => addAction(selectedCategory, sub)}
+                            key={`${leaf.mainCategoryId}-${leaf.groupLabel}-${leaf.label}-${leaf.category}-${leaf.subtype}`}
+                            onClick={() => addAction(leaf)}
                             disabled={alreadyAdded}
                             style={{
                               ...subBtn,
@@ -255,15 +331,18 @@ export function QuickActionsManager({
                               cursor: alreadyAdded ? "not-allowed" : "pointer",
                             }}
                           >
-                            <span>{iconFor(selectedCategory, sub)}</span>
-                            <span>{formatSubtype(sub)}</span>
+                            <span>{iconFor(leaf.category, leaf.subtype)}</span>
+                            <span>
+                              {selectedCategoryMeta.groups.length > 1
+                                ? `${leaf.groupLabel}: ${leaf.label}`
+                                : leaf.label}
+                            </span>
                             {alreadyAdded && (
                               <span style={addedTag}>Added</span>
                             )}
                           </button>
                         );
-                      },
-                    )}
+                      })}
                   </div>
                 </>
               )}

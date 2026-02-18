@@ -827,217 +827,228 @@ export function Explorer() {
   return (
     <div
       style={{
-        padding: "100px 20px 60px",
-        maxWidth: 1100,
+        maxWidth: 1200,
         margin: "0 auto",
       }}
     >
-      <h1 style={{ marginBottom: 4 }}>Explore carers & patients</h1>
-      <div style={{ fontSize: 13, opacity: 0.65, marginBottom: 16 }}>
-        Switch between AI text search and map-based radius search.
-      </div>
-      <div
-        style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}
-      >
+      {/* Header */}
+      <div style={explorerHeader}>
+        <div>
+          <h2 style={explorerTitle}>Care Network</h2>
+          <p style={explorerSubtitle}>
+            Find carers, families, and specialists in your area.
+          </p>
+        </div>
         <ModeToggle mode={mode} setMode={setMode} />
       </div>
-      {mode === "ai" && (
-        <p style={{ opacity: 0.7, marginBottom: 24, fontSize: 14 }}>
-          Natural language filter (placeholder AI). Type what you need.
-        </p>
-      )}
-      {mode === "map" && (
-        <p style={{ opacity: 0.7, marginBottom: 24, fontSize: 14 }}>
-          Map radius search. City geocoding is demo-only
-          (Berlin/Munich/Hamburg).
-        </p>
-      )}
-      {mode === "ai" && (
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            flexWrap: "wrap",
-            marginBottom: 28,
-          }}
-        >
-          <input
-            placeholder="e.g. dementia mornings hydration"
-            value={aiQuery}
-            onChange={(e) => setAiQuery(e.target.value)}
-            style={inputStyle}
-          />
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as any)}
-            style={inputStyle}
-          >
-            <option value="all">All</option>
-            <option value="carer">Carers</option>
-            <option value="family">Patients</option>
-          </select>
-        </div>
-      )}
-      {mode === "map" && (
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            flexWrap: "wrap",
-            marginBottom: 28,
-          }}
-        >
-          <input
-            placeholder="City (Berlin / Munich / Hamburg)"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            type="number"
-            min={1}
-            max={200}
-            value={radiusKm}
-            onChange={(e) => setRadiusKm(Number(e.target.value))}
-            style={inputStyle}
-            placeholder="Radius km"
-          />
-          {loadingLocations && (
-            <div style={{ fontSize: 12, alignSelf: "center", opacity: 0.7 }}>
-              Loading locations…
-            </div>
-          )}
-          {locError && (
-            <div
-              style={{ fontSize: 12, alignSelf: "center", color: "#f87171" }}
-            >
-              {locError}
-            </div>
-          )}
-        </div>
-      )}
-      {mode === "ai" && (
-        <div style={grid}>
-          {results.map((c) => (
-            <div key={c.id} style={card}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  {c.avatar && <span style={{ fontSize: 28 }}>{c.avatar}</span>}
-                  <strong>{c.name}</strong>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {c.verified && (
-                    <span title="Verified" style={{ fontSize: 14 }}>
-                      ✓
-                    </span>
-                  )}
-                  {c.type === "carer" && <span style={badge}>Carer</span>}
-                  {c.type === "family" && (
-                    <span style={{ ...badge, background: "#334155" }}>
-                      Patient
-                    </span>
-                  )}
-                </div>
-              </div>
-              <p style={{ fontSize: 13, lineHeight: 1.4, marginTop: 8 }}>
-                {c.summary}
-              </p>
-              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 12 }}>
-                Languages: {c.languages.join(", ")}
-              </div>
-              {c.rating > 0 && (
-                <div
-                  style={{
-                    fontSize: 11,
-                    marginTop: 4,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
+
+      {/* Search / filter bar */}
+      <div style={filterBar}>
+        {mode === "ai" ? (
+          <>
+            <input
+              placeholder="Search by name, specialty, language..."
+              value={aiQuery}
+              onChange={(e) => setAiQuery(e.target.value)}
+              style={searchInput}
+            />
+            <div style={filterPills}>
+              {(["all", "carer", "family"] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setRoleFilter(f)}
+                  style={roleFilter === f ? pillActive : pill}
                 >
-                  <span style={{ color: "#fbbf24" }}>★</span>{" "}
-                  {c.rating.toFixed(1)}
-                  {c.reviews && (
-                    <span style={{ opacity: 0.6 }}>
-                      {" "}
-                      ({c.reviews.length} reviews)
+                  {f === "all" ? "All" : f === "carer" ? "Carers" : "Families"}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <input
+              placeholder="City (Berlin / Munich / Hamburg)"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              style={searchInput}
+            />
+            <input
+              type="number"
+              min={1}
+              max={200}
+              value={radiusKm}
+              onChange={(e) => setRadiusKm(Number(e.target.value))}
+              style={{ ...searchInput, maxWidth: 120 }}
+              placeholder="Radius km"
+            />
+            {loadingLocations && (
+              <span
+                style={{ fontSize: 12, color: "#6B7280", alignSelf: "center" }}
+              >
+                Loading...
+              </span>
+            )}
+          </>
+        )}
+      </div>
+      {mode === "ai" && (
+        <div style={explorerGrid}>
+          {results.map((c) => (
+            <div key={c.id} style={explorerCard}>
+              {/* Card header */}
+              <div style={cardHeader}>
+                <div style={avatarCircle}>
+                  {c.avatar || (c.type === "carer" ? "👤" : "👨‍👩‍👧")}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <strong style={{ fontSize: 16, color: "#1A1A1A" }}>
+                      {c.name}
+                    </strong>
+                    {c.verified && <span style={verifiedDot}>✓</span>}
+                  </div>
+                  <p
+                    style={{
+                      margin: "2px 0 0",
+                      fontSize: 13,
+                      color: "#6B7280",
+                    }}
+                  >
+                    {c.summary}
+                  </p>
+                </div>
+                <span
+                  style={c.type === "carer" ? typeBadgeCarer : typeBadgeFamily}
+                >
+                  {c.type === "carer" ? "Carer" : "Family"}
+                </span>
+              </div>
+              {/* Details */}
+              <div style={cardDetails}>
+                <div style={detailRow}>
+                  <span style={detailLabel}>🌍</span>
+                  <span style={detailValue}>
+                    {c.languages.join(", ").toUpperCase()}
+                  </span>
+                </div>
+                {c.rating > 0 && (
+                  <div style={detailRow}>
+                    <span style={{ color: "#F5D547" }}>★</span>
+                    <span style={detailValue}>
+                      {c.rating.toFixed(1)}
+                      {c.reviews && (
+                        <span style={{ color: "#9CA3AF" }}>
+                          {" "}
+                          ({c.reviews.length} reviews)
+                        </span>
+                      )}
                     </span>
-                  )}
-                </div>
-              )}
-              {c.hourlyRate && (
-                <div style={{ fontSize: 11, marginTop: 4, color: "#22c55e" }}>
-                  €{c.hourlyRate}/hour
-                </div>
-              )}
-              <button style={smallBtn} onClick={() => setSelectedProfile(c)}>
+                  </div>
+                )}
+                {c.hourlyRate && (
+                  <div style={detailRow}>
+                    <span style={detailLabel}>💰</span>
+                    <span
+                      style={{
+                        ...detailValue,
+                        color: "#059669",
+                        fontWeight: 600,
+                      }}
+                    >
+                      €{c.hourlyRate}/hour
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* Action */}
+              <button
+                style={viewProfileBtn}
+                onClick={() => setSelectedProfile(c)}
+              >
                 View Profile
               </button>
             </div>
           ))}
-          {!results.length && <div style={{ opacity: 0.6 }}>No matches.</div>}
+          {!results.length && (
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                textAlign: "center",
+                padding: 40,
+                color: "#6B7280",
+              }}
+            >
+              No matches found. Try a different search.
+            </div>
+          )}
         </div>
       )}
       {mode === "map" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <CareMap center={center} radiusKm={radiusKm} markers={mapMarkers} />
+          <div
+            style={{
+              borderRadius: 18,
+              overflow: "hidden",
+              border: "1px solid rgba(0,0,0,0.1)",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+            }}
+          >
+            <CareMap center={center} radiusKm={radiusKm} markers={mapMarkers} />
+          </div>
           {actorLocations &&
             !actorLocations.length &&
             hasSupabase &&
             !loadingLocations &&
             !locError && (
-              <div style={{ fontSize: 12, opacity: 0.6 }}>
+              <div style={{ fontSize: 12, color: "#6B7280" }}>
                 No geolocated actors yet (showing demo data).
               </div>
             )}
-          <div style={grid}>
+          <div style={explorerGrid}>
             {mapResults.map((c) => (
-              <div key={c.id} style={card}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <strong>{c.name}</strong>
+              <div key={c.id} style={explorerCard}>
+                <div style={cardHeader}>
+                  <div style={avatarCircle}>
+                    {c.type === "carer" ? "👤" : "👨‍👩‍👧"}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong style={{ fontSize: 16, color: "#1A1A1A" }}>
+                      {c.name}
+                    </strong>
+                    <p
+                      style={{
+                        margin: "2px 0 0",
+                        fontSize: 13,
+                        color: "#6B7280",
+                      }}
+                    >
+                      {c.summary}
+                    </p>
+                  </div>
                   <span
-                    style={{
-                      ...badge,
-                      background: c.type === "carer" ? "#4338ca" : "#334155",
-                    }}
+                    style={
+                      c.type === "carer" ? typeBadgeCarer : typeBadgeFamily
+                    }
                   >
-                    {c.type === "carer" ? "Carer" : "Patient"}
+                    {c.type === "carer" ? "Carer" : "Family"}
                   </span>
                 </div>
-                <p style={{ fontSize: 13, lineHeight: 1.4, marginTop: 8 }}>
-                  {c.summary}
-                </p>
-                <div style={{ fontSize: 11, opacity: 0.6, marginTop: 12 }}>
-                  {c.city} • {c.lat?.toFixed(2)},{c.lng?.toFixed(2)}
-                </div>
-                {c.rating > 0 && (
-                  <div
-                    style={{
-                      fontSize: 11,
-                      marginTop: 4,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <span style={{ color: "#fbbf24" }}>★</span>{" "}
-                    {c.rating.toFixed(1)}
+                <div style={cardDetails}>
+                  <div style={detailRow}>
+                    <span style={detailLabel}>📍</span>
+                    <span style={detailValue}>{c.city}</span>
                   </div>
-                )}
+                  {c.rating > 0 && (
+                    <div style={detailRow}>
+                      <span style={{ color: "#F5D547" }}>★</span>
+                      <span style={detailValue}>{c.rating.toFixed(1)}</span>
+                    </div>
+                  )}
+                </div>
                 <button
-                  style={smallBtn}
+                  style={viewProfileBtn}
                   onClick={() => {
                     const fullProfile = MOCK.find((m) => m.id === c.id);
                     setSelectedProfile(fullProfile || (c as Card));
@@ -1048,7 +1059,16 @@ export function Explorer() {
               </div>
             ))}
             {!mapResults.length && (
-              <div style={{ opacity: 0.6 }}>No results in radius.</div>
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                  textAlign: "center",
+                  padding: 40,
+                  color: "#6B7280",
+                }}
+              >
+                No results in this radius.
+              </div>
             )}
           </div>
         </div>
@@ -1423,83 +1443,222 @@ function ProfileModal({
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.15)",
-  padding: "10px 14px",
-  borderRadius: 10,
-  color: "#fff",
+// ─── Explorer Styles (light theme) ──────────────────
+
+const explorerHeader: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 20,
+  flexWrap: "wrap",
+  gap: 16,
+};
+
+const explorerTitle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 24,
+  fontWeight: 700,
+  color: "#1A1A1A",
+};
+
+const explorerSubtitle: React.CSSProperties = {
+  margin: "4px 0 0",
   fontSize: 14,
-  minWidth: 260,
-  flex: "1 1 320px",
+  color: "#6B7280",
 };
-const grid: React.CSSProperties = {
-  display: "grid",
-  gap: 20,
-  gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))",
+
+const filterBar: React.CSSProperties = {
+  display: "flex",
+  gap: 12,
+  marginBottom: 24,
+  flexWrap: "wrap",
+  alignItems: "center",
 };
-const card: React.CSSProperties = {
-  background: "linear-gradient(180deg,rgba(40,42,60,0.85),rgba(28,30,40,0.85))",
-  border: "1px solid rgba(255,255,255,0.08)",
-  padding: "16px 16px 60px",
-  borderRadius: 18,
-  position: "relative",
-  boxShadow: "0 4px 16px -4px rgba(0,0,0,0.5)",
-};
-const badge: React.CSSProperties = {
-  background: "#4338ca",
-  padding: "2px 10px",
-  borderRadius: 12,
-  fontSize: 11,
-  letterSpacing: 0.5,
-};
-const smallBtn: React.CSSProperties = {
-  position: "absolute",
-  bottom: 12,
-  left: 16,
-  right: 16,
-  background: "linear-gradient(90deg,#2563eb,#7c3aed)",
-  border: "none",
-  color: "#fff",
-  padding: "8px 0",
-  borderRadius: 10,
-  fontSize: 13,
-  cursor: "pointer",
-};
-const toggleWrap: React.CSSProperties = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  padding: 4,
+
+const searchInput: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.9)",
+  backdropFilter: "blur(12px)",
+  border: "2px solid rgba(0, 0, 0, 0.1)",
+  padding: "12px 16px",
   borderRadius: 14,
+  color: "#1A1A1A",
+  fontSize: 14,
+  flex: "1 1 240px",
+  minWidth: 180,
+  transition: "border-color 0.2s ease",
+};
+
+const filterPills: React.CSSProperties = {
+  display: "flex",
+  gap: 6,
+};
+
+const pill: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.6)",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
+  color: "#4A4A4A",
+  padding: "8px 16px",
+  borderRadius: 20,
+  fontSize: 13,
+  fontWeight: 500,
+  cursor: "pointer",
+  transition: "all 0.15s ease",
+};
+
+const pillActive: React.CSSProperties = {
+  ...pill,
+  background: "#F5D547",
+  border: "1px solid #F5D547",
+  color: "#1A1A1A",
+  fontWeight: 600,
+};
+
+const explorerGrid: React.CSSProperties = {
+  display: "grid",
+  gap: 16,
+  gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+};
+
+const explorerCard: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.85)",
+  backdropFilter: "blur(16px)",
+  border: "1px solid rgba(0, 0, 0, 0.08)",
+  borderRadius: 18,
+  padding: 20,
+  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)",
+  display: "flex",
+  flexDirection: "column",
+  gap: 14,
+  transition: "all 0.2s ease",
+};
+
+const cardHeader: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+};
+
+const avatarCircle: React.CSSProperties = {
+  width: 48,
+  height: 48,
+  borderRadius: 14,
+  background: "linear-gradient(135deg, #88B9B0, #6DA19A)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 24,
+  flexShrink: 0,
+};
+
+const verifiedDot: React.CSSProperties = {
+  width: 18,
+  height: 18,
+  borderRadius: "50%",
+  background: "rgba(16, 185, 129, 0.15)",
+  color: "#059669",
+  fontSize: 10,
+  fontWeight: 700,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const typeBadgeCarer: React.CSSProperties = {
+  background: "rgba(136, 185, 176, 0.2)",
+  color: "#4A7A72",
+  padding: "4px 12px",
+  borderRadius: 20,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: 0.3,
+  flexShrink: 0,
+};
+
+const typeBadgeFamily: React.CSSProperties = {
+  background: "rgba(245, 213, 71, 0.2)",
+  color: "#8B7A1A",
+  padding: "4px 12px",
+  borderRadius: 20,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: 0.3,
+  flexShrink: 0,
+};
+
+const cardDetails: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+  padding: "8px 0",
+  borderTop: "1px solid rgba(0, 0, 0, 0.05)",
+};
+
+const detailRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  fontSize: 13,
+};
+
+const detailLabel: React.CSSProperties = {
+  fontSize: 14,
+  flexShrink: 0,
+};
+
+const detailValue: React.CSSProperties = {
+  color: "#374151",
+  fontSize: 13,
+};
+
+const viewProfileBtn: React.CSSProperties = {
+  background: "#F5D547",
+  border: "none",
+  color: "#1A1A1A",
+  padding: "10px 0",
+  borderRadius: 12,
+  fontSize: 14,
+  fontWeight: 600,
+  cursor: "pointer",
+  transition: "all 0.15s ease",
+  boxShadow: "0 2px 8px rgba(245, 213, 71, 0.3)",
+};
+
+const toggleWrap: React.CSSProperties = {
+  background: "rgba(0, 0, 0, 0.08)",
+  padding: 4,
+  borderRadius: 12,
   display: "inline-flex",
   gap: 4,
 };
+
 const toggleBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  color: "#cbd5e1",
-  padding: "8px 14px",
+  color: "#6B7280",
+  padding: "8px 16px",
   borderRadius: 10,
   cursor: "pointer",
   fontSize: 13,
   fontWeight: 500,
 };
+
 const toggleBtnActive: React.CSSProperties = {
   ...toggleBtn,
-  background: "linear-gradient(135deg,#2563eb,#7c3aed)",
-  color: "#fff",
+  background: "#F5D547",
+  color: "#1A1A1A",
   fontWeight: 600,
-  boxShadow: "0 2px 6px -2px rgba(0,0,0,0.5)",
+  boxShadow: "0 2px 6px rgba(245, 213, 71, 0.3)",
 };
 
-// Modal Styles
+// ─── Modal Styles (light theme) ─────────────────────
+
 const modalOverlay: React.CSSProperties = {
   position: "fixed",
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  background: "rgba(0,0,0,0.8)",
+  background: "rgba(0, 0, 0, 0.5)",
   backdropFilter: "blur(8px)",
   display: "flex",
   alignItems: "center",
@@ -1509,7 +1668,8 @@ const modalOverlay: React.CSSProperties = {
 };
 
 const modalContent: React.CSSProperties = {
-  background: "linear-gradient(180deg, #1e2432 0%, #141820 100%)",
+  background: "rgba(255, 255, 255, 0.98)",
+  backdropFilter: "blur(24px)",
   borderRadius: 24,
   width: "100%",
   maxWidth: 680,
@@ -1517,23 +1677,25 @@ const modalContent: React.CSSProperties = {
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
-  border: "1px solid rgba(255,255,255,0.1)",
-  boxShadow: "0 24px 48px -12px rgba(0,0,0,0.5)",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 24px 64px rgba(0, 0, 0, 0.2)",
 };
 
 const modalHeader: React.CSSProperties = {
   padding: "24px 24px 20px",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
   position: "relative",
+  background:
+    "linear-gradient(180deg, rgba(136, 185, 176, 0.1) 0%, transparent 100%)",
 };
 
 const closeBtn: React.CSSProperties = {
   position: "absolute",
   top: 16,
   right: 16,
-  background: "rgba(255,255,255,0.1)",
+  background: "rgba(0, 0, 0, 0.06)",
   border: "none",
-  color: "#fff",
+  color: "#1A1A1A",
   width: 36,
   height: 36,
   borderRadius: "50%",
@@ -1549,7 +1711,7 @@ const avatarLarge: React.CSSProperties = {
   width: 72,
   height: 72,
   borderRadius: 20,
-  background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+  background: "linear-gradient(135deg, #88B9B0, #6DA19A)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -1557,8 +1719,8 @@ const avatarLarge: React.CSSProperties = {
 };
 
 const verifiedBadge: React.CSSProperties = {
-  background: "rgba(34, 197, 94, 0.2)",
-  color: "#22c55e",
+  background: "rgba(16, 185, 129, 0.12)",
+  color: "#059669",
   padding: "4px 10px",
   borderRadius: 20,
   fontSize: 11,
@@ -1578,8 +1740,8 @@ const quickInfoBar: React.CSSProperties = {
   display: "flex",
   gap: 16,
   padding: "12px 24px",
-  background: "rgba(255,255,255,0.03)",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(136, 185, 176, 0.06)",
+  borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
   flexWrap: "wrap",
 };
 
@@ -1588,20 +1750,20 @@ const quickInfoItem: React.CSSProperties = {
   alignItems: "center",
   gap: 8,
   fontSize: 13,
-  opacity: 0.8,
+  color: "#374151",
 };
 
 const tabBar: React.CSSProperties = {
   display: "flex",
   gap: 4,
   padding: "12px 24px",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
 };
 
 const tabBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  color: "#94a3b8",
+  color: "#9CA3AF",
   padding: "8px 16px",
   borderRadius: 10,
   fontSize: 14,
@@ -1611,14 +1773,16 @@ const tabBtn: React.CSSProperties = {
 
 const tabActive: React.CSSProperties = {
   ...tabBtn,
-  background: "rgba(99, 102, 241, 0.2)",
-  color: "#818cf8",
+  background: "rgba(245, 213, 71, 0.2)",
+  color: "#1A1A1A",
+  fontWeight: 600,
 };
 
 const tabContent: React.CSSProperties = {
   padding: 24,
   overflow: "auto",
   flex: 1,
+  color: "#1A1A1A",
 };
 
 const section: React.CSSProperties = {
@@ -1629,7 +1793,7 @@ const sectionTitle: React.CSSProperties = {
   fontSize: 13,
   textTransform: "uppercase",
   letterSpacing: 1,
-  color: "#64748b",
+  color: "#6B7280",
   marginBottom: 12,
   fontWeight: 600,
 };
@@ -1638,11 +1802,12 @@ const availabilityBox: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 10,
-  background: "rgba(34, 197, 94, 0.1)",
-  border: "1px solid rgba(34, 197, 94, 0.2)",
+  background: "rgba(16, 185, 129, 0.08)",
+  border: "1px solid rgba(16, 185, 129, 0.15)",
   padding: "12px 16px",
   borderRadius: 12,
   fontSize: 14,
+  color: "#374151",
 };
 
 const tagGrid: React.CSSProperties = {
@@ -1652,8 +1817,8 @@ const tagGrid: React.CSSProperties = {
 };
 
 const specTag: React.CSSProperties = {
-  background: "rgba(99, 102, 241, 0.15)",
-  color: "#a5b4fc",
+  background: "rgba(136, 185, 176, 0.15)",
+  color: "#4A7A72",
   padding: "6px 12px",
   borderRadius: 20,
   fontSize: 12,
@@ -1671,12 +1836,12 @@ const certItem: React.CSSProperties = {
   alignItems: "center",
   gap: 10,
   fontSize: 14,
-  opacity: 0.85,
+  color: "#374151",
 };
 
 const reviewCard: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(0, 0, 0, 0.02)",
+  border: "1px solid rgba(0, 0, 0, 0.06)",
   borderRadius: 14,
   padding: 16,
   marginBottom: 12,
@@ -1686,18 +1851,19 @@ const contactLink: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 12,
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(0, 0, 0, 0.02)",
+  border: "1px solid rgba(0, 0, 0, 0.08)",
   borderRadius: 12,
   padding: "14px 16px",
   textDecoration: "none",
-  color: "#fff",
+  color: "#1A1A1A",
   fontSize: 14,
 };
 
 const contactAction: React.CSSProperties = {
   marginLeft: "auto",
-  background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+  background: "#F5D547",
+  color: "#1A1A1A",
   padding: "6px 14px",
   borderRadius: 20,
   fontSize: 12,
@@ -1705,41 +1871,42 @@ const contactAction: React.CSSProperties = {
 };
 
 const formInput: React.CSSProperties = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(0, 0, 0, 0.03)",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
   borderRadius: 12,
   padding: "12px 14px",
-  color: "#fff",
+  color: "#1A1A1A",
   fontSize: 14,
   outline: "none",
 };
 
 const sendBtn: React.CSSProperties = {
-  background: "linear-gradient(135deg, #2563eb, #7c3aed)",
+  background: "#F5D547",
   border: "none",
-  color: "#fff",
+  color: "#1A1A1A",
   padding: "14px 20px",
   borderRadius: 12,
   fontSize: 15,
   fontWeight: 600,
   cursor: "pointer",
+  boxShadow: "0 4px 12px rgba(245, 213, 71, 0.3)",
 };
 
 const successMessage: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 12,
-  background: "rgba(34, 197, 94, 0.15)",
-  border: "1px solid rgba(34, 197, 94, 0.3)",
+  background: "rgba(16, 185, 129, 0.1)",
+  border: "1px solid rgba(16, 185, 129, 0.2)",
   borderRadius: 12,
   padding: 16,
-  color: "#22c55e",
+  color: "#059669",
 };
 
 const quickActionBtn: React.CSSProperties = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  color: "#fff",
+  background: "rgba(0, 0, 0, 0.03)",
+  border: "1px solid rgba(0, 0, 0, 0.08)",
+  color: "#1A1A1A",
   padding: "10px 16px",
   borderRadius: 10,
   fontSize: 13,

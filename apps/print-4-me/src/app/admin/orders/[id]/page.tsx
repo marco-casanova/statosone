@@ -16,8 +16,6 @@ import { formatPrice } from "@/lib/pricing";
 import {
   ArrowLeft,
   Package,
-  Clock,
-  CreditCard,
   Truck,
   CheckCircle,
   XCircle,
@@ -26,6 +24,7 @@ import {
   FileText,
   ExternalLink,
   Loader2,
+  Download,
 } from "lucide-react";
 
 type OrderWithDetails = Order & {
@@ -42,6 +41,15 @@ const STATUS_FLOW: OrderStatus[] = [
   "delivered",
 ];
 
+const NEXT_STATUS: Record<OrderStatus, OrderStatus[]> = {
+  created: ["paid", "cancelled"],
+  paid: ["in_production", "cancelled"],
+  in_production: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -55,6 +63,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [generatingLabel, setGeneratingLabel] = useState(false);
+  const [downloadingModel, setDownloadingModel] = useState(false);
 
   useEffect(() => {
     loadOrder();
@@ -147,6 +156,27 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
     setGeneratingLabel(false);
   }
 
+  async function downloadModelFile() {
+    if (!order) return;
+    setDownloadingModel(true);
+
+    try {
+      const response = await fetch(`/api/admin/orders/${order.id}/model-download`);
+      const data = await response.json();
+
+      if (!response.ok || !data.downloadUrl) {
+        push(data.error || "Unable to generate download link", "error");
+        return;
+      }
+
+      window.open(data.downloadUrl, "_blank", "noopener,noreferrer");
+    } catch {
+      push("Download failed", "error");
+    } finally {
+      setDownloadingModel(false);
+    }
+  }
+
   async function cancelOrder() {
     if (!order || !supabase) return;
     if (!confirm("Are you sure you want to cancel this order?")) return;
@@ -222,17 +252,27 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
           {!isCancelled && (
             <div className="bg-gray-800 rounded-xl p-6">
               <h2 className="font-semibold text-white mb-4">Update Status</h2>
+              {order.status === "paid" && (
+                <button
+                  onClick={() => updateStatus("in_production")}
+                  disabled={updatingStatus}
+                  className="w-full mb-4 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold transition-colors disabled:opacity-60"
+                >
+                  Confirm Payment and Send to Print
+                </button>
+              )}
               <div className="flex flex-wrap gap-2">
                 {STATUS_FLOW.map((status, idx) => {
                   const isCurrent = status === order.status;
                   const isPast = idx < currentStatusIndex;
                   const isNext = idx === currentStatusIndex + 1;
+                  const isAllowed = NEXT_STATUS[order.status].includes(status);
 
                   return (
                     <button
                       key={status}
                       onClick={() => updateStatus(status)}
-                      disabled={updatingStatus || isCurrent}
+                      disabled={updatingStatus || isCurrent || !isAllowed}
                       className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${
                         isCurrent
                           ? "bg-purple-600 text-white cursor-default"
@@ -240,7 +280,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
                             ? "bg-gray-600 text-gray-300"
                             : isNext
                               ? "bg-green-600 hover:bg-green-500 text-white"
-                              : "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                              : "bg-gray-700 text-gray-500"
                       }`}
                     >
                       {status.replace("_", " ")}
@@ -302,6 +342,29 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
             )}
           </div>
 
+          {/* Model File */}
+          <div className="bg-gray-800 rounded-xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
+              <Download className="w-5 h-5" />
+              Model File
+            </h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Download the customer STL/OBJ file for print preparation.
+            </p>
+            <button
+              onClick={downloadModelFile}
+              disabled={downloadingModel}
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {downloadingModel ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <FileText className="w-4 h-4" />
+              )}
+              Download {order.model?.file_type?.toUpperCase() || "Model"}
+            </button>
+          </div>
+
           {/* Item Details */}
           <div className="bg-gray-800 rounded-xl p-6">
             <h2 className="font-semibold text-white mb-4">Item Details</h2>
@@ -319,6 +382,10 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
                     <p className="font-medium text-white">
                       {order.quote?.material}
                     </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Color</p>
+                    <p className="font-medium text-white">{order.color}</p>
                   </div>
                   <div>
                     <p className="text-gray-400">Quality</p>
@@ -399,7 +466,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
               <div className="flex justify-between">
                 <span className="text-gray-400">Subtotal</span>
                 <span className="text-white">
-                  {formatPrice((order.quote?.price_cents || 0) - 499)}
+                  {formatPrice((order.total_cents || 0) - 499)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -410,7 +477,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
                 <div className="flex justify-between text-lg font-bold">
                   <span className="text-white">Total</span>
                   <span className="text-green-400">
-                    {formatPrice(order.quote?.price_cents || 0)}
+                    {formatPrice(order.total_cents || 0)}
                   </span>
                 </div>
               </div>

@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
         model_id: quote.model_id,
         status: "created",
         material: quote.material,
+        color: quote.color || "White",
         quality: quote.quality,
         quantity: quote.quantity,
         total_cents: quote.total_cents ?? quote.price_cents,

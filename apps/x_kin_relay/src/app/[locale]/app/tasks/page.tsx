@@ -381,7 +381,28 @@ export default function TasksPage() {
       return;
     }
 
-    const { error } = await supabase.from("kr_activities").insert(payload);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const basePayload = {
+      ...payload,
+      recorded_by: user.id,
+    };
+    const payloadWithOwners = {
+      ...basePayload,
+      created_by: user.id,
+      caregiver_id: user.id,
+    };
+
+    let { error } = await supabase.from("kr_activities").insert(payloadWithOwners);
+    if (
+      error &&
+      /column .* does not exist|created_by|caregiver_id/i.test(error.message || "")
+    ) {
+      ({ error } = await supabase.from("kr_activities").insert(basePayload));
+    }
     if (!error) setExpandedCategory(null);
   };
 

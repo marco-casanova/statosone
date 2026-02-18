@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, hasSupabase } from "@/lib/supabase/client";
-import DemoSection from "@/components/DemoSection";
 import {
   Printer,
   Upload,
@@ -95,6 +94,12 @@ export default function LandingPage() {
 
             <div className="flex items-center gap-3">
               <Link
+                href="/try-it"
+                className="px-4 py-2 text-forge-700 font-semibold hover:text-forge-800"
+              >
+                Try It Now
+              </Link>
+              <Link
                 href="/login"
                 className="px-4 py-2 text-gray-700 font-medium hover:text-gray-900"
               >
@@ -137,16 +142,16 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <Link
-                  href="/signup"
+                  href="/try-it"
                   className="btn-primary text-center text-lg flex items-center justify-center gap-2"
                 >
-                  Start Free <ArrowRight className="w-5 h-5" />
+                  Try It Now <ArrowRight className="w-5 h-5" />
                 </Link>
                 <Link
-                  href="/custom-design"
+                  href="/signup"
                   className="btn-secondary text-center text-lg flex items-center justify-center gap-2"
                 >
-                  <Palette className="w-5 h-5" /> Custom Design
+                  <Palette className="w-5 h-5" /> Create Account
                 </Link>
               </div>
 
@@ -267,8 +272,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Demo Section */}
-      <DemoSection />
+      {/* Try-It CTA Section */}
+      <section className="py-24 px-4 bg-gradient-to-br from-slate-50 to-forge-50">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Try The Full Flow Before You Order
+          </h2>
+          <p className="text-xl text-gray-600 mb-8">
+            Upload a model, configure material and color, pay with Stripe, and track your order status.
+          </p>
+          <Link
+            href="/try-it"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-forge-500 text-white font-semibold text-lg hover:bg-forge-600 hover:shadow-lg hover:shadow-forge-500/30 transition-all"
+          >
+            Try It Now
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </section>
 
       {/* 3D Model Repositories Section */}
       <section className="py-24 px-4 bg-white">

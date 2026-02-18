@@ -71,16 +71,20 @@ export function TopNav() {
         {session && (
           <nav style={nav}>
             <button
-              onClick={() => navigateToView("explorer")}
-              style={isOnAppPage && view === "explorer" ? tabActive : tab}
-            >
-              Explorer
-            </button>
-            <button
               onClick={() => navigateToView("dashboard")}
-              style={isOnAppPage && view === "dashboard" ? tabActive : tab}
+              style={
+                isOnAppPage && !isOnAdminPage && view !== "network"
+                  ? tabActive
+                  : tab
+              }
             >
               Dashboard
+            </button>
+            <button
+              onClick={() => navigateToView("network")}
+              style={isOnAppPage && view === "network" ? tabActive : tab}
+            >
+              Care Network
             </button>
             <Link
               href={`/${locale}/admin`}

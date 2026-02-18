@@ -2,8 +2,8 @@
 import { useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { TopNav } from "../../../components/TopNav";
-import { Explorer } from "../../../components/Explorer";
 import { Dashboard } from "../../../components/Dashboard";
+import { Explorer } from "../../../components/Explorer";
 
 /**
  * App Entry - Main authenticated dashboard
@@ -28,10 +28,39 @@ export default function AppEntry() {
     return null; // Will redirect
   }
 
+  // Care Network is a standalone view
+  if (view === "network" || view === "explorer") {
+    return (
+      <>
+        <TopNav />
+        <div
+          style={{
+            padding: "80px 24px 60px",
+            maxWidth: "95vw",
+            margin: "0 auto",
+            background: "#88B9B0",
+            minHeight: "100vh",
+          }}
+        >
+          <Explorer />
+        </div>
+      </>
+    );
+  }
+
+  // Map view params to dashboard tabs
+  const tabMap: Record<string, string> = {
+    dashboard: "overview",
+    data: "data",
+    overview: "overview",
+  };
+
+  const dashboardTab = tabMap[view] || "overview";
+
   return (
     <>
       <TopNav />
-      {view === "dashboard" ? <Dashboard /> : <Explorer />}
+      <Dashboard initialTab={dashboardTab} />
     </>
   );
 }

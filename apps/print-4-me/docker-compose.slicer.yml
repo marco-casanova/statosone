@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  slicer:
+    build:
+      context: ./slicer-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PRUSA_SLICER_BIN=prusa-slicer
+      - SLICER_WORKDIR=/tmp/slicer-workdir
+      - PROFILES_DIR=/profiles
+      - MAX_FILE_SIZE_MB=100
+    volumes:
+      - ./slicer-service/profiles:/profiles:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

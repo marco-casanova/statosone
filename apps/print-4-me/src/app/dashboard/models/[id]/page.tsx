@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { supabase, hasSupabase } from "@/lib/supabase/client";
 import { useToast } from "@/components/Toast";
-import type { Model, Material, Quality, Quote, Order } from "@/types/database";
+import type { Model, Material, Quality } from "@/types/database";
 import type { ModelDimensions, ValidationResult } from "@/types/model";
 import {
   calculatePrice,
@@ -21,6 +21,7 @@ import {
   Truck,
   Info,
   AlertTriangle,
+  Palette,
 } from "lucide-react";
 
 // Dynamic import for 3D viewer (client-only)
@@ -43,6 +44,16 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+const COLOR_OPTIONS = [
+  { name: "White", hex: "#f8fafc" },
+  { name: "Black", hex: "#111827" },
+  { name: "Red", hex: "#dc2626" },
+  { name: "Blue", hex: "#2563eb" },
+  { name: "Green", hex: "#16a34a" },
+  { name: "Orange", hex: "#ea580c" },
+  { name: "Gray", hex: "#6b7280" },
+] as const;
+
 export default function ModelDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
@@ -64,6 +75,9 @@ export default function ModelDetailPage({ params }: PageProps) {
   const [material, setMaterial] = useState<Material>("PLA");
   const [quality, setQuality] = useState<Quality>("standard");
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<(typeof COLOR_OPTIONS)[number]>(
+    COLOR_OPTIONS[0],
+  );
 
   // Shipping address
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -177,6 +191,7 @@ export default function ModelDetailPage({ params }: PageProps) {
           model_id: model.id,
           user_id: session.user.id,
           material,
+          color: selectedColor.name,
           quality,
           quantity,
           price_cents: priceBreakdown.totalCents,
@@ -205,6 +220,7 @@ export default function ModelDetailPage({ params }: PageProps) {
           quote_id: quote.id,
           status: "created",
           material,
+          color: selectedColor.name,
           quality,
           quantity,
           total_cents: quote.total_cents ?? priceBreakdown.totalCents,
@@ -218,12 +234,29 @@ export default function ModelDetailPage({ params }: PageProps) {
         return;
       }
 
-      // Redirect to checkout
-      push("Order created! Redirecting to checkout...", "success");
+      const checkoutResponse = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          quoteId: quote.id,
+        }),
+      });
 
-      // In production, this would call the Stripe checkout API
-      // For MVP, redirect to orders page
-      router.push(`/dashboard/orders/${order.id}`);
+      const checkoutData = await checkoutResponse.json();
+
+      if (!checkoutResponse.ok || !checkoutData.url) {
+        push(
+          checkoutData.error ||
+            "Order created but checkout could not start. You can pay from the order page.",
+          "warning",
+        );
+        router.push(`/dashboard/orders/${order.id}`);
+        return;
+      }
+
+      push("Redirecting to secure Stripe checkout...", "success");
+      window.location.href = checkoutData.url;
     } catch (err) {
       push("Something went wrong", "error");
     } finally {
@@ -272,6 +305,8 @@ export default function ModelDetailPage({ params }: PageProps) {
       {modelUrl ? (
         <EnhancedModelViewer
           modelUrl={modelUrl}
+          fileType={model.file_type}
+          modelColor={selectedColor.hex}
           onDimensionsChange={(dimensions, scale) => {
             setCurrentDimensions(dimensions);
             setScaleFactor(scale);
@@ -348,6 +383,39 @@ export default function ModelDetailPage({ params }: PageProps) {
                   </div>
                 </label>
               ))}
+            </div>
+          </div>
+
+          {/* Color Selection */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Palette className="w-4 h-4 text-forge-500" />
+              Choose Color
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {COLOR_OPTIONS.map((color) => {
+                const isSelected = selectedColor.name === color.name;
+                return (
+                  <button
+                    key={color.name}
+                    type="button"
+                    onClick={() => setSelectedColor(color)}
+                    className={`p-3 border rounded-lg text-left transition-colors ${
+                      isSelected
+                        ? "border-forge-500 bg-forge-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <span
+                      className="block w-full h-6 rounded mb-2 border border-gray-300"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <span className="text-sm font-medium text-gray-800">
+                      {color.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -517,6 +585,10 @@ export default function ModelDetailPage({ params }: PageProps) {
                     {material} × {quantity}
                   </span>
                   <span>{formatPrice(priceBreakdown.quantityTotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">Color</span>
+                  <span>{selectedColor.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-300 flex items-center gap-1">

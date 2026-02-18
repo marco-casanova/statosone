@@ -70,7 +70,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const navItems = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
-    { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+    { href: "/admin/pipeline/orders", label: "Pipeline Orders", icon: Printer },
+    { href: "/admin/orders", label: "Legacy Orders", icon: ShoppingBag },
     { href: "/admin/custom-requests", label: "Custom Requests", icon: Palette },
     { href: "/admin/users", label: "Users", icon: Users },
   ];
@@ -169,7 +170,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <span className="text-sm text-gray-400">Print-4-Me Admin Panel</span>
+            <span className="text-sm text-gray-400">
+              Print-4-Me Admin Panel
+            </span>
           </header>
 
           {/* Page content */}

@@ -363,6 +363,13 @@ const SEVERITY_OPTIONS: SubtypeOption[] = [
   { label: "Required medical attention", value: "medical" },
 ];
 
+const OBSERVATION_INTENSITY_OPTIONS: SubtypeOption[] = [
+  { label: "Mild", value: "mild" },
+  { label: "Moderate", value: "moderate" },
+  { label: "Severe", value: "severe" },
+  { label: "Needs follow-up", value: "follow_up" },
+];
+
 export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   // ============================================
   // SAFETY SUBTYPES
@@ -561,6 +568,73 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Withdrawn", value: "withdrawn" },
     { label: "Aggression", value: "aggression" },
     { label: "Anxiety", value: "anxiety" },
+  ],
+  redness: OBSERVATION_INTENSITY_OPTIONS,
+  cut: OBSERVATION_INTENSITY_OPTIONS,
+  bruise: OBSERVATION_INTENSITY_OPTIONS,
+  abrasion: OBSERVATION_INTENSITY_OPTIONS,
+  laceration: OBSERVATION_INTENSITY_OPTIONS,
+  inflammation: OBSERVATION_INTENSITY_OPTIONS,
+  bites: OBSERVATION_INTENSITY_OPTIONS,
+  abuse: [
+    { label: "Suspected", value: "suspected" },
+    { label: "Witnessed", value: "witnessed" },
+    { label: "Reported by recipient", value: "reported" },
+    { label: "Escalated", value: "escalated" },
+  ],
+  loss_of_balance: [
+    { label: "Mild instability", value: "mild" },
+    { label: "Needed support", value: "supported" },
+    { label: "Near fall", value: "near_fall" },
+    { label: "Ongoing risk", value: "risk" },
+  ],
+  restlessness: [
+    { label: "Mild", value: "mild" },
+    { label: "Moderate", value: "moderate" },
+    { label: "Severe", value: "severe" },
+    { label: "Night disturbance", value: "night" },
+  ],
+  urine_leak: [
+    { label: "Small", value: "small" },
+    { label: "Moderate", value: "moderate" },
+    { label: "Large", value: "large" },
+    { label: "Frequent", value: "frequent" },
+  ],
+  bowel_leak: [
+    { label: "Small", value: "small" },
+    { label: "Moderate", value: "moderate" },
+    { label: "Large", value: "large" },
+    { label: "Frequent", value: "frequent" },
+  ],
+  upset_stomach: [
+    { label: "Mild discomfort", value: "mild" },
+    { label: "Moderate discomfort", value: "moderate" },
+    { label: "Severe discomfort", value: "severe" },
+    { label: "Resolved", value: "resolved" },
+  ],
+  confusion: [
+    { label: "Mild confusion", value: "mild" },
+    { label: "Disoriented", value: "disoriented" },
+    { label: "Sudden onset", value: "sudden" },
+    { label: "Needs review", value: "review" },
+  ],
+  challenging_behaviour: [
+    { label: "Verbal", value: "verbal" },
+    { label: "Physical", value: "physical" },
+    { label: "Refusal", value: "refusal" },
+    { label: "Escalated", value: "escalated" },
+  ],
+  anxiety: [
+    { label: "Mild", value: "mild" },
+    { label: "Moderate", value: "moderate" },
+    { label: "Severe", value: "severe" },
+    { label: "Panic symptoms", value: "panic" },
+  ],
+  hallucination: [
+    { label: "Visual", value: "visual" },
+    { label: "Auditory", value: "auditory" },
+    { label: "Tactile", value: "tactile" },
+    { label: "Distressing", value: "distressing" },
   ],
   environment_hazard: [
     { label: "Furniture", value: "furniture" },
@@ -762,4 +836,520 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "1 hour", value: 60, unit: "min" },
   ],
   art_craft: DURATION_SHORT,
+  general_activity: [
+    { label: "Individual", value: "individual" },
+    { label: "Group", value: "group" },
+    { label: "Outdoor", value: "outdoor" },
+    { label: "Indoor", value: "indoor" },
+  ],
 };
+
+// Shared labels used by form UIs when rendering subtype options
+export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
+  // Safety
+  falls: "Severity",
+  safeguarding: "Type",
+  medication_error: "Error type",
+  missing_client: "Duration",
+  fire_disaster: "Type",
+  theft_security: "Type",
+  team_accident: "Severity",
+  equipment_issue: "Issue type",
+  poisoning: "Status",
+  death: "Type",
+  near_miss: "Type",
+  // Health Observation
+  breathing_difficulty: "Severity",
+  cough_sputum: "Type",
+  airway_obstruction: "Status",
+  chest_pain: "Severity",
+  pale: "Severity",
+  weakness: "Severity",
+  loss_of_consciousness: "Duration",
+  seizure: "Type",
+  drowsiness: "Severity",
+  headache: "Severity",
+  stroke_like_signs: "Sign type",
+  rash: "Extent",
+  burn: "Severity",
+  skin_breakdown: "Stage",
+  infection_concern: "Status",
+  vomiting: "Frequency",
+  diarrhoea: "Severity",
+  urinary_symptoms: "Type",
+  diabetes_symptom: "Type",
+  glucose_value: "Level",
+  catheter_issue: "Issue type",
+  behaviour_change: "Type",
+  redness: "Severity",
+  cut: "Severity",
+  bruise: "Severity",
+  abrasion: "Severity",
+  laceration: "Severity",
+  abuse: "Type",
+  inflammation: "Severity",
+  bites: "Severity",
+  loss_of_balance: "Risk level",
+  restlessness: "Severity",
+  urine_leak: "Amount",
+  bowel_leak: "Amount",
+  upset_stomach: "Severity",
+  confusion: "Severity",
+  challenging_behaviour: "Type",
+  anxiety: "Severity",
+  hallucination: "Type",
+  environment_hazard: "Hazard type",
+  // ADL
+  hydration: "Amount",
+  nutrition_meal: "Portion eaten",
+  feeding: "Portion eaten",
+  toileting: "Outcome",
+  continence_bladder: "Status",
+  continence_bowel: "Status",
+  sleep_rest: "Sleep quality",
+  vital_sign: "Type",
+  weight_entry: "Weight range",
+  mobility_transfer: "Assistance needed",
+  transfer: "Assistance needed",
+  ambulation_walk: "Duration",
+  bathing_hygiene: "Type",
+  dressing_grooming: "Assistance",
+  // Environment
+  home_hazard: "Hazard type",
+  moving_handling: "Issue type",
+  service_visit_issue: "Issue type",
+  // Service
+  visit_issue: "Issue type",
+  access_problem: "Problem type",
+  late_arrival: "Delay",
+  cancelled_visit: "Reason",
+  other: "Type",
+  // Engagement
+  reading: "Duration",
+  video_game: "Duration",
+  tv_viewing: "Duration",
+  music_listening: "Duration",
+  social_visit: "Duration",
+  puzzle_brain: "Duration",
+  exercise_light: "Duration",
+  exercise_moderate: "Duration",
+  outdoor_walk: "Duration",
+  art_craft: "Duration",
+  general_activity: "Activity mode",
+};
+
+export type UiCareCategoryId =
+  | "sleep_pattern"
+  | "personal_care"
+  | "hydration"
+  | "nutrition"
+  | "mobility"
+  | "continence_incontinence"
+  | "activity"
+  | "medication_administration"
+  | "behavior_pattern"
+  | "incident";
+
+export interface UiCareSubtypeItem {
+  label: string;
+  category: IncidentCategory;
+  subtype: string;
+  detailsPreset?: Record<string, string | number | boolean>;
+}
+
+export interface UiCareSubtypeGroup {
+  label: string;
+  items: UiCareSubtypeItem[];
+}
+
+export interface UiCareCategory {
+  id: UiCareCategoryId;
+  label: string;
+  subtitle: string;
+  iconCategory: IncidentCategory;
+  groups: UiCareSubtypeGroup[];
+}
+
+// UI category catalog aligned with the KinRelay mockup categories.
+// Each subcategory still maps to canonical IncidentCategory + subtype values.
+export const CARE_UI_CATEGORIES: UiCareCategory[] = [
+  {
+    id: "sleep_pattern",
+    label: "Sleep Pattern",
+    subtitle: "Bedtime, rest quality, interruptions",
+    iconCategory: "adl",
+    groups: [
+      {
+        label: "Sleep",
+        items: [
+          { label: "Sleep rest", category: "adl", subtype: "sleep_rest" },
+          {
+            label: "Drowsiness",
+            category: "health_observation",
+            subtype: "drowsiness",
+          },
+          {
+            label: "Restlessness",
+            category: "health_observation",
+            subtype: "restlessness",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "personal_care",
+    label: "Personal Care",
+    subtitle: "Hygiene, dressing and toileting",
+    iconCategory: "adl",
+    groups: [
+      {
+        label: "Personal care",
+        items: [
+          {
+            label: "Bathing & hygiene",
+            category: "adl",
+            subtype: "bathing_hygiene",
+          },
+          {
+            label: "Dressing & grooming",
+            category: "adl",
+            subtype: "dressing_grooming",
+          },
+          {
+            label: "Toileting",
+            category: "adl",
+            subtype: "toileting",
+          },
+          {
+            label: "Feeding support",
+            category: "adl",
+            subtype: "feeding",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "hydration",
+    label: "Hydration",
+    subtitle: "Fluid intake and totals",
+    iconCategory: "adl",
+    groups: [
+      {
+        label: "Fluid type",
+        items: [
+          {
+            label: "Water",
+            category: "adl",
+            subtype: "hydration",
+            detailsPreset: { fluid_type: "Water" },
+          },
+          {
+            label: "Tea / Coffee",
+            category: "adl",
+            subtype: "hydration",
+            detailsPreset: { fluid_type: "Tea/Coffee" },
+          },
+          {
+            label: "Juice",
+            category: "adl",
+            subtype: "hydration",
+            detailsPreset: { fluid_type: "Juice" },
+          },
+          {
+            label: "Soup / Broth",
+            category: "adl",
+            subtype: "hydration",
+            detailsPreset: { fluid_type: "Soup/Broth" },
+          },
+          {
+            label: "Other fluids",
+            category: "adl",
+            subtype: "hydration",
+            detailsPreset: { fluid_type: "Other" },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "nutrition",
+    label: "Nutrition",
+    subtitle: "Meals, snacks and intake",
+    iconCategory: "adl",
+    groups: [
+      {
+        label: "Meal type",
+        items: [
+          {
+            label: "Breakfast",
+            category: "adl",
+            subtype: "nutrition_meal",
+            detailsPreset: { meal_type: "breakfast" },
+          },
+          {
+            label: "Lunch",
+            category: "adl",
+            subtype: "nutrition_meal",
+            detailsPreset: { meal_type: "lunch" },
+          },
+          {
+            label: "Dinner",
+            category: "adl",
+            subtype: "nutrition_meal",
+            detailsPreset: { meal_type: "dinner" },
+          },
+          {
+            label: "Snack",
+            category: "adl",
+            subtype: "nutrition_meal",
+            detailsPreset: { meal_type: "snack" },
+          },
+          {
+            label: "Supplement drink",
+            category: "adl",
+            subtype: "feeding",
+            detailsPreset: { meal_type: "supplement_drink" },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "mobility",
+    label: "Mobility",
+    subtitle: "Transfers, walking and stability",
+    iconCategory: "adl",
+    groups: [
+      {
+        label: "Mobility",
+        items: [
+          { label: "Transfer", category: "adl", subtype: "transfer" },
+          {
+            label: "Ambulation / walk",
+            category: "adl",
+            subtype: "ambulation_walk",
+          },
+          {
+            label: "Mobility transfer (legacy)",
+            category: "adl",
+            subtype: "mobility_transfer",
+          },
+          {
+            label: "Loss of balance",
+            category: "health_observation",
+            subtype: "loss_of_balance",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "continence_incontinence",
+    label: "Continence/Incontinence",
+    subtitle: "Bladder and bowel status",
+    iconCategory: "adl",
+    groups: [
+      {
+        label: "Continence",
+        items: [
+          {
+            label: "Bladder continence",
+            category: "adl",
+            subtype: "continence_bladder",
+          },
+          {
+            label: "Bowel continence",
+            category: "adl",
+            subtype: "continence_bowel",
+          },
+          {
+            label: "Urine leak",
+            category: "health_observation",
+            subtype: "urine_leak",
+          },
+          {
+            label: "Bowel leak",
+            category: "health_observation",
+            subtype: "bowel_leak",
+          },
+          {
+            label: "Catheter issue",
+            category: "health_observation",
+            subtype: "catheter_issue",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "activity",
+    label: "Activity",
+    subtitle: "Engagement and participation",
+    iconCategory: "engagement",
+    groups: [
+      {
+        label: "Activities",
+        items: [
+          { label: "Reading", category: "engagement", subtype: "reading" },
+          {
+            label: "TV / entertainment",
+            category: "engagement",
+            subtype: "tv_viewing",
+          },
+          {
+            label: "Social visit",
+            category: "engagement",
+            subtype: "social_visit",
+          },
+          {
+            label: "Outdoor walk",
+            category: "engagement",
+            subtype: "outdoor_walk",
+          },
+          {
+            label: "General activity",
+            category: "engagement",
+            subtype: "general_activity",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "medication_administration",
+    label: "Medication Administration",
+    subtitle: "Administered / refused / issues",
+    iconCategory: "service",
+    groups: [
+      {
+        label: "Medication",
+        items: [
+          {
+            label: "Medication administered",
+            category: "service",
+            subtype: "other",
+            detailsPreset: { medication_status: "administered" },
+          },
+          {
+            label: "Medication refused",
+            category: "service",
+            subtype: "other",
+            detailsPreset: { medication_status: "refused" },
+          },
+          {
+            label: "Medication unavailable",
+            category: "service",
+            subtype: "other",
+            detailsPreset: { medication_status: "not_available" },
+          },
+          {
+            label: "Medication error",
+            category: "safety",
+            subtype: "medication_error",
+          },
+          {
+            label: "Glucose value",
+            category: "health_observation",
+            subtype: "glucose_value",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "behavior_pattern",
+    label: "Behavior Pattern",
+    subtitle: "Mood, cognition and behavior signals",
+    iconCategory: "health_observation",
+    groups: [
+      {
+        label: "Behavior",
+        items: [
+          {
+            label: "Behaviour change",
+            category: "health_observation",
+            subtype: "behaviour_change",
+          },
+          {
+            label: "Confusion",
+            category: "health_observation",
+            subtype: "confusion",
+          },
+          {
+            label: "Challenging behaviour",
+            category: "health_observation",
+            subtype: "challenging_behaviour",
+          },
+          {
+            label: "Anxiety",
+            category: "health_observation",
+            subtype: "anxiety",
+          },
+          {
+            label: "Hallucination",
+            category: "health_observation",
+            subtype: "hallucination",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "incident",
+    label: "Incident",
+    subtitle: "Safety and acute events",
+    iconCategory: "safety",
+    groups: [
+      {
+        label: "Safety incidents",
+        items: [
+          { label: "Fall", category: "safety", subtype: "falls" },
+          { label: "Near miss", category: "safety", subtype: "near_miss" },
+          {
+            label: "Safeguarding",
+            category: "safety",
+            subtype: "safeguarding",
+          },
+          {
+            label: "Equipment issue",
+            category: "safety",
+            subtype: "equipment_issue",
+          },
+          {
+            label: "Fire / disaster",
+            category: "safety",
+            subtype: "fire_disaster",
+          },
+          { label: "Poisoning", category: "safety", subtype: "poisoning" },
+        ],
+      },
+      {
+        label: "Injury / concern",
+        items: [
+          { label: "Abrasion", category: "health_observation", subtype: "abrasion" },
+          { label: "Laceration", category: "health_observation", subtype: "laceration" },
+          { label: "Bruise", category: "health_observation", subtype: "bruise" },
+          { label: "Cut", category: "health_observation", subtype: "cut" },
+          { label: "Abuse concern", category: "health_observation", subtype: "abuse" },
+        ],
+      },
+      {
+        label: "Environment / service",
+        items: [
+          {
+            label: "Environment hazard",
+            category: "health_observation",
+            subtype: "environment_hazard",
+          },
+          {
+            label: "Service visit issue",
+            category: "environment",
+            subtype: "service_visit_issue",
+          },
+        ],
+      },
+    ],
+  },
+];

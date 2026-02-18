@@ -57,7 +57,20 @@ export async function POST(request: NextRequest) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        const orderId = session.metadata?.order_id;
+        const clientReferenceId = session.client_reference_id || "";
+        let orderId = session.metadata?.order_id || "";
+        let pipelineOrderId = session.metadata?.pipeline_order_id || "";
+
+        // Payment Link references:
+        // - Legacy orders use raw order id
+        // - Pipeline orders use "pipeline:<id>"
+        if (!pipelineOrderId && clientReferenceId.startsWith("pipeline:")) {
+          pipelineOrderId = clientReferenceId.slice("pipeline:".length);
+        }
+        if (!orderId && clientReferenceId && !pipelineOrderId) {
+          orderId = clientReferenceId;
+        }
+
         const quoteId = session.metadata?.quote_id;
         const userId = session.metadata?.user_id;
 
@@ -65,9 +78,44 @@ export async function POST(request: NextRequest) {
           orderId,
           quoteId,
           userId,
+          pipelineOrderId,
           amount: session.amount_total,
         });
 
+        // ---- Pipeline order flow ----
+        if (pipelineOrderId) {
+          const { error: pipelineError } = await supabase
+            .from("pipeline_orders")
+            .update({
+              status: "PAID",
+              stripe_payment_intent_id: session.payment_intent as string,
+              stripe_checkout_session_id: session.id,
+              paid_at: new Date().toISOString(),
+            })
+            .eq("id", pipelineOrderId);
+
+          if (pipelineError) {
+            console.error("Failed to update pipeline order:", pipelineError);
+          } else {
+            console.log("Pipeline order updated to PAID:", pipelineOrderId);
+
+            // Log event
+            await supabase.from("order_events").insert({
+              order_id: pipelineOrderId,
+              from_status: "QUOTED",
+              to_status: "PAID",
+              message: "Payment received via Stripe",
+            });
+
+            console.log(
+              "Pipeline order PAID — ready for admin review:",
+              pipelineOrderId,
+            );
+          }
+          break;
+        }
+
+        // ---- Legacy order flow ----
         // If we have an order ID, update the order status
         if (orderId) {
           const { error: orderError } = await supabase
@@ -124,6 +172,7 @@ export async function POST(request: NextRequest) {
                 model_id: quote.model_id,
                 status: "paid" as const,
                 material: quote.material,
+                color: quote.color || "White",
                 quality: quote.quality,
                 quantity: quote.quantity,
                 total_cents: quote.total_cents ?? quote.price_cents,
