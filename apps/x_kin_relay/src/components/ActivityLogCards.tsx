@@ -259,8 +259,8 @@ export function ActivityLogCards() {
             subtypesAll[0] as string | undefined,
           );
           const colors = CATEGORY_COLORS[a.category] || {
-            color: "#6C7CFF",
-            bg: "rgba(108, 124, 255, 0.18)",
+            color: "#4A7A72",
+            bg: "rgba(136, 185, 176, 0.18)",
           };
           return (
             <div
@@ -432,11 +432,13 @@ const card: React.CSSProperties = {
   flexDirection: "column",
   borderRadius: 16,
   padding: 0,
-  color: "#fff",
+  color: "#1A1A1A",
   minHeight: 140,
-  boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
   overflow: "hidden",
-  border: "2px solid transparent",
+  border: "1px solid rgba(0,0,0,0.08)",
+  background: "rgba(255,255,255,0.85)",
+  backdropFilter: "blur(12px)",
 };
 const cardIcon: React.CSSProperties = {
   fontSize: 24,
@@ -458,9 +460,9 @@ const cardInnerBtn: React.CSSProperties = {
   minHeight: 44,
 };
 const detailsBox: React.CSSProperties = {
-  background: "rgba(0,0,0,0.25)",
+  background: "rgba(0,0,0,0.03)",
   padding: "12px 16px 16px",
-  borderTop: "1px solid rgba(255,255,255,0.08)",
+  borderTop: "1px solid rgba(0,0,0,0.06)",
   display: "flex",
   flexDirection: "column",
   gap: 8,
@@ -469,22 +471,23 @@ const detailsPre: React.CSSProperties = {
   margin: 0,
   fontSize: 12,
   lineHeight: 1.5,
-  background: "rgba(255,255,255,0.06)",
+  background: "rgba(0,0,0,0.04)",
   padding: 10,
   borderRadius: 10,
   maxHeight: 160,
   overflow: "auto",
-  color: "#B6C0D1",
+  color: "#374151",
 };
 const metaRow: React.CSSProperties = {
   display: "flex",
   gap: 12,
   flexWrap: "wrap",
   fontSize: 12,
-  color: "#7A8599",
+  color: "#6B7280",
 };
 const chip: React.CSSProperties = {
-  background: "rgba(255,255,255,0.12)",
+  background: "rgba(0,0,0,0.06)",
+  color: "#374151",
   padding: "3px 10px",
   borderRadius: 999,
   fontSize: 11,

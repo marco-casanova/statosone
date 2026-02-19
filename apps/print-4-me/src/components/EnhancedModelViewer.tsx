@@ -82,7 +82,8 @@ export default function EnhancedModelViewer({
   const modelBoundingBoxRef = useRef<THREE.Group | null>(null);
 
   // State
-  const [loading, setLoading] = useState(true);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [originalDimensions, setOriginalDimensions] =
     useState<ModelDimensions | null>(null);
@@ -377,6 +378,9 @@ export default function EnhancedModelViewer({
     }
     animate();
 
+    // Mark scene as ready for model loading
+    setSceneReady(true);
+
     // Handle resize
     const handleResize = () => {
       if (!containerRef.current) return;
@@ -412,7 +416,7 @@ export default function EnhancedModelViewer({
 
   // Load model (STL/OBJ)
   useEffect(() => {
-    if (!sceneRef.current || !modelUrl) return;
+    if (!sceneReady || !sceneRef.current || !modelUrl) return;
 
     setLoading(true);
     setError("");
@@ -437,9 +441,18 @@ export default function EnhancedModelViewer({
         dims = baseDimensions ? inchesToMm(dims) : getObjectDimensions(object);
       }
 
+      // Rotate STL/OBJ from Z-up (CAD convention) to Y-up (Three.js convention)
+      // so the model stands upright instead of tilting on its side
+      object.rotation.x = -Math.PI / 2;
+      object.updateMatrixWorld(true);
+
+      // Center the model at origin after rotation
       const bounds = new THREE.Box3().setFromObject(object);
       const center = bounds.getCenter(new THREE.Vector3());
       object.position.sub(center);
+      // Sit model on the grid (bottom at y=0)
+      const size = bounds.getSize(new THREE.Vector3());
+      object.position.y += size.y / 2;
 
       applyColor(object, modelColor);
       modelRef.current = object;
@@ -519,6 +532,7 @@ export default function EnhancedModelViewer({
       },
     );
   }, [
+    sceneReady,
     modelUrl,
     fileType,
     initialScale,
@@ -657,7 +671,7 @@ export default function EnhancedModelViewer({
     <div className={`flex flex-col gap-4 ${className}`}>
       {/* Viewer Container */}
       <div className="relative bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
-        <div ref={containerRef} className="w-full h-[600px]" />
+        <div ref={containerRef} className="w-full h-150" />
 
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
@@ -874,7 +888,7 @@ export default function EnhancedModelViewer({
       {validation && !validation.fitsInBuildVolume && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
               <h4 className="font-semibold text-red-900 mb-1">
                 Model Too Large

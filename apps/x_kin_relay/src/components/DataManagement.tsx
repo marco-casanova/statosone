@@ -526,11 +526,12 @@ const pageTitle: React.CSSProperties = {
   fontSize: "clamp(24px, 4vw, 32px)",
   marginBottom: 8,
   fontWeight: 700,
+  color: "#1A1A1A",
 };
 
 const subtitle: React.CSSProperties = {
   fontSize: 14,
-  opacity: 0.6,
+  color: "#374151",
   margin: 0,
 };
 

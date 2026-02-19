@@ -501,6 +501,8 @@ const container: React.CSSProperties = {
   padding: "100px 20px 60px",
   maxWidth: 1400,
   margin: "0 auto",
+  background: "#88B9B0",
+  minHeight: "100vh",
 };
 
 const header: React.CSSProperties = {

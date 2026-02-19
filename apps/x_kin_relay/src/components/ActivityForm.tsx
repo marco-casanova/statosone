@@ -83,8 +83,8 @@ function AssistanceTooltip() {
           <div style={tooltipTitle}>{t("assistance_levels.title")}</div>
           {ASSISTANCE_LEVELS.map((lvl) => (
             <div key={lvl.value} style={tooltipItem}>
-              <strong style={{ color: "#fff" }}>{t(lvl.labelKey)}:</strong>{" "}
-              <span style={{ color: "#B6C0D1" }}>{t(lvl.descKey)}</span>
+              <strong style={{ color: "#1A1A1A" }}>{t(lvl.labelKey)}:</strong>{" "}
+              <span style={{ color: "#374151" }}>{t(lvl.descKey)}</span>
             </div>
           ))}
         </div>
@@ -1192,11 +1192,11 @@ const helpIcon: React.CSSProperties = {
   justifyContent: "center",
   fontSize: 14,
   fontWeight: 700,
-  background: "rgba(108, 124, 255, 0.25)",
-  color: "#6C7CFF",
+  background: "rgba(136, 185, 176, 0.25)",
+  color: "#4A7A72",
   borderRadius: "50%",
   cursor: "help",
-  border: "2px solid rgba(108, 124, 255, 0.5)",
+  border: "2px solid rgba(136, 185, 176, 0.5)",
   transition: "all 0.15s ease",
 };
 
@@ -1205,13 +1205,15 @@ const tooltipBox: React.CSSProperties = {
   top: "calc(100% + 10px)",
   left: "50%",
   transform: "translateX(-50%)",
-  background: "#1E2530",
-  border: "1px solid rgba(108, 124, 255, 0.3)",
+  background: "rgba(255, 255, 255, 0.98)",
+  backdropFilter: "blur(16px)",
+  border: "1px solid rgba(0, 0, 0, 0.1)",
   borderRadius: 14,
   padding: 18,
   minWidth: 320,
   zIndex: 1000,
-  boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+  boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+  color: "#1A1A1A",
 };
 
 const backButton: React.CSSProperties = {
@@ -1232,7 +1234,7 @@ const backButton: React.CSSProperties = {
 const tooltipTitle: React.CSSProperties = {
   fontSize: 15,
   fontWeight: 700,
-  color: "#6C7CFF",
+  color: "#4A7A72",
   marginBottom: 14,
   textTransform: "uppercase",
   letterSpacing: 0.8,
