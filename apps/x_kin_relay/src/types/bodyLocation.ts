@@ -185,25 +185,77 @@ export const BODY_DISCOMFORT_OPTIONS: Array<{
  * Which discomfort options are clinically relevant per body region.
  * Regions not listed here get ALL options.
  */
-export const DISCOMFORTS_BY_REGION: Partial<Record<BodyRegion, BodyDiscomfortOption[]>> = {
-  head:       ["pain", "inflammation", "trigger_point", "spasm"],
-  neck:       ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity", "rotation"],
-  shoulder:   ["pain", "inflammation", "tender_joint", "spasm", "trigger_point", "hypertonicity", "rotation", "adhesion", "elevation"],
-  upper_arm:  ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity"],
-  elbow:      ["pain", "inflammation", "tender_joint", "rotation"],
-  forearm:    ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity"],
+export const DISCOMFORTS_BY_REGION: Partial<
+  Record<BodyRegion, BodyDiscomfortOption[]>
+> = {
+  head: ["pain", "inflammation", "trigger_point", "spasm"],
+  neck: [
+    "pain",
+    "inflammation",
+    "spasm",
+    "trigger_point",
+    "hypertonicity",
+    "rotation",
+  ],
+  shoulder: [
+    "pain",
+    "inflammation",
+    "tender_joint",
+    "spasm",
+    "trigger_point",
+    "hypertonicity",
+    "rotation",
+    "adhesion",
+    "elevation",
+  ],
+  upper_arm: [
+    "pain",
+    "inflammation",
+    "spasm",
+    "trigger_point",
+    "hypertonicity",
+  ],
+  elbow: ["pain", "inflammation", "tender_joint", "rotation"],
+  forearm: ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity"],
   wrist_hand: ["pain", "inflammation", "tender_joint", "rotation", "adhesion"],
-  fingers:    ["pain", "inflammation", "tender_joint", "adhesion"],
-  chest:      ["pain", "inflammation", "spasm", "trigger_point"],
-  abdomen:    ["pain", "inflammation", "spasm"],
-  upper_back: ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity", "adhesion"],
-  lower_back: ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity", "adhesion"],
-  hip:        ["pain", "inflammation", "tender_joint", "spasm", "trigger_point", "rotation"],
-  thigh:      ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity"],
-  knee:       ["pain", "inflammation", "tender_joint", "rotation"],
-  shin_calf:  ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity"],
+  fingers: ["pain", "inflammation", "tender_joint", "adhesion"],
+  chest: ["pain", "inflammation", "spasm", "trigger_point"],
+  abdomen: ["pain", "inflammation", "spasm"],
+  upper_back: [
+    "pain",
+    "inflammation",
+    "spasm",
+    "trigger_point",
+    "hypertonicity",
+    "adhesion",
+  ],
+  lower_back: [
+    "pain",
+    "inflammation",
+    "spasm",
+    "trigger_point",
+    "hypertonicity",
+    "adhesion",
+  ],
+  hip: [
+    "pain",
+    "inflammation",
+    "tender_joint",
+    "spasm",
+    "trigger_point",
+    "rotation",
+  ],
+  thigh: ["pain", "inflammation", "spasm", "trigger_point", "hypertonicity"],
+  knee: ["pain", "inflammation", "tender_joint", "rotation"],
+  shin_calf: [
+    "pain",
+    "inflammation",
+    "spasm",
+    "trigger_point",
+    "hypertonicity",
+  ],
   ankle_foot: ["pain", "inflammation", "tender_joint", "rotation", "elevation"],
-  toes:       ["pain", "inflammation", "tender_joint"],
+  toes: ["pain", "inflammation", "tender_joint"],
 };
 
 /** Return the subset of discomfort options relevant to a given body region. */
@@ -222,7 +274,10 @@ export function regionRequiresSide(region: BodyRegion) {
 }
 
 export function bodyDiscomfortLabel(option: BodyDiscomfortOption) {
-  return BODY_DISCOMFORT_OPTIONS.find((item) => item.value === option)?.label || option;
+  return (
+    BODY_DISCOMFORT_OPTIONS.find((item) => item.value === option)?.label ||
+    option
+  );
 }
 
 export function bodyLocationTitle(location: BodyLocation) {
@@ -241,6 +296,8 @@ export function bodyLocationTitle(location: BodyLocation) {
 export function bodyLocationLabel(location: BodyLocation) {
   const title = bodyLocationTitle(location);
   if (!location.discomforts?.length) return title;
-  const discomfortLabels = location.discomforts.map(bodyDiscomfortLabel).join(", ");
+  const discomfortLabels = location.discomforts
+    .map(bodyDiscomfortLabel)
+    .join(", ");
   return `${title} - ${discomfortLabels}`;
 }

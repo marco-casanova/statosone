@@ -33,7 +33,9 @@ describe("BodyLocationPicker", () => {
     fireEvent.click(screen.getByRole("button", { name: "Front Left Fingers" }));
     fireEvent.click(screen.getByRole("button", { name: "Left side Toes" }));
 
-    expect(screen.getAllByText("Front: Left fingers").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Front: Left fingers").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getAllByText("Left side: Toes").length).toBeGreaterThan(0);
   });
 

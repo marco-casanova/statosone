@@ -114,9 +114,15 @@ const FRONT_OUTLINE: SvgShape[] = [
   // Main body silhouette
   { kind: "path", d: FRONT_BODY_SILHOUETTE },
   // Collar / neck lines
-  { kind: "path", d: "M 110 136 C 118 140 126 142 130 142 C 134 142 142 140 150 136" },
+  {
+    kind: "path",
+    d: "M 110 136 C 118 140 126 142 130 142 C 134 142 142 140 150 136",
+  },
   // Pectoral fold
-  { kind: "path", d: "M 98 178 C 110 190 124 196 130 196 C 136 196 150 190 162 178" },
+  {
+    kind: "path",
+    d: "M 98 178 C 110 190 124 196 130 196 C 136 196 150 190 162 178",
+  },
   // Navel
   { kind: "ellipse", cx: 130, cy: 280, rx: 2, ry: 3 },
   // Left groin crease

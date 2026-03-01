@@ -1,6 +1,12 @@
 "use client";
 
-import React, { KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   BODY_DISCOMFORT_OPTIONS,
   BodyLocation,
@@ -15,11 +21,7 @@ import {
   regionRequiresSide,
   discomfortsForRegion,
 } from "../types/bodyLocation";
-import {
-  SvgShape,
-  BodyRegionSvgDef,
-  BODY_VIEW_SPECS,
-} from "./bodyMapSvgData";
+import { SvgShape, BodyRegionSvgDef, BODY_VIEW_SPECS } from "./bodyMapSvgData";
 
 interface BodyLocationPickerProps {
   value: BodyLocation[];
@@ -47,7 +49,12 @@ const BODY_SVG_STYLE = `
   }
 `;
 
-const BODY_VIEW_ORDER: BodyMapView[] = ["front", "back", "left_side", "right_side"];
+const BODY_VIEW_ORDER: BodyMapView[] = [
+  "front",
+  "back",
+  "left_side",
+  "right_side",
+];
 
 /** Popup anchor: which location is open for discomfort editing + click position. */
 interface DiscomfortPopup {
@@ -145,7 +152,9 @@ export function BodyLocationPicker({
           }
           const current = entry.discomforts || [];
           const hasDiscomfort = current.includes(discomfort);
-          const allowed = discomfortsForRegion(entry.region).map((o) => o.value);
+          const allowed = discomfortsForRegion(entry.region).map(
+            (o) => o.value,
+          );
           const nextDiscomforts = hasDiscomfort
             ? current.filter((item) => item !== discomfort)
             : allowed.filter(
@@ -163,7 +172,7 @@ export function BodyLocationPicker({
 
   // Find the location object for the open popup
   const popupLocation = popup
-    ? value.find((loc) => bodyLocationKey(loc) === popup.locationKey) ?? null
+    ? (value.find((loc) => bodyLocationKey(loc) === popup.locationKey) ?? null)
     : null;
 
   return (
@@ -203,7 +212,8 @@ export function BodyLocationPicker({
           <div style={lateralityCard}>
             <div style={lateralityTitle}>
               {BODY_REGION_LABELS[pendingSelection.region]} (
-              {BODY_VIEW_LABELS[pendingSelection.view].toLowerCase()}): choose side
+              {BODY_VIEW_LABELS[pendingSelection.view].toLowerCase()}): choose
+              side
             </div>
             <div style={lateralityActions}>
               {(["left", "right", "both"] as const).map((side) => (
@@ -277,11 +287,19 @@ function BodyMapSvg({
     region: BodyRegion;
     view: BodyMapView;
   } | null;
-  onRegionPress: (view: BodyMapView, regionDef: BodyRegionSvgDef, clickX: number, clickY: number) => void;
+  onRegionPress: (
+    view: BodyMapView,
+    regionDef: BodyRegionSvgDef,
+    clickX: number,
+    clickY: number,
+  ) => void;
   popup: DiscomfortPopup | null;
   popupLocation: BodyLocation | null;
   popupRef?: React.RefObject<HTMLDivElement | null>;
-  onToggleDiscomfort: (location: BodyLocation, discomfort: BodyDiscomfortOption) => void;
+  onToggleDiscomfort: (
+    location: BodyLocation,
+    discomfort: BodyDiscomfortOption,
+  ) => void;
   onRemoveLocation: (location: BodyLocation) => void;
   onClosePopup: () => void;
 }) {
@@ -289,7 +307,10 @@ function BodyMapSvg({
   const transform = spec.mirror ? "translate(260,0) scale(-1,1)" : undefined;
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  function handleSvgRegionClick(e: React.MouseEvent, regionDef: BodyRegionSvgDef) {
+  function handleSvgRegionClick(
+    e: React.MouseEvent,
+    regionDef: BodyRegionSvgDef,
+  ) {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const rect = wrapper.getBoundingClientRect();
@@ -299,7 +320,9 @@ function BodyMapSvg({
   }
 
   // Compute filtered discomfort options for popup
-  const filteredOptions = popupLocation ? discomfortsForRegion(popupLocation.region) : [];
+  const filteredOptions = popupLocation
+    ? discomfortsForRegion(popupLocation.region)
+    : [];
 
   return (
     <div style={mapPanel} ref={wrapperRef}>
@@ -317,7 +340,13 @@ function BodyMapSvg({
           <style>{BODY_SVG_STYLE}</style>
           <g id={`view-${view.replace("_", "-")}`} transform={transform}>
             <g id="body-outline">
-              {spec.outline.map((shape, index) => renderSvgShape(shape, `outline-${view}-${index}`, "body-outline"))}
+              {spec.outline.map((shape, index) =>
+                renderSvgShape(
+                  shape,
+                  `outline-${view}-${index}`,
+                  "body-outline",
+                ),
+              )}
             </g>
             <g id="body-regions">
               {spec.regions.map((regionDef) => {
@@ -377,7 +406,10 @@ function BodyMapSvg({
               location={popupLocation}
               options={filteredOptions}
               onToggle={onToggleDiscomfort}
-              onRemove={() => { onRemoveLocation(popupLocation); onClosePopup(); }}
+              onRemove={() => {
+                onRemoveLocation(popupLocation);
+                onClosePopup();
+              }}
               onClose={onClosePopup}
             />
           </div>
@@ -478,7 +510,10 @@ function renderSvgShape(shape: SvgShape, key: string, className?: string) {
   return <path key={key} className={className} d={shape.d} />;
 }
 
-function handleRegionKeyDown(event: KeyboardEvent<SVGGElement>, onActivate: () => void) {
+function handleRegionKeyDown(
+  event: KeyboardEvent<SVGGElement>,
+  onActivate: () => void,
+) {
   if (event.key !== "Enter" && event.key !== " ") {
     return;
   }
@@ -520,7 +555,11 @@ function isLocationSelectedForRegion(
 }
 
 function shouldPromptForSide(view: BodyMapView, regionDef: BodyRegionSvgDef) {
-  return (view === "front" || view === "back") && regionRequiresSide(regionDef.region) && !regionDef.side;
+  return (
+    (view === "front" || view === "back") &&
+    regionRequiresSide(regionDef.region) &&
+    !regionDef.side
+  );
 }
 
 const pickerRoot: React.CSSProperties = {
@@ -665,7 +704,8 @@ const bodySvg: React.CSSProperties = {
   width: 260,
   height: "auto",
   borderRadius: 18,
-  background: "linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98))",
+  background:
+    "linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98))",
   border: "1px solid rgba(15, 23, 42, 0.06)",
 };
 
