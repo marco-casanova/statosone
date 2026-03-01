@@ -1,65 +1,138 @@
-// Centralized activity & subtype icon utilities
-import { IncidentCategory, CATEGORY_TO_SUBTYPES } from "../types/schema";
+// Centralized activity & subtype icon utilities — Lucide React icons
+import React from "react";
+import {
+  Shield,
+  Stethoscope,
+  User,
+  Home,
+  Bell,
+  Zap,
+  Droplets,
+  Droplet,
+  AlertTriangle,
+  AlertCircle,
+  ArrowLeftRight,
+  Footprints,
+  Waves,
+  Shirt,
+  Utensils,
+  Apple,
+  Moon,
+  Activity,
+  Scale,
+  BookOpen,
+  Gamepad2,
+  Monitor,
+  Music,
+  Users,
+  Brain,
+  Dumbbell,
+  TreePine,
+  Palette,
+  Eye,
+  Wind,
+  Pill,
+  CheckCircle,
+  XCircle,
+  Bandage,
+  HelpCircle,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { IncidentCategory } from "../types/schema";
 
-export const CATEGORY_ICON: Record<IncidentCategory, string> = {
-  safety: "🛡️",
-  health_observation: "🩺",
-  adl: "🧍",
-  environment: "🏠",
-  service: "🛎️",
-  engagement: "🎯",
+// ---------------------------------------------------------
+// Category-level fallback icons
+// ---------------------------------------------------------
+export const CATEGORY_ICON: Record<IncidentCategory, LucideIcon> = {
+  safety: Shield,
+  health_observation: Stethoscope,
+  adl: User,
+  environment: Home,
+  service: Bell,
+  engagement: Zap,
 };
 
-// Union of all possible subtype strings (values across CATEGORY_TO_SUBTYPES)
-const subtypeValues: string[] = Array.from(
-  new Set(
-    (Object.keys(CATEGORY_TO_SUBTYPES) as IncidentCategory[]).flatMap(
-      (c) => CATEGORY_TO_SUBTYPES[c].values
-    )
-  )
-);
+// ---------------------------------------------------------
+// Subtype-specific icons (override category fallback)
+// ---------------------------------------------------------
+export const SUBTYPE_ICON: Record<string, LucideIcon> = {
+  // Hydration
+  hydration: Droplets,
+  water: Droplets,
 
-export const SUBTYPE_ICON: Record<string, string> = {
-  hydration: "💧",
-  falls: "⚠️",
-  transfer: "🤝",
-  ambulation_walk: "🚶",
-  bathing_hygiene: "🛁",
-  dressing_grooming: "👕",
-  feeding: "🍽️",
-  continence_bladder: "🚻",
-  continence_bowel: "🚽",
-  nutrition_meal: "🥗",
-  sleep_rest: "😴",
-  toileting: "🚻",
-  vital_sign: "📊",
-  weight_entry: "⚖️",
-  reading: "📖",
-  video_game: "🎮",
-  tv_viewing: "📺",
-  music_listening: "🎵",
-  social_visit: "🗣️",
-  puzzle_brain: "🧩",
-  exercise_light: "🧘",
-  exercise_moderate: "🏃",
-  outdoor_walk: "🌳",
-  art_craft: "🎨",
+  // Sleep
+  sleep_rest: Moon,
+  rest: Moon,
+
+  // Nutrition
+  nutrition_meal: Apple,
+  feeding: Utensils,
+
+  // ADL / personal care
+  bathing_hygiene: Waves,
+  dressing_grooming: Shirt,
+  toileting: User,
+  continence_bladder: User,
+  continence_bowel: User,
+
+  // Mobility
+  transfer: ArrowLeftRight,
+  ambulation_walk: Footprints,
+
+  // Health observations
+  vital_sign: Activity,
+  weight_entry: Scale,
+  glucose_value: Droplet,
+  breathing_difficulty: Wind,
+
+  // Behaviour / cognition
+  behaviour_change: Brain,
+  confusion: HelpCircle,
+  hallucination: Eye,
+  challenging_behaviour: Brain,
+
+  // Safety / incidents
+  falls: AlertTriangle,
+  fall: AlertTriangle,
+  abrasion: Bandage,
+  laceration: Bandage,
+  medication_error: AlertCircle,
+
+  // Medication service
+  other: Pill,
+
+  // Engagement / activities
+  reading: BookOpen,
+  video_game: Gamepad2,
+  tv_viewing: Monitor,
+  music_listening: Music,
+  social_visit: Users,
+  puzzle_brain: Brain,
+  exercise_light: Dumbbell,
+  exercise_moderate: Dumbbell,
+  outdoor_walk: TreePine,
+  art_craft: Palette,
+  general_activity: Zap,
+
+  // Medication outcomes
+  medication_administered: CheckCircle,
+  medication_refused: XCircle,
 };
 
-// Allow all known subtypes to have at least a fallback mapping (dot if absent)
-subtypeValues.forEach((s) => {
-  if (!SUBTYPE_ICON[s]) SUBTYPE_ICON[s] = "•";
-});
-
+// ---------------------------------------------------------
+// Render helper — returns a React element (works in .ts via React.createElement)
+// ---------------------------------------------------------
 export function iconFor(
   category?: IncidentCategory | string | null,
-  subtype?: string | null
-) {
-  if (subtype && SUBTYPE_ICON[subtype] && SUBTYPE_ICON[subtype] !== "•")
-    return SUBTYPE_ICON[subtype];
-  if (category && CATEGORY_ICON[category as IncidentCategory])
-    return CATEGORY_ICON[category as IncidentCategory];
-  return "•";
+  subtype?: string | null,
+  size = 24,
+): React.ReactNode {
+  const Icon: LucideIcon | undefined =
+    (subtype ? SUBTYPE_ICON[subtype] : undefined) ||
+    (category ? CATEGORY_ICON[category as IncidentCategory] : undefined);
+
+  if (!Icon) return null;
+  return React.createElement(Icon, { size, strokeWidth: 1.8 });
 }
 
 export function a11yLabel(category?: string | null, subtype?: string | null) {

@@ -19,7 +19,7 @@ import {
   saveQuickActions,
 } from "./QuickActionsManager";
 
-type Phase = "browse" | "category" | "confirm";
+type Phase = "browse" | "confirm";
 type MainCategory = UiCareCategoryId;
 
 const FOOD_SUGGESTIONS = [
@@ -122,6 +122,7 @@ export function ActivityForm() {
 
   const [quickActions, setQuickActions] = useState<QuickAction[]>([]);
   const [showManager, setShowManager] = useState(false);
+  const [hoveredQuickIdx, setHoveredQuickIdx] = useState<number | null>(null);
 
   // Client selection
   const [clients, setClients] = useState<
@@ -145,7 +146,7 @@ export function ActivityForm() {
     [selectedSubtypeGroups],
   );
   const isHydration = subtype === "hydration";
-  const isNutrition = subtype === "nutrition_meal" || subtype === "feeding";
+  const isNutrition = isNutritionSubtype(subtype);
   const isIncident = mainCategory === "incident";
   const showAssistance = category === "adl";
 
@@ -202,40 +203,56 @@ export function ActivityForm() {
   }
 
   function applySubtypeSelection(item: UiCareSubtypeItem, label?: string) {
-    setCategory(item.category);
-    setSubtype(item.subtype);
-    setSubtypeValue(null);
-    setSelectedSubtypeLabel(label || item.label || formatSubtype(item.subtype));
-    setSubtypeDetailsPreset(item.detailsPreset || null);
-    if (typeof item.detailsPreset?.fluid_type === "string") {
-      setFluidType(item.detailsPreset.fluid_type);
+    const nextSubtype = item.subtype;
+    const nextCategory = item.category;
+    const currentIsNutrition = isNutritionSubtype(subtype);
+    const nextIsNutrition = isNutritionSubtype(nextSubtype);
+    const isSameHydrationSubtype =
+      subtype === "hydration" && nextSubtype === "hydration";
+    const isSameNutritionFamily = currentIsNutrition && nextIsNutrition;
+    const subtypeChanged = nextSubtype !== subtype || nextCategory !== category;
+    const preserveOptionSelection =
+      !subtypeChanged || isSameNutritionFamily || isSameHydrationSubtype;
+
+    if (!isSameHydrationSubtype) {
+      setHydrationValues([]);
     }
+    if (!isSameNutritionFamily) {
+      setFoodType("");
+    }
+    if (!preserveOptionSelection) {
+      setSubtypeValue(null);
+    }
+    if (subtypeChanged) {
+      setAssistanceLevel("");
+    }
+
+    setCategory(item.category);
+    setSubtype(nextSubtype);
+    setSelectedSubtypeLabel(label || item.label || formatSubtype(nextSubtype));
+    setSubtypeDetailsPreset(item.detailsPreset || null);
+    if (nextSubtype === "hydration") {
+      if (typeof item.detailsPreset?.fluid_type === "string") {
+        setFluidType(item.detailsPreset.fluid_type);
+      } else if (!isSameHydrationSubtype) {
+        setFluidType("");
+      }
+    } else {
+      setFluidType("");
+    }
+    setMessage(null);
+    setMessageTone(null);
   }
 
   function pickMainCategory(id: MainCategory) {
     const meta = CARE_UI_CATEGORIES.find((c) => c.id === id);
     if (!meta) return;
     const items = meta.groups.flatMap((group) => group.items);
+    const firstItem = items[0];
+    if (!firstItem) return;
     setMainCategory(id);
-    setSubtypeValue(null);
-    setHydrationValues([]);
-    setFluidType("");
-    setFoodType("");
-    setSelectedSubtypeLabel(null);
-    setSubtypeDetailsPreset(null);
-    setAssistanceLevel("");
-    setMessage(null);
-    setMessageTone(null);
-
-    if (items.length === 1) {
-      applySubtypeSelection(items[0]);
-      setPhase("confirm");
-      return;
-    }
-
-    setCategory(null);
-    setSubtype(null);
-    setPhase("category");
+    applySubtypeSelection(firstItem);
+    setPhase("confirm");
   }
 
   function pickQuickAction(action: QuickAction) {
@@ -292,7 +309,6 @@ export function ActivityForm() {
 
   function pickSubtype(item: UiCareSubtypeItem) {
     applySubtypeSelection(item);
-    setPhase("confirm");
   }
 
   function isInQuickActions(item: UiCareSubtypeItem): boolean {
@@ -483,19 +499,15 @@ export function ActivityForm() {
   // Go back one step
   function goBack() {
     if (phase === "confirm") {
-      if (selectedSubtypeItems.length > 1) {
-        setCategory(null);
-        setSubtype(null);
-        setSubtypeValue(null);
-        setSelectedSubtypeLabel(null);
-        setSubtypeDetailsPreset(null);
-        setPhase("category");
-      } else {
-        resetAll();
-      }
-    } else if (phase === "category") {
       resetAll();
     }
+  }
+
+  function removeQuickAction(idx: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    const newActions = quickActions.filter((_, i) => i !== idx);
+    setQuickActions(newActions);
+    saveQuickActions(newActions);
   }
 
   const hydrationTotal = useMemo(() => {
@@ -510,6 +522,7 @@ export function ActivityForm() {
       : t("labels.category");
   const displaySubtypeLabel =
     selectedSubtypeLabel || (subtype ? formatSubtype(subtype) : null);
+  const hasSubtypeChoices = selectedSubtypeItems.length > 1;
   const subcategorySectionLabel = isIncident
     ? t("sections.incident_types")
     : "Subcategories";
@@ -574,24 +587,40 @@ export function ActivityForm() {
               <div style={sectionLabel}>{t("sections.quick_actions")}</div>
               <div style={quickGrid}>
                 {quickActions.map((q, idx) => (
-                  <button
+                  <div
                     key={`${q.category}-${q.subtype}-${idx}`}
-                    style={quickCard(q.category)}
-                    onClick={() => pickQuickAction(q)}
-                    aria-label={`${q.label} ${t("aria.quick_action")}`}
+                    style={{ position: "relative" }}
+                    onMouseEnter={() => setHoveredQuickIdx(idx)}
+                    onMouseLeave={() => setHoveredQuickIdx(null)}
                   >
-                    <span
-                      style={iconBadge(q.category)}
-                      role="img"
-                      aria-label={a11yLabel(q.category, q.subtype)}
+                    <button
+                      style={{ ...quickCard(q.category), width: "100%" }}
+                      onClick={() => pickQuickAction(q)}
+                      aria-label={`${q.label} ${t("aria.quick_action")}`}
                     >
-                      {iconFor(q.category, q.subtype)}
-                    </span>
-                    <div>
-                      <span style={cardTitle}>{q.label}</span>
-                      <div style={cardSub}>{formatCategory(q.category)}</div>
-                    </div>
-                  </button>
+                      <span
+                        style={iconBadge(q.category)}
+                        role="img"
+                        aria-label={a11yLabel(q.category, q.subtype)}
+                      >
+                        {iconFor(q.category, q.subtype)}
+                      </span>
+                      <div style={{ minWidth: 0, overflow: "hidden" }}>
+                        <span style={cardTitle}>{q.label}</span>
+                        <div style={cardSub}>{formatCategory(q.category)}</div>
+                      </div>
+                    </button>
+                    {hoveredQuickIdx === idx && (
+                      <button
+                        onClick={(e) => removeQuickAction(idx, e)}
+                        style={quickDeleteBtn}
+                        aria-label={`Remove ${q.label} from quick actions`}
+                        title="Remove from quick actions"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             </>
@@ -602,6 +631,7 @@ export function ActivityForm() {
               const firstItem = c.groups[0]?.items[0];
               return (
                 <button
+                  type="button"
                   key={c.id}
                   style={mainCategoryCard(c.id)}
                   onClick={() => pickMainCategory(c.id)}
@@ -614,7 +644,7 @@ export function ActivityForm() {
                   >
                     {iconFor(c.iconCategory, firstItem?.subtype)}
                   </span>
-                  <div>
+                  <div style={{ minWidth: 0, overflow: "hidden" }}>
                     <span style={cardTitle}>{c.label}</span>
                     <div style={cardSub}>{c.subtitle}</div>
                   </div>
@@ -623,67 +653,6 @@ export function ActivityForm() {
             })}
           </div>
         </>
-      )}
-
-      {phase === "category" && selectedMainCategory && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          {clientSelector}
-          <div style={sectionLabel}>{subcategorySectionLabel}</div>
-          {selectedMainCategory.groups.map((group) => (
-            <div
-              key={group.label}
-              style={{ display: "flex", flexDirection: "column", gap: 10 }}
-            >
-              <div style={groupLabel}>{group.label}</div>
-              <div style={grid}>
-                {group.items.map((item) => {
-                  const isInQuick = isInQuickActions(item);
-                  return (
-                    <button
-                      key={`${group.label}-${item.subtype}-${item.label}-${item.category}`}
-                      style={incidentCard(
-                        subtype === item.subtype &&
-                          category === item.category &&
-                          selectedSubtypeLabel === item.label,
-                      )}
-                      onClick={() => pickSubtype(item)}
-                      aria-label={
-                        isIncident
-                          ? `${t("aria.pick_incident")} ${item.label}`
-                          : `${t("aria.select")} ${item.label}`
-                      }
-                    >
-                      <button
-                        style={starButton(isInQuick)}
-                        onClick={(e) => toggleQuickAction(item, e)}
-                        aria-label={
-                          isInQuick
-                            ? t("aria.remove_from_quick_log")
-                            : t("aria.add_to_quick_log")
-                        }
-                        title={
-                          isInQuick
-                            ? t("aria.remove_from_quick_log")
-                            : t("aria.add_to_quick_log")
-                        }
-                      >
-                        {isInQuick ? "★" : "☆"}
-                      </button>
-                      <span
-                        style={iconBadge(item.category)}
-                        role="img"
-                        aria-label={a11yLabel(item.category, item.subtype)}
-                      >
-                        {iconFor(item.category, item.subtype)}
-                      </span>
-                      <span style={cardTitle}>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
       )}
 
       {phase === "confirm" && category && (
@@ -705,6 +674,72 @@ export function ActivityForm() {
               )}
             </div>
           </div>
+
+          {selectedMainCategory && hasSubtypeChoices && (
+            <div style={subtypeSelectorSection}>
+              <div style={sectionLabel}>{subcategorySectionLabel}</div>
+              {selectedMainCategory.groups.map((group) => (
+                <div
+                  key={group.label}
+                  style={{ display: "flex", flexDirection: "column", gap: 10 }}
+                >
+                  <div style={groupLabel}>{group.label}</div>
+                  <div style={subtypeGrid}>
+                    {group.items.map((item) => {
+                      const isSelected =
+                        subtype === item.subtype &&
+                        category === item.category &&
+                        selectedSubtypeLabel === item.label;
+                      const isInQuick = isInQuickActions(item);
+                      return (
+                        <div
+                          key={`${group.label}-${item.subtype}-${item.label}-${item.category}`}
+                          style={subtypeCardWrap}
+                        >
+                          <button
+                            type="button"
+                            style={subtypeCard(isSelected)}
+                            onClick={() => pickSubtype(item)}
+                            aria-label={
+                              isIncident
+                                ? `${t("aria.pick_incident")} ${item.label}`
+                                : `${t("aria.select")} ${item.label}`
+                            }
+                          >
+                            <span
+                              style={compactIconBadge(item.category)}
+                              role="img"
+                              aria-label={a11yLabel(item.category, item.subtype)}
+                            >
+                              {iconFor(item.category, item.subtype, 20)}
+                            </span>
+                            <span style={subtypeCardLabel}>{item.label}</span>
+                          </button>
+                          <button
+                            type="button"
+                            style={starButton(isInQuick)}
+                            onClick={(e) => toggleQuickAction(item, e)}
+                            aria-label={
+                              isInQuick
+                                ? t("aria.remove_from_quick_log")
+                                : t("aria.add_to_quick_log")
+                            }
+                            title={
+                              isInQuick
+                                ? t("aria.remove_from_quick_log")
+                                : t("aria.add_to_quick_log")
+                            }
+                          >
+                            {isInQuick ? "★" : "☆"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {clientSelector}
 
@@ -914,6 +949,9 @@ function formatCategory(s: string) {
   return s.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
 const formatSubtype = formatCategory;
+function isNutritionSubtype(value: string | null) {
+  return value === "nutrition_meal" || value === "feeding";
+}
 
 function formattedTime(iso: string) {
   const d = new Date(iso);
@@ -1054,6 +1092,7 @@ const mainCategoryCard = (cat: MainCategory): React.CSSProperties => {
     textAlign: "left",
     cursor: "pointer",
     minHeight: 90,
+    overflow: "hidden",
     transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
     boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)",
   };
@@ -1078,9 +1117,31 @@ const quickCard = (cat: IncidentCategory): React.CSSProperties => {
     textAlign: "left",
     cursor: "pointer",
     minHeight: 90,
+    overflow: "hidden",
     boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
     transition: "all 0.2s ease",
   };
+};
+
+const quickDeleteBtn: React.CSSProperties = {
+  position: "absolute",
+  top: 6,
+  right: 6,
+  width: 22,
+  height: 22,
+  borderRadius: "50%",
+  border: "none",
+  background: "rgba(0,0,0,0.55)",
+  color: "#fff",
+  fontSize: 14,
+  lineHeight: "22px",
+  textAlign: "center",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  zIndex: 10,
 };
 
 const incidentCard = (isSelected = false): React.CSSProperties => {
@@ -1102,6 +1163,43 @@ const incidentCard = (isSelected = false): React.CSSProperties => {
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
     position: "relative",
   };
+};
+
+const subtypeSelectorSection: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 18,
+};
+
+const subtypeGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))",
+  gap: 14,
+};
+
+const subtypeCardWrap: React.CSSProperties = {
+  position: "relative",
+};
+
+const subtypeCard = (isSelected = false): React.CSSProperties => ({
+  ...incidentCard(isSelected),
+  width: "100%",
+  minHeight: 78,
+  paddingRight: 52,
+});
+
+const compactIconBadge = (cat: IncidentCategory): React.CSSProperties => ({
+  ...iconBadge(cat),
+  width: 40,
+  height: 40,
+  borderRadius: 12,
+});
+
+const subtypeCardLabel: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 600,
+  color: "#1A1A1A",
+  lineHeight: 1.35,
 };
 
 const starButton = (isActive: boolean): React.CSSProperties => {
@@ -1148,11 +1246,16 @@ const cardTitle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 600,
   color: "#1A1A1A",
+  display: "block",
+  wordBreak: "break-word",
+  overflowWrap: "break-word",
 };
 
 const cardSub: React.CSSProperties = {
   fontSize: 14,
   color: "#4A4A4A",
+  wordBreak: "break-word",
+  overflowWrap: "break-word",
 };
 
 const categoryRow: React.CSSProperties = {

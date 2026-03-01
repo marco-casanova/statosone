@@ -97,26 +97,37 @@ describe("ActivityForm", () => {
     ).toBeInTheDocument();
   });
 
-  test("hydration -> confirm flow", () => {
+  test("hydration category opens detail view immediately", () => {
     render(<ActivityForm />);
     const categoryBtn = screen.getByRole("button", {
       name: /Select Hydration categories/i,
     });
     fireEvent.click(categoryBtn);
-    fireEvent.click(screen.getByRole("button", { name: /Select Water/i }));
-    // Confirm phase shows Save button
     expect(screen.getByRole("button", { name: /Save/i })).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Water")).toBeInTheDocument();
   });
 
-  test("incident -> subtype -> confirm flow", () => {
+  test("switching subcategory inside detail updates the preset", () => {
+    render(<ActivityForm />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select Hydration categories/i }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select Juice/i }),
+    );
+    expect(screen.getByDisplayValue("Juice")).toBeInTheDocument();
+  });
+
+  test("incident category opens detail and still allows subtype switching", () => {
     render(<ActivityForm />);
     fireEvent.click(
       screen.getByRole("button", { name: /Select Incident categories/i }),
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Pick incident Fall/i }),
-    );
     expect(screen.getByRole("button", { name: /Save/i })).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Pick incident Abrasion/i }),
+    );
+    expect(screen.getAllByText("Abrasion").length).toBeGreaterThan(0);
   });
 
   test("icon aria-label present in confirm phase", () => {
@@ -124,9 +135,9 @@ describe("ActivityForm", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /Select Hydration categories/i }),
     );
-    fireEvent.click(screen.getByRole("button", { name: /Select Water/i }));
-    // Find the icon by role=img
-    const icon = screen.getByRole("img", { name: /hydration \(adl\) icon/i });
-    expect(icon).toBeInTheDocument();
+    const icons = screen.getAllByRole("img", {
+      name: /hydration \(adl\) icon/i,
+    });
+    expect(icons.length).toBeGreaterThan(0);
   });
 });
