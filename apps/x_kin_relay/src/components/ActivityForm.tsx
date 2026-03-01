@@ -107,6 +107,9 @@ export function ActivityForm() {
   const [assistanceLevel, setAssistanceLevel] = useState("");
   const [fluidType, setFluidType] = useState("");
   const [foodType, setFoodType] = useState("");
+  const [selectedIncidentIssueKeys, setSelectedIncidentIssueKeys] = useState<
+    string[]
+  >([]);
   const [selectedSubtypeLabel, setSelectedSubtypeLabel] = useState<
     string | null
   >(null);
@@ -144,6 +147,13 @@ export function ActivityForm() {
   const selectedSubtypeItems = useMemo(
     () => selectedSubtypeGroups.flatMap((group) => group.items),
     [selectedSubtypeGroups],
+  );
+  const selectedIncidentIssueItems = useMemo(
+    () =>
+      selectedSubtypeItems.filter((item) =>
+        selectedIncidentIssueKeys.includes(incidentIssueKey(item)),
+      ),
+    [selectedIncidentIssueKeys, selectedSubtypeItems],
   );
   const isHydration = subtype === "hydration";
   const isNutrition = isNutritionSubtype(subtype);
@@ -195,11 +205,26 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
+    setSelectedIncidentIssueKeys([]);
     setSelectedSubtypeLabel(null);
     setSubtypeDetailsPreset(null);
     setMessage(null);
     setMessageTone(null);
     setRecentExpanded(false);
+  }
+
+  function clearActiveSubtypeSelection() {
+    setCategory(null);
+    setSubtype(null);
+    setSubtypeValue(null);
+    setHydrationValues([]);
+    setAssistanceLevel("");
+    setFluidType("");
+    setFoodType("");
+    setSelectedSubtypeLabel(null);
+    setSubtypeDetailsPreset(null);
+    setMessage(null);
+    setMessageTone(null);
   }
 
   function applySubtypeSelection(item: UiCareSubtypeItem, label?: string) {
@@ -251,6 +276,12 @@ export function ActivityForm() {
     const firstItem = items[0];
     if (!firstItem) return;
     setMainCategory(id);
+    setSelectedIncidentIssueKeys([]);
+    if (id === "incident") {
+      clearActiveSubtypeSelection();
+      setPhase("confirm");
+      return;
+    }
     applySubtypeSelection(firstItem);
     setPhase("confirm");
   }
@@ -282,12 +313,16 @@ export function ActivityForm() {
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
+    setSelectedIncidentIssueKeys([]);
     setAssistanceLevel("");
     setMessage(null);
     setMessageTone(null);
 
     if (matchedMain && matchedItem) {
       setMainCategory(matchedMain.id);
+      if (matchedMain.id === "incident") {
+        setSelectedIncidentIssueKeys([incidentIssueKey(matchedItem)]);
+      }
       applySubtypeSelection(
         {
           ...matchedItem,
@@ -308,6 +343,36 @@ export function ActivityForm() {
   }
 
   function pickSubtype(item: UiCareSubtypeItem) {
+    if (isIncident) {
+      const issueKey = incidentIssueKey(item);
+      const isSelected = selectedIncidentIssueKeys.includes(issueKey);
+
+      if (isSelected) {
+        const nextKeys = selectedIncidentIssueKeys.filter((key) => key !== issueKey);
+        setSelectedIncidentIssueKeys(nextKeys);
+
+        if (
+          subtype === item.subtype &&
+          category === item.category &&
+          selectedSubtypeLabel === item.label
+        ) {
+          const nextItem = selectedSubtypeItems.find((candidate) =>
+            nextKeys.includes(incidentIssueKey(candidate)),
+          );
+          if (nextItem) {
+            applySubtypeSelection(nextItem);
+          } else {
+            clearActiveSubtypeSelection();
+          }
+        }
+        return;
+      }
+
+      setSelectedIncidentIssueKeys([...selectedIncidentIssueKeys, issueKey]);
+      applySubtypeSelection(item);
+      return;
+    }
+
     applySubtypeSelection(item);
   }
 
@@ -401,8 +466,9 @@ export function ActivityForm() {
   }
 
   async function save() {
+    const hasIncidentIssueSelection = selectedIncidentIssueItems.length > 0;
     if (!category) return;
-    if (!subtype) {
+    if ((isIncident && !hasIncidentIssueSelection) || !subtype) {
       setMessage(t("messages.pick_incident_type"));
       setMessageTone("error");
       return;
@@ -459,6 +525,13 @@ export function ActivityForm() {
       if (selectedSubtypeLabel) {
         details.subcategory_label = selectedSubtypeLabel;
       }
+      if (isIncident && selectedIncidentIssueItems.length) {
+        details.issue_types = selectedIncidentIssueItems.map((item) => ({
+          label: item.label,
+          subtype: item.subtype,
+          category: item.category,
+        }));
+      }
 
       if (Object.keys(details).length) payload.details = details;
 
@@ -494,7 +567,9 @@ export function ActivityForm() {
     }
   }
 
-  const canConfirm = !!category && !!subtype;
+  const canConfirm = isIncident
+    ? selectedIncidentIssueItems.length > 0 && !!category && !!subtype
+    : !!category && !!subtype;
 
   // Go back one step
   function goBack() {
@@ -521,8 +596,15 @@ export function ActivityForm() {
       ? formatCategory(category)
       : t("labels.category");
   const displaySubtypeLabel =
-    selectedSubtypeLabel || (subtype ? formatSubtype(subtype) : null);
+    isIncident && selectedIncidentIssueItems.length > 1
+      ? `${selectedIncidentIssueItems.length} issue types selected`
+      : selectedSubtypeLabel || (subtype ? formatSubtype(subtype) : null);
   const hasSubtypeChoices = selectedSubtypeItems.length > 1;
+  const showSubtypeSelector =
+    !!selectedMainCategory && hasSubtypeChoices && !isIncident;
+  const showIncidentIssueType = isIncident && hasSubtypeChoices;
+  const displayIconCategory =
+    category || selectedMainCategory?.iconCategory || "safety";
   const subcategorySectionLabel = isIncident
     ? t("sections.incident_types")
     : "Subcategories";
@@ -655,15 +737,15 @@ export function ActivityForm() {
         </>
       )}
 
-      {phase === "confirm" && category && (
+      {phase === "confirm" && (category || isIncident) && (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={categoryRow}>
             <span
-              style={iconBadge(category)}
+              style={iconBadge(displayIconCategory)}
               role="img"
-              aria-label={a11yLabel(category, subtype || undefined)}
+              aria-label={a11yLabel(displayIconCategory, subtype || undefined)}
             >
-              {iconFor(category, subtype)}
+              {iconFor(displayIconCategory, subtype)}
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <div style={categoryTitle}>
@@ -675,7 +757,51 @@ export function ActivityForm() {
             </div>
           </div>
 
-          {selectedMainCategory && hasSubtypeChoices && (
+          {clientSelector}
+
+          <label style={miniLabel}>{t("labels.observed_at")}</label>
+          <input
+            type="datetime-local"
+            value={observedAt}
+            onChange={(e) => setObservedAt(e.target.value)}
+            style={input}
+            aria-label={t("labels.observed_at")}
+          />
+
+          {showIncidentIssueType && (
+            <>
+              <label style={miniLabel}>Issue type</label>
+              <div style={optionGrid}>
+                {selectedSubtypeItems.map((item) => {
+                  const isSelected = selectedIncidentIssueKeys.includes(
+                    incidentIssueKey(item),
+                  );
+                  return (
+                    <button
+                      key={`incident-issue-${item.category}-${item.subtype}-${item.label}`}
+                      type="button"
+                      onClick={() => pickSubtype(item)}
+                      style={{
+                        ...optionBtn,
+                        background: isSelected
+                          ? "rgba(108, 124, 255, 0.25)"
+                          : "rgba(15, 23, 42, 0.04)",
+                        borderColor: isSelected
+                          ? "#6C7CFF"
+                          : "rgba(15, 23, 42, 0.12)",
+                      }}
+                      aria-label={`${t("aria.pick_incident")} ${item.label}`}
+                      aria-pressed={isSelected}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {showSubtypeSelector && (
             <div style={subtypeSelectorSection}>
               <div style={sectionLabel}>{subcategorySectionLabel}</div>
               {selectedMainCategory.groups.map((group) => (
@@ -700,11 +826,7 @@ export function ActivityForm() {
                             type="button"
                             style={subtypeCard(isSelected)}
                             onClick={() => pickSubtype(item)}
-                            aria-label={
-                              isIncident
-                                ? `${t("aria.pick_incident")} ${item.label}`
-                                : `${t("aria.select")} ${item.label}`
-                            }
+                            aria-label={`${t("aria.select")} ${item.label}`}
                           >
                             <span
                               style={compactIconBadge(item.category)}
@@ -741,17 +863,6 @@ export function ActivityForm() {
             </div>
           )}
 
-          {clientSelector}
-
-          <label style={miniLabel}>{t("labels.observed_at")}</label>
-          <input
-            type="datetime-local"
-            value={observedAt}
-            onChange={(e) => setObservedAt(e.target.value)}
-            style={input}
-            aria-label={t("labels.observed_at")}
-          />
-
           {showAssistance && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -776,7 +887,7 @@ export function ActivityForm() {
             </>
           )}
 
-          {subtype && SUBTYPE_OPTIONS[subtype] && (
+          {!isIncident && subtype && SUBTYPE_OPTIONS[subtype] && (
             <>
               <label style={miniLabel}>{getOptionLabel(subtype)}</label>
               {isHydration && (
@@ -949,6 +1060,9 @@ function formatCategory(s: string) {
   return s.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
 const formatSubtype = formatCategory;
+function incidentIssueKey(item: UiCareSubtypeItem) {
+  return `${item.category}::${item.subtype}::${item.label}`;
+}
 function isNutritionSubtype(value: string | null) {
   return value === "nutrition_meal" || value === "feeding";
 }

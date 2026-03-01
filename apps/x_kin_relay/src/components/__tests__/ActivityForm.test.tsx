@@ -123,14 +123,17 @@ describe("ActivityForm", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /Select Incident categories/i }),
     );
-    expect(screen.getByRole("button", { name: /Save/i })).toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole("button", { name: /Pick incident Abrasion/i }),
-    );
-    expect(screen.getAllByText("Abrasion").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled();
+    expect(screen.getByText("Issue type")).toBeInTheDocument();
+    const abrasionButton = screen.getByRole("button", {
+      name: /Pick incident Abrasion/i,
+    });
+    fireEvent.click(abrasionButton);
+    expect(abrasionButton).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /Save/i })).not.toBeDisabled();
   });
 
-  test("incident includes the new grouped subtype catalog and options", () => {
+  test("incident includes the new grouped subtype catalog without severity options", () => {
     render(<ActivityForm />);
     fireEvent.click(
       screen.getByRole("button", { name: /Select Incident categories/i }),
@@ -143,21 +146,25 @@ describe("ActivityForm", () => {
       screen.getByRole("button", { name: /Pick incident Sleep apnea/i }),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: /Pick incident Medication error/i }),
-    );
-    expect(screen.getByRole("button", { name: "Missed dose" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Overdose" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Wrong med" })).toBeInTheDocument();
-
-    fireEvent.click(
-      screen.getByRole("button", { name: /Pick incident Environment hazard/i }),
-    );
-    expect(screen.getByRole("button", { name: "Chemicals" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Flooring" })).toBeInTheDocument();
+    const coughButton = screen.getByRole("button", {
+      name: /Pick incident Cough/i,
+    });
+    const sleepApneaButton = screen.getByRole("button", {
+      name: /Pick incident Sleep apnea/i,
+    });
+    fireEvent.click(coughButton);
+    fireEvent.click(sleepApneaButton);
+    expect(coughButton).toHaveAttribute("aria-pressed", "true");
+    expect(sleepApneaButton).toHaveAttribute("aria-pressed", "true");
     expect(
-      screen.getByRole("button", { name: "Infestation" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Needs review" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Missed dose" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Chemicals" }),
+    ).not.toBeInTheDocument();
   });
 
   test("icon aria-label present in confirm phase", () => {
