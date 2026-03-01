@@ -120,6 +120,8 @@ export function ActivityForm() {
   const [selectedIncidentIssueKeys, setSelectedIncidentIssueKeys] = useState<
     string[]
   >([]);
+  const [openIncidentGroups, setOpenIncidentGroups] = useState<string[]>([]);
+  const [incidentIssueFilter, setIncidentIssueFilter] = useState("");
   const [selectedSubtypeLabel, setSelectedSubtypeLabel] = useState<
     string | null
   >(null);
@@ -158,6 +160,31 @@ export function ActivityForm() {
     () => selectedSubtypeGroups.flatMap((group) => group.items),
     [selectedSubtypeGroups],
   );
+  const isHydration = subtype === "hydration";
+  const isNutrition = isNutritionSubtype(subtype);
+  const isIncident = mainCategory === "incident";
+  const filteredIncidentGroups = useMemo(() => {
+    if (!isIncident || !selectedMainCategory) {
+      return [];
+    }
+    const query = incidentIssueFilter.trim().toLowerCase();
+    if (!query) {
+      return selectedMainCategory.groups;
+    }
+    return selectedMainCategory.groups
+      .map((group) => {
+        const matchesGroup = group.label.toLowerCase().includes(query);
+        return {
+          ...group,
+          items: matchesGroup
+            ? group.items
+            : group.items.filter((item) =>
+                item.label.toLowerCase().includes(query),
+              ),
+        };
+      })
+      .filter((group) => group.items.length > 0);
+  }, [incidentIssueFilter, isIncident, selectedMainCategory]);
   const selectedIncidentIssueItems = useMemo(
     () =>
       selectedSubtypeItems.filter((item) =>
@@ -174,9 +201,6 @@ export function ActivityForm() {
       ),
     [selectedIncidentIssueItems],
   );
-  const isHydration = subtype === "hydration";
-  const isNutrition = isNutritionSubtype(subtype);
-  const isIncident = mainCategory === "incident";
   const showAssistance = category === "adl";
   const showBodyLocationPicker =
     isIncident && selectedIncidentBodyMapItems.length > 0;
@@ -224,6 +248,36 @@ export function ActivityForm() {
     }
   }, [bodyLocations.length, showBodyLocationPicker]);
 
+  useEffect(() => {
+    if (!isIncident || !selectedMainCategory) {
+      setOpenIncidentGroups([]);
+      setIncidentIssueFilter("");
+      return;
+    }
+    setOpenIncidentGroups(
+      selectedMainCategory.groups.slice(0, 2).map((group) => group.label),
+    );
+    setIncidentIssueFilter("");
+  }, [isIncident, selectedMainCategory]);
+
+  useEffect(() => {
+    if (!isIncident) {
+      return;
+    }
+    if (filteredIncidentGroups.length === 0) {
+      setOpenIncidentGroups([]);
+      return;
+    }
+    setOpenIncidentGroups((prev) => {
+      const available = new Set(filteredIncidentGroups.map((group) => group.label));
+      const retained = prev.filter((label) => available.has(label));
+      if (retained.length > 0) {
+        return retained;
+      }
+      return [filteredIncidentGroups[0].label];
+    });
+  }, [filteredIncidentGroups, isIncident]);
+
   function resetAll() {
     setPhase("browse");
     setMainCategory(null);
@@ -238,6 +292,8 @@ export function ActivityForm() {
     setBodyLocations([]);
     setShowBodyMapDialog(false);
     setSelectedIncidentIssueKeys([]);
+    setOpenIncidentGroups([]);
+    setIncidentIssueFilter("");
     setSelectedSubtypeLabel(null);
     setSubtypeDetailsPreset(null);
     setMessage(null);
@@ -348,6 +404,8 @@ export function ActivityForm() {
     setBodyLocations([]);
     setShowBodyMapDialog(false);
     setSelectedIncidentIssueKeys([]);
+    setOpenIncidentGroups([]);
+    setIncidentIssueFilter("");
     setAssistanceLevel("");
     setMessage(null);
     setMessageTone(null);
@@ -378,6 +436,16 @@ export function ActivityForm() {
 
   function pickSubtype(item: UiCareSubtypeItem) {
     if (isIncident) {
+      const issueGroupLabel = selectedMainCategory?.groups.find((group) =>
+        group.items.some(
+          (candidate) => incidentIssueKey(candidate) === incidentIssueKey(item),
+        ),
+      )?.label;
+      if (issueGroupLabel) {
+        setOpenIncidentGroups((prev) =>
+          prev.includes(issueGroupLabel) ? prev : [...prev, issueGroupLabel],
+        );
+      }
       const issueKey = incidentIssueKey(item);
       const isSelected = selectedIncidentIssueKeys.includes(issueKey);
 
@@ -408,6 +476,10 @@ export function ActivityForm() {
     }
 
     applySubtypeSelection(item);
+  }
+
+  function toggleIncidentGroup(label: string) {
+    setOpenIncidentGroups((prev) => (prev.includes(label) ? [] : [label]));
   }
 
   function isInQuickActions(item: UiCareSubtypeItem): boolean {
@@ -561,6 +633,7 @@ export function ActivityForm() {
       }
       if (isIncident && selectedIncidentIssueItems.length) {
         details.issue_types = selectedIncidentIssueItems.map((item) => ({
+          key: incidentIssueKey(item),
           label: item.label,
           subtype: item.subtype,
           category: item.category,
@@ -808,56 +881,124 @@ export function ActivityForm() {
           {showIncidentIssueType && (
             <>
               <label style={miniLabel}>Issue type</label>
-              <div style={issueTypeGrid}>
-                {selectedSubtypeItems.map((item) => {
-                  const isSelected = selectedIncidentIssueKeys.includes(
-                    incidentIssueKey(item),
-                  );
-                  const supportsBodyMap = BODY_MAP_ENABLED_TYPES.includes(
-                    item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
-                  );
-                  return (
-                    <div
-                      key={`incident-issue-${item.category}-${item.subtype}-${item.label}`}
-                      style={issueTypeCardWrap}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => pickSubtype(item)}
-                        style={{
-                          ...optionBtn,
-                          ...issueTypeBtn,
-                          paddingRight:
-                            isSelected && supportsBodyMap ? 56 : optionBtn.padding,
-                          background: isSelected
-                            ? "rgba(108, 124, 255, 0.25)"
-                            : "rgba(15, 23, 42, 0.04)",
-                          borderColor: isSelected
-                            ? "#6C7CFF"
-                            : "rgba(15, 23, 42, 0.12)",
-                        }}
-                        aria-label={`${t("aria.pick_incident")} ${item.label}`}
-                        aria-pressed={isSelected}
-                      >
-                        {item.label}
-                      </button>
-                      {isSelected && supportsBodyMap && (
+              <div style={incidentFilterWrap}>
+                <input
+                  type="search"
+                  value={incidentIssueFilter}
+                  onChange={(e) => setIncidentIssueFilter(e.target.value)}
+                  placeholder="Filter issue types"
+                  aria-label="Filter issue types"
+                  style={incidentIssueFilterInput}
+                />
+              </div>
+              <div style={incidentAccordionList}>
+                {filteredIncidentGroups.length > 0 ? (
+                  filteredIncidentGroups.map((group) => {
+                    const isOpen = openIncidentGroups.includes(group.label);
+                    const selectedCount = group.items.filter((item) =>
+                      selectedIncidentIssueKeys.includes(incidentIssueKey(item)),
+                    ).length;
+                    const supportsBodyMap = group.items.some((item) =>
+                      BODY_MAP_ENABLED_TYPES.includes(
+                        item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
+                      ),
+                    );
+                    return (
+                      <section key={group.label} style={incidentAccordionCard}>
                         <button
                           type="button"
-                          style={bodyMapIconBtn}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setShowBodyMapDialog(true);
-                          }}
-                          aria-label={`Open body map for ${item.label}`}
-                          title={`Open body map for ${item.label}`}
+                          style={incidentAccordionHeader}
+                          onClick={() => toggleIncidentGroup(group.label)}
+                          aria-expanded={isOpen}
                         >
-                          <Accessibility size={16} strokeWidth={2.2} />
+                          <div style={incidentAccordionTitleWrap}>
+                            <span style={incidentAccordionTitle}>{group.label}</span>
+                            {supportsBodyMap && (
+                              <span style={incidentAccordionHint}>
+                                Body map available
+                              </span>
+                            )}
+                          </div>
+                          <div style={incidentAccordionMeta}>
+                            {selectedCount > 0 && (
+                              <span style={incidentAccordionCount}>
+                                {selectedCount} selected
+                              </span>
+                            )}
+                            <span style={incidentAccordionChevron}>
+                              {isOpen ? "−" : "+"}
+                            </span>
+                          </div>
                         </button>
-                      )}
-                    </div>
-                  );
-                })}
+                        {isOpen && (
+                          <div style={incidentAccordionBody}>
+                            {supportsBodyMap && (
+                              <div style={helperText}>
+                                Select an issue, then use the body icon to map the
+                                affected area.
+                              </div>
+                            )}
+                            <div style={issueTypeGrid}>
+                              {group.items.map((item) => {
+                                const isSelected = selectedIncidentIssueKeys.includes(
+                                  incidentIssueKey(item),
+                                );
+                                const itemSupportsBodyMap = BODY_MAP_ENABLED_TYPES.includes(
+                                  item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
+                                );
+                                return (
+                                  <div
+                                    key={`incident-issue-${incidentIssueKey(item)}`}
+                                    style={issueTypeCardWrap}
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={() => pickSubtype(item)}
+                                      style={{
+                                        ...optionBtn,
+                                        ...issueTypeBtn,
+                                        paddingRight:
+                                          isSelected && itemSupportsBodyMap
+                                            ? 56
+                                            : optionBtn.padding,
+                                        background: isSelected
+                                          ? "rgba(108, 124, 255, 0.25)"
+                                          : "rgba(15, 23, 42, 0.04)",
+                                        borderColor: isSelected
+                                          ? "#6C7CFF"
+                                          : "rgba(15, 23, 42, 0.12)",
+                                      }}
+                                      aria-label={`${t("aria.pick_incident")} ${item.label}`}
+                                      aria-pressed={isSelected}
+                                    >
+                                      {item.label}
+                                    </button>
+                                    {isSelected && itemSupportsBodyMap && (
+                                      <button
+                                        type="button"
+                                        style={bodyMapIconBtn}
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          setShowBodyMapDialog(true);
+                                        }}
+                                        aria-label={`Open body map for ${item.label}`}
+                                        title={`Open body map for ${item.label}`}
+                                      >
+                                        <Accessibility size={16} strokeWidth={2.2} />
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </section>
+                    );
+                  })
+                ) : (
+                  <div style={incidentEmptyState}>No issue types match this filter.</div>
+                )}
               </div>
               {showBodyLocationPicker && bodyLocations.length > 0 && (
                 <div style={bodyLocationChipSummary}>
@@ -1169,7 +1310,7 @@ function formatCategory(s: string) {
 }
 const formatSubtype = formatCategory;
 function incidentIssueKey(item: UiCareSubtypeItem) {
-  return `${item.category}::${item.subtype}::${item.label}`;
+  return item.itemKey || `${item.category}::${item.subtype}::${item.label}`;
 }
 function isNutritionSubtype(value: string | null) {
   return value === "nutrition_meal" || value === "feeding";
@@ -1592,8 +1733,109 @@ const optionGrid: React.CSSProperties = {
 
 const issueTypeGrid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
   gap: 10,
+};
+
+const incidentFilterWrap: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+};
+
+const incidentIssueFilterInput: React.CSSProperties = {
+  ...input,
+  minHeight: 48,
+  padding: "12px 14px",
+  fontSize: 15,
+};
+
+const incidentEmptyState: React.CSSProperties = {
+  fontSize: 14,
+  color: "#6B7280",
+  padding: "12px 4px",
+};
+
+const incidentAccordionList: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+};
+
+const incidentAccordionCard: React.CSSProperties = {
+  border: "1px solid rgba(15, 23, 42, 0.08)",
+  borderRadius: 16,
+  background: "rgba(255, 255, 255, 0.92)",
+  overflow: "hidden",
+};
+
+const incidentAccordionHeader: React.CSSProperties = {
+  width: "100%",
+  border: "none",
+  background: "rgba(248, 250, 252, 0.95)",
+  padding: "16px 18px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 16,
+  cursor: "pointer",
+  textAlign: "left",
+};
+
+const incidentAccordionTitleWrap: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  minWidth: 0,
+};
+
+const incidentAccordionTitle: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 700,
+  color: "#111827",
+  textTransform: "uppercase",
+  letterSpacing: 0.8,
+};
+
+const incidentAccordionHint: React.CSSProperties = {
+  fontSize: 12,
+  color: "#6B7280",
+};
+
+const incidentAccordionMeta: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  flexShrink: 0,
+};
+
+const incidentAccordionCount: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 700,
+  color: "#4F46E5",
+  background: "rgba(99, 102, 241, 0.12)",
+  borderRadius: 999,
+  padding: "6px 10px",
+};
+
+const incidentAccordionChevron: React.CSSProperties = {
+  width: 28,
+  height: 28,
+  borderRadius: "50%",
+  background: "rgba(15, 23, 42, 0.06)",
+  color: "#111827",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 18,
+  fontWeight: 600,
+};
+
+const incidentAccordionBody: React.CSSProperties = {
+  padding: 16,
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
 };
 
 const optionBtn: React.CSSProperties = {

@@ -125,46 +125,56 @@ describe("ActivityForm", () => {
     );
     expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled();
     expect(screen.getByText("Issue type")).toBeInTheDocument();
-    const abrasionButton = screen.getByRole("button", {
-      name: /Pick incident Abrasion/i,
+    const burnButton = screen.getByRole("button", {
+      name: /Pick incident Burn/i,
     });
-    fireEvent.click(abrasionButton);
-    expect(abrasionButton).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(burnButton);
+    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
+      target: { value: "pain" },
+    });
+    const painButton = screen.getByRole("button", {
+      name: /Pick incident Pain/i,
+    });
+    fireEvent.click(painButton);
+    expect(painButton).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText(/2 issue types selected/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Save/i })).not.toBeDisabled();
   });
 
-  test("incident includes the new grouped subtype catalog without severity options", () => {
+  test("incident groups are rendered as accordions with filterable issue types", () => {
     render(<ActivityForm />);
     fireEvent.click(
       screen.getByRole("button", { name: /Select Incident categories/i }),
     );
 
+    const skinChangeAccordion = screen.getByRole("button", {
+      name: /Skin change/i,
+    });
+    const respiratoryAccordion = screen.getByRole("button", {
+      name: /Respiratory/i,
+    });
+    const medicationAccordion = screen.getByRole("button", {
+      name: /Medication error/i,
+    });
+
+    expect(skinChangeAccordion).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByRole("button", { name: /Pick incident Burn/i }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(respiratoryAccordion);
+    expect(respiratoryAccordion).toHaveAttribute("aria-expanded", "true");
     expect(
       screen.getByRole("button", { name: /Pick incident Cough/i }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Pick incident Sleep apnea/i }),
-    ).toBeInTheDocument();
 
-    const coughButton = screen.getByRole("button", {
-      name: /Pick incident Cough/i,
+    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
+      target: { value: "wrong" },
     });
-    const sleepApneaButton = screen.getByRole("button", {
-      name: /Pick incident Sleep apnea/i,
-    });
-    fireEvent.click(coughButton);
-    fireEvent.click(sleepApneaButton);
-    expect(coughButton).toHaveAttribute("aria-pressed", "true");
-    expect(sleepApneaButton).toHaveAttribute("aria-pressed", "true");
+    expect(medicationAccordion).toHaveAttribute("aria-expanded", "true");
     expect(
-      screen.queryByRole("button", { name: "Needs review" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Missed dose" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Chemicals" }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /Pick incident Wrong medication/i }),
+    ).toBeInTheDocument();
   });
 
   test("body-location picker only shows for enabled incident types and clears when not relevant", () => {
@@ -173,6 +183,7 @@ describe("ActivityForm", () => {
       screen.getByRole("button", { name: /Select Incident categories/i }),
     );
 
+    fireEvent.click(screen.getByRole("button", { name: /Respiratory/i }));
     fireEvent.click(
       screen.getByRole("button", { name: /Pick incident Cough/i }),
     );
@@ -180,6 +191,7 @@ describe("ActivityForm", () => {
       screen.queryByRole("button", { name: /Open body map for Cough/i }),
     ).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: /Mobility/i }));
     const fallButton = screen.getByRole("button", { name: /Pick incident Fall/i });
     fireEvent.click(fallButton);
     fireEvent.click(

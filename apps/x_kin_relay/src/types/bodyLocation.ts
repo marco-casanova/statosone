@@ -41,14 +41,22 @@ export interface BodyLocation {
 export const BODY_MAP_ENABLED_TYPES = [
   "falls",
   "near_miss",
+  "pain",
+  "rash",
   "cut",
   "bruise",
   "burn",
+  "lump",
+  "pale",
+  "skin_breakdown",
+  "degloving",
   "abrasion",
   "laceration",
   "bites",
   "redness",
   "inflammation",
+  "tender_joint",
+  "spasm",
   "weakness",
 ] as const;
 

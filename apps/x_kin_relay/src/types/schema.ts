@@ -60,6 +60,11 @@ export type ObservationSubtype =
   | "redness"
   | "cut"
   | "bruise"
+  | "lump"
+  | "degloving"
+  | "pain"
+  | "tender_joint"
+  | "spasm"
   | "abrasion"
   | "laceration"
   | "abuse"
@@ -247,6 +252,11 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "redness",
       "cut",
       "bruise",
+      "lump",
+      "degloving",
+      "pain",
+      "tender_joint",
+      "spasm",
       "abrasion",
       "laceration",
       "abuse",
@@ -955,6 +965,11 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   redness: "Severity",
   cut: "Severity",
   bruise: "Severity",
+  lump: "Finding",
+  degloving: "Severity",
+  pain: "Finding",
+  tender_joint: "Finding",
+  spasm: "Finding",
   abrasion: "Severity",
   laceration: "Severity",
   abuse: "Type",
@@ -1028,6 +1043,7 @@ export interface UiCareSubtypeItem {
   label: string;
   category: IncidentCategory;
   subtype: string;
+  itemKey?: string;
   detailsPreset?: Record<string, string | number | boolean>;
 }
 
@@ -1377,6 +1393,78 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
     iconCategory: "safety",
     groups: [
       {
+        label: "Skin change",
+        items: [
+          { label: "Burn", category: "health_observation", subtype: "burn" },
+          { label: "Rash", category: "health_observation", subtype: "rash" },
+          {
+            label: "Redness",
+            category: "health_observation",
+            subtype: "redness",
+          },
+          {
+            label: "Cut/wound",
+            category: "health_observation",
+            subtype: "cut",
+          },
+          { label: "Bruise", category: "health_observation", subtype: "bruise" },
+          { label: "Lump", category: "health_observation", subtype: "lump" },
+          {
+            label: "Paleness",
+            category: "health_observation",
+            subtype: "pale",
+          },
+          {
+            label: "Inflammation",
+            category: "health_observation",
+            subtype: "inflammation",
+            itemKey: "skin_inflammation",
+            detailsPreset: { issue_group: "skin_change" },
+          },
+          { label: "Bites", category: "health_observation", subtype: "bites" },
+          {
+            label: "Bed sore",
+            category: "health_observation",
+            subtype: "skin_breakdown",
+          },
+          {
+            label: "Degloving",
+            category: "health_observation",
+            subtype: "degloving",
+          },
+        ],
+      },
+      {
+        label: "Area of discomfort",
+        items: [
+          {
+            label: "Pain",
+            category: "health_observation",
+            subtype: "pain",
+            detailsPreset: { issue_group: "area_of_discomfort" },
+          },
+          {
+            label: "Inflammation",
+            category: "health_observation",
+            subtype: "inflammation",
+            itemKey: "discomfort_inflammation",
+            detailsPreset: { issue_group: "area_of_discomfort" },
+          },
+          {
+            label: "Tender joint",
+            category: "health_observation",
+            subtype: "tender_joint",
+            detailsPreset: { issue_group: "area_of_discomfort" },
+          },
+          {
+            label: "Spasm",
+            category: "health_observation",
+            subtype: "spasm",
+            detailsPreset: { issue_group: "area_of_discomfort" },
+          },
+        ],
+      },
+      {
         label: "Respiratory",
         items: [
           {
@@ -1394,40 +1482,6 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             label: "Phlegm / sputum",
             category: "health_observation",
             subtype: "phlegm_sputum",
-          },
-        ],
-      },
-      {
-        label: "Skin change",
-        items: [
-          { label: "Burn", category: "health_observation", subtype: "burn" },
-          { label: "Rash", category: "health_observation", subtype: "rash" },
-          {
-            label: "Redness",
-            category: "health_observation",
-            subtype: "redness",
-          },
-          {
-            label: "Cut / wound",
-            category: "health_observation",
-            subtype: "cut",
-          },
-          { label: "Bruise", category: "health_observation", subtype: "bruise" },
-          {
-            label: "Paleness",
-            category: "health_observation",
-            subtype: "pale",
-          },
-          {
-            label: "Inflammation",
-            category: "health_observation",
-            subtype: "inflammation",
-          },
-          { label: "Bites", category: "health_observation", subtype: "bites" },
-          {
-            label: "Bed sore",
-            category: "health_observation",
-            subtype: "skin_breakdown",
           },
         ],
       },
@@ -1547,9 +1601,46 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
         label: "Medication error",
         items: [
           {
-            label: "Medication error",
+            label: "Missed dose",
             category: "safety",
             subtype: "medication_error",
+            itemKey: "medication_error_missed_dose",
+            detailsPreset: { error_type: "missed_dose" },
+          },
+          {
+            label: "Overdose",
+            category: "safety",
+            subtype: "medication_error",
+            itemKey: "medication_error_overdose",
+            detailsPreset: { error_type: "overdose" },
+          },
+          {
+            label: "Wrong medication",
+            category: "safety",
+            subtype: "medication_error",
+            itemKey: "medication_error_wrong_medication",
+            detailsPreset: { error_type: "wrong_medication" },
+          },
+          {
+            label: "Wrong time",
+            category: "safety",
+            subtype: "medication_error",
+            itemKey: "medication_error_wrong_time",
+            detailsPreset: { error_type: "wrong_time" },
+          },
+          {
+            label: "Wrong route",
+            category: "safety",
+            subtype: "medication_error",
+            itemKey: "medication_error_wrong_route",
+            detailsPreset: { error_type: "wrong_route" },
+          },
+          {
+            label: "Refusal",
+            category: "safety",
+            subtype: "medication_error",
+            itemKey: "medication_error_refusal",
+            detailsPreset: { error_type: "refusal" },
           },
         ],
       },
@@ -1557,9 +1648,53 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
         label: "Environmental hazard",
         items: [
           {
-            label: "Environment hazard",
+            label: "Furniture",
             category: "health_observation",
             subtype: "environment_hazard",
+            itemKey: "environment_hazard_furniture",
+            detailsPreset: { hazard_type: "furniture" },
+          },
+          {
+            label: "Poor lighting",
+            category: "health_observation",
+            subtype: "environment_hazard",
+            itemKey: "environment_hazard_poor_lighting",
+            detailsPreset: { hazard_type: "poor_lighting" },
+          },
+          {
+            label: "Inadequate access",
+            category: "health_observation",
+            subtype: "environment_hazard",
+            itemKey: "environment_hazard_inadequate_access",
+            detailsPreset: { hazard_type: "inadequate_access" },
+          },
+          {
+            label: "Mould",
+            category: "health_observation",
+            subtype: "environment_hazard",
+            itemKey: "environment_hazard_mould",
+            detailsPreset: { hazard_type: "mould" },
+          },
+          {
+            label: "Chemicals",
+            category: "health_observation",
+            subtype: "environment_hazard",
+            itemKey: "environment_hazard_chemicals",
+            detailsPreset: { hazard_type: "chemicals" },
+          },
+          {
+            label: "Flooring",
+            category: "health_observation",
+            subtype: "environment_hazard",
+            itemKey: "environment_hazard_flooring",
+            detailsPreset: { hazard_type: "flooring" },
+          },
+          {
+            label: "Infestation",
+            category: "health_observation",
+            subtype: "environment_hazard",
+            itemKey: "environment_hazard_infestation",
+            detailsPreset: { hazard_type: "infestation" },
           },
         ],
       },
