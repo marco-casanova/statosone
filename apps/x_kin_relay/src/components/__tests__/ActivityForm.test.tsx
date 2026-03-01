@@ -175,6 +175,20 @@ describe("ActivityForm", () => {
     expect(
       screen.getByRole("button", { name: /Pick incident Wrong medication/i }),
     ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
+      target: { value: "bite" },
+    });
+    expect(
+      screen.getByRole("button", { name: /Pick incident Bite\/sting/i }),
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
+      target: { value: "itch" },
+    });
+    expect(
+      screen.getByRole("button", { name: /Pick incident Itchiness/i }),
+    ).toBeInTheDocument();
   });
 
   test("body-location picker only shows for enabled incident types and clears when not relevant", () => {
@@ -199,18 +213,13 @@ describe("ActivityForm", () => {
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Front Left Knee" }));
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Toggle Pain for Front: Left knee",
-      }),
-    );
-    expect(screen.getAllByText("Front: Left knee - Pain").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Front: Left knee").length).toBeGreaterThan(0);
 
     fireEvent.click(fallButton);
     expect(
       screen.queryByRole("button", { name: /Open body map for Fall/i }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText("Front: Left knee - Pain")).not.toBeInTheDocument();
+    expect(screen.queryByText("Front: Left knee")).not.toBeInTheDocument();
   });
 
   test("icon aria-label present in confirm phase", () => {

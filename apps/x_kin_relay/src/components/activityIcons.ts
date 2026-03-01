@@ -99,6 +99,7 @@ export const SUBTYPE_ICON: Record<string, LucideIcon> = {
   tender_joint: AlertCircle,
   spasm: Activity,
   bites: AlertCircle,
+  itchiness: Eye,
   skin_breakdown: Bandage,
   degloving: Bandage,
   weakness: Activity,

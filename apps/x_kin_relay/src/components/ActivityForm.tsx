@@ -1909,6 +1909,9 @@ const dialogOverlay: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  padding: 24,
+  overflowY: "auto",
+  overscrollBehavior: "contain",
 };
 
 const dialogBackdrop: React.CSSProperties = {
@@ -1920,9 +1923,10 @@ const dialogBackdrop: React.CSSProperties = {
 
 const dialogCard: React.CSSProperties = {
   position: "relative",
-  width: "min(1220px, calc(100vw - 24px))",
+  width: "min(1220px, calc(100vw - 48px))",
   maxHeight: "88vh",
   overflowY: "auto",
+  margin: "auto",
   borderRadius: 24,
   background: "rgba(255, 255, 255, 0.98)",
   boxShadow: "0 28px 60px rgba(15, 23, 42, 0.22)",

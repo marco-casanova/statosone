@@ -53,48 +53,18 @@ describe("BodyLocationPicker", () => {
     expect(screen.getAllByText("Right side: Head").length).toBeGreaterThan(0);
   });
 
-  test("discomfort options can be attached to a selected body location", () => {
-    render(<Harness />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Front Neck" }));
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Toggle Inflammation for Front: Neck",
-      }),
-    );
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Toggle Pain for Front: Neck",
-      }),
-    );
-
-    expect(
-      screen.getByText("Front: Neck - Pain, Inflammation"),
-    ).toBeInTheDocument();
-  });
-
-  test("clicking a selected region opens the discomfort popup", () => {
+  test("clicking a selected region removes it", () => {
     render(<Harness />);
 
     const kneeButton = screen.getByRole("button", {
       name: "Front Left Knee",
     });
-    // First click adds the region and auto-opens the popup
     fireEvent.click(kneeButton);
     expect(kneeButton).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByText("Front: Left knee").length).toBeGreaterThan(0);
 
-    // Popup should show region-specific discomfort options
-    expect(
-      screen.getByRole("button", { name: /Toggle Pain for/ }),
-    ).toBeInTheDocument();
-
-    // Close popup by clicking the same region again
     fireEvent.click(kneeButton);
-    expect(
-      screen.queryByRole("button", { name: /Toggle Pain for/ }),
-    ).not.toBeInTheDocument();
-
-    // Region should still be selected
-    expect(kneeButton).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByText("Front: Left knee")).not.toBeInTheDocument();
+    expect(kneeButton).toHaveAttribute("aria-pressed", "false");
   });
 });

@@ -70,6 +70,7 @@ export type ObservationSubtype =
   | "abuse"
   | "inflammation"
   | "bites"
+  | "itchiness"
   | "falls"
   | "near_miss"
   | "loss_of_balance"
@@ -262,6 +263,7 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "abuse",
       "inflammation",
       "bites",
+      "itchiness",
       "falls",
       "near_miss",
       "loss_of_balance",
@@ -631,6 +633,7 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   laceration: OBSERVATION_INTENSITY_OPTIONS,
   inflammation: OBSERVATION_INTENSITY_OPTIONS,
   bites: OBSERVATION_INTENSITY_OPTIONS,
+  itchiness: OBSERVATION_INTENSITY_OPTIONS,
   abuse: [
     { label: "Suspected", value: "suspected" },
     { label: "Witnessed", value: "witnessed" },
@@ -975,6 +978,7 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   abuse: "Type",
   inflammation: "Severity",
   bites: "Severity",
+  itchiness: "Severity",
   loss_of_balance: "Risk level",
   restlessness: "Severity",
   urine_leak: "Amount",
@@ -1265,7 +1269,7 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             subtype: "bowel_leak",
           },
           {
-            label: "Catheter issue",
+            label: "Catheter bag change",
             category: "health_observation",
             subtype: "catheter_issue",
           },
@@ -1407,7 +1411,11 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             category: "health_observation",
             subtype: "cut",
           },
-          { label: "Bruise", category: "health_observation", subtype: "bruise" },
+          {
+            label: "Bruise",
+            category: "health_observation",
+            subtype: "bruise",
+          },
           { label: "Lump", category: "health_observation", subtype: "lump" },
           {
             label: "Paleness",
@@ -1421,7 +1429,11 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             itemKey: "skin_inflammation",
             detailsPreset: { issue_group: "skin_change" },
           },
-          { label: "Bites", category: "health_observation", subtype: "bites" },
+          {
+            label: "Bite/sting",
+            category: "health_observation",
+            subtype: "bites",
+          },
           {
             label: "Bed sore",
             category: "health_observation",
@@ -1431,6 +1443,11 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             label: "Degloving",
             category: "health_observation",
             subtype: "degloving",
+          },
+          {
+            label: "Itchiness",
+            category: "health_observation",
+            subtype: "itchiness",
           },
         ],
       },

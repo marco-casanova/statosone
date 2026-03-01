@@ -53,6 +53,7 @@ export const BODY_MAP_ENABLED_TYPES = [
   "abrasion",
   "laceration",
   "bites",
+  "itchiness",
   "redness",
   "inflammation",
   "tender_joint",

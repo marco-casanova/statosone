@@ -1,25 +1,15 @@
 "use client";
 
-import React, {
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { KeyboardEvent, useState } from "react";
 import {
-  BODY_DISCOMFORT_OPTIONS,
   BodyLocation,
-  BodyDiscomfortOption,
   BodyMapView,
   BodyRegion,
   BODY_REGION_LABELS,
   BODY_VIEW_LABELS,
   bodyLocationKey,
   bodyLocationLabel,
-  bodyLocationTitle,
   regionRequiresSide,
-  discomfortsForRegion,
 } from "../types/bodyLocation";
 import { SvgShape, BodyRegionSvgDef, BODY_VIEW_SPECS } from "./bodyMapSvgData";
 
@@ -56,15 +46,6 @@ const BODY_VIEW_ORDER: BodyMapView[] = [
   "right_side",
 ];
 
-/** Popup anchor: which location is open for discomfort editing + click position. */
-interface DiscomfortPopup {
-  locationKey: string;
-  view: BodyMapView;
-  /** Coordinates relative to the map-panel wrapper */
-  x: number;
-  y: number;
-}
-
 export function BodyLocationPicker({
   value,
   onChange,
@@ -74,21 +55,6 @@ export function BodyLocationPicker({
     region: BodyRegion;
     view: BodyMapView;
   } | null>(null);
-
-  const [popup, setPopup] = useState<DiscomfortPopup | null>(null);
-
-  // Close the popup when clicking anywhere outside
-  const popupRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!popup) return;
-    function handleClick(e: MouseEvent) {
-      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
-        setPopup(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [popup]);
 
   function addLocation(location: BodyLocation) {
     const nextKey = bodyLocationKey(location);
@@ -103,32 +69,15 @@ export function BodyLocationPicker({
   function removeLocation(location: BodyLocation) {
     const nextKey = bodyLocationKey(location);
     onChange(value.filter((entry) => bodyLocationKey(entry) !== nextKey));
-    if (popup?.locationKey === nextKey) setPopup(null);
   }
 
-  function handleRegionPress(
-    view: BodyMapView,
-    regionDef: BodyRegionSvgDef,
-    clickX: number,
-    clickY: number,
-  ) {
-    const resolvedLocation: BodyLocation = {
-      region: regionDef.region,
-      view,
-      side: regionDef.side,
-    };
-    const key = bodyLocationKey(resolvedLocation);
+  function handleRegionPress(view: BodyMapView, regionDef: BodyRegionSvgDef) {
     const selectedLocation = value.find(
-      (location) => bodyLocationKey(location) === key,
+      (location) => isLocationSelectedForRegion(location, view, regionDef),
     );
 
-    // If already selected → open its discomfort popup (or close if same)
     if (selectedLocation) {
-      if (popup?.locationKey === key) {
-        setPopup(null);
-      } else {
-        setPopup({ locationKey: key, view, x: clickX, y: clickY });
-      }
+      removeLocation(selectedLocation);
       return;
     }
 
@@ -137,43 +86,12 @@ export function BodyLocationPicker({
       return;
     }
 
-    // Add and immediately open popup
-    addLocation(resolvedLocation);
-    setPopup({ locationKey: key, view, x: clickX, y: clickY });
+    addLocation({
+      region: regionDef.region,
+      view,
+      side: regionDef.side,
+    });
   }
-
-  const toggleDiscomfort = useCallback(
-    (location: BodyLocation, discomfort: BodyDiscomfortOption) => {
-      const nextKey = bodyLocationKey(location);
-      onChange(
-        value.map((entry) => {
-          if (bodyLocationKey(entry) !== nextKey) {
-            return entry;
-          }
-          const current = entry.discomforts || [];
-          const hasDiscomfort = current.includes(discomfort);
-          const allowed = discomfortsForRegion(entry.region).map(
-            (o) => o.value,
-          );
-          const nextDiscomforts = hasDiscomfort
-            ? current.filter((item) => item !== discomfort)
-            : allowed.filter(
-                (item) => current.includes(item) || item === discomfort,
-              );
-          return {
-            ...entry,
-            discomforts: nextDiscomforts.length ? nextDiscomforts : undefined,
-          };
-        }),
-      );
-    },
-    [value, onChange],
-  );
-
-  // Find the location object for the open popup
-  const popupLocation = popup
-    ? (value.find((loc) => bodyLocationKey(loc) === popup.locationKey) ?? null)
-    : null;
 
   return (
     <div style={pickerRoot}>
@@ -203,7 +121,8 @@ export function BodyLocationPicker({
           <div>
             <div style={drawerTitle}>Body map</div>
             <div style={drawerSubtitle}>
-              Tap a region to select it, then tap again to choose discomforts.
+              Tap a region to select it. Tap a selected region again to remove
+              it.
             </div>
           </div>
         </div>
@@ -255,12 +174,6 @@ export function BodyLocationPicker({
               value={value}
               pendingSelection={pendingSelection}
               onRegionPress={handleRegionPress}
-              popup={popup?.view === view ? popup : null}
-              popupLocation={popup?.view === view ? popupLocation : null}
-              popupRef={popup?.view === view ? popupRef : undefined}
-              onToggleDiscomfort={toggleDiscomfort}
-              onRemoveLocation={removeLocation}
-              onClosePopup={() => setPopup(null)}
             />
           ))}
         </div>
@@ -274,12 +187,6 @@ function BodyMapSvg({
   value,
   pendingSelection,
   onRegionPress,
-  popup,
-  popupLocation,
-  popupRef,
-  onToggleDiscomfort,
-  onRemoveLocation,
-  onClosePopup,
 }: {
   view: BodyMapView;
   value: BodyLocation[];
@@ -287,47 +194,15 @@ function BodyMapSvg({
     region: BodyRegion;
     view: BodyMapView;
   } | null;
-  onRegionPress: (
-    view: BodyMapView,
-    regionDef: BodyRegionSvgDef,
-    clickX: number,
-    clickY: number,
-  ) => void;
-  popup: DiscomfortPopup | null;
-  popupLocation: BodyLocation | null;
-  popupRef?: React.RefObject<HTMLDivElement | null>;
-  onToggleDiscomfort: (
-    location: BodyLocation,
-    discomfort: BodyDiscomfortOption,
-  ) => void;
-  onRemoveLocation: (location: BodyLocation) => void;
-  onClosePopup: () => void;
+  onRegionPress: (view: BodyMapView, regionDef: BodyRegionSvgDef) => void;
 }) {
   const spec = BODY_VIEW_SPECS[view];
   const transform = spec.mirror ? "translate(260,0) scale(-1,1)" : undefined;
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  function handleSvgRegionClick(
-    e: React.MouseEvent,
-    regionDef: BodyRegionSvgDef,
-  ) {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-    const rect = wrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    onRegionPress(view, regionDef, x, y);
-  }
-
-  // Compute filtered discomfort options for popup
-  const filteredOptions = popupLocation
-    ? discomfortsForRegion(popupLocation.region)
-    : [];
 
   return (
-    <div style={mapPanel} ref={wrapperRef}>
+    <div style={mapPanel}>
       <div style={mapTitle}>{spec.title}</div>
-      <div style={{ position: "relative" }}>
+      <div>
         <svg
           width="260"
           height="720"
@@ -370,14 +245,11 @@ function BodyMapSvg({
                     aria-label={regionAriaLabel(spec.title, regionDef)}
                     aria-pressed={isSelected}
                     style={regionStyle(isSelected || isPending)}
-                    onClick={(e) => handleSvgRegionClick(e, regionDef)}
+                    onClick={() => onRegionPress(view, regionDef)}
                     onKeyDown={(event) =>
-                      handleRegionKeyDown(event, () => {
-                        /* keyboard: position popup centered */
-                        const wrapper = wrapperRef.current;
-                        if (!wrapper) return;
-                        onRegionPress(view, regionDef, 130, 360);
-                      })
+                      handleRegionKeyDown(event, () =>
+                        onRegionPress(view, regionDef),
+                      )
                     }
                   >
                     <title>{regionDef.title}</title>
@@ -388,107 +260,7 @@ function BodyMapSvg({
             </g>
           </g>
         </svg>
-
-        {/* Radial discomfort popup */}
-        {popup && popupLocation && (
-          <div
-            ref={popupRef}
-            style={{
-              position: "absolute",
-              left: popup.x,
-              top: popup.y,
-              transform: "translate(-50%, -50%)",
-              zIndex: 50,
-              pointerEvents: "auto",
-            }}
-          >
-            <RadialDiscomfortPopup
-              location={popupLocation}
-              options={filteredOptions}
-              onToggle={onToggleDiscomfort}
-              onRemove={() => {
-                onRemoveLocation(popupLocation);
-                onClosePopup();
-              }}
-              onClose={onClosePopup}
-            />
-          </div>
-        )}
       </div>
-    </div>
-  );
-}
-
-/* ── Radial popup ─────────────────────────────────────────────── */
-
-function RadialDiscomfortPopup({
-  location,
-  options,
-  onToggle,
-  onRemove,
-  onClose,
-}: {
-  location: BodyLocation;
-  options: { value: BodyDiscomfortOption; label: string }[];
-  onToggle: (location: BodyLocation, discomfort: BodyDiscomfortOption) => void;
-  onRemove: () => void;
-  onClose: () => void;
-}) {
-  const count = options.length;
-  const radius = count <= 4 ? 62 : count <= 6 ? 72 : 82;
-  const angleStep = (2 * Math.PI) / count;
-  // Start at top (−π/2)
-  const startAngle = -Math.PI / 2;
-
-  return (
-    <div
-      style={{
-        position: "relative",
-        width: radius * 2 + 60,
-        height: radius * 2 + 60,
-      }}
-    >
-      {/* Center hub — region name + close / remove */}
-      <div style={popupHub}>
-        <div style={popupHubTitle}>{bodyLocationTitle(location)}</div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <button type="button" style={popupHubRemoveBtn} onClick={onRemove}>
-            ✕
-          </button>
-          <button type="button" style={popupHubCloseBtn} onClick={onClose}>
-            ✓
-          </button>
-        </div>
-      </div>
-
-      {/* Radial option pills */}
-      {options.map((opt, i) => {
-        const angle = startAngle + i * angleStep;
-        const cx = radius * Math.cos(angle);
-        const cy = radius * Math.sin(angle);
-        const isSelected = location.discomforts?.includes(opt.value) || false;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            aria-label={`Toggle ${opt.label} for ${bodyLocationTitle(location)}`}
-            aria-pressed={isSelected}
-            style={{
-              ...radialPill(isSelected),
-              position: "absolute",
-              left: `calc(50% + ${cx}px)`,
-              top: `calc(50% + ${cy}px)`,
-              transform: "translate(-50%, -50%)",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(location, opt.value);
-            }}
-          >
-            {opt.label}
-          </button>
-        );
-      })}
     </div>
   );
 }
@@ -708,83 +480,3 @@ const bodySvg: React.CSSProperties = {
     "linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98))",
   border: "1px solid rgba(15, 23, 42, 0.06)",
 };
-
-/* ── Radial popup styles ──────────────────────────────────────── */
-
-const popupHub: React.CSSProperties = {
-  position: "absolute",
-  left: "50%",
-  top: "50%",
-  transform: "translate(-50%, -50%)",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 4,
-  width: 72,
-  height: 72,
-  borderRadius: "50%",
-  background: "#fff",
-  boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
-  zIndex: 2,
-};
-
-const popupHubTitle: React.CSSProperties = {
-  fontSize: 9,
-  fontWeight: 700,
-  color: "#111827",
-  textAlign: "center",
-  lineHeight: 1.15,
-  maxWidth: 60,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-
-const popupHubRemoveBtn: React.CSSProperties = {
-  border: "none",
-  background: "rgba(239, 68, 68, 0.14)",
-  color: "#DC2626",
-  borderRadius: "50%",
-  width: 22,
-  height: 22,
-  fontSize: 12,
-  fontWeight: 700,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 0,
-  lineHeight: 1,
-};
-
-const popupHubCloseBtn: React.CSSProperties = {
-  border: "none",
-  background: "rgba(34, 197, 94, 0.16)",
-  color: "#16A34A",
-  borderRadius: "50%",
-  width: 22,
-  height: 22,
-  fontSize: 12,
-  fontWeight: 700,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 0,
-  lineHeight: 1,
-};
-
-const radialPill = (isSelected: boolean): React.CSSProperties => ({
-  border: "1px solid",
-  borderColor: isSelected ? "#DC2626" : "rgba(15, 23, 42, 0.12)",
-  background: isSelected ? "rgba(239, 68, 68, 0.14)" : "#fff",
-  color: isSelected ? "#991B1B" : "#374151",
-  borderRadius: 999,
-  padding: "5px 10px",
-  fontSize: 11,
-  fontWeight: 700,
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-  boxShadow: "0 1px 6px rgba(0,0,0,0.10)",
-  zIndex: 1,
-});
