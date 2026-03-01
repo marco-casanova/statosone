@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { Accessibility } from "lucide-react";
 import { supabase, hasSupabase } from "../lib/supabaseClient";
 import {
   IncidentCategory,
@@ -11,7 +12,14 @@ import {
   UiCareCategoryId,
   UiCareSubtypeItem,
 } from "../types/schema";
+import {
+  BODY_MAP_ENABLED_TYPES,
+  BodyLocation,
+  bodyLocationKey,
+  bodyLocationLabel,
+} from "../types/bodyLocation";
 import { iconFor, a11yLabel } from "./activityIcons";
+import { BodyLocationPicker } from "./BodyLocationPicker";
 import {
   QuickActionsManager,
   QuickAction,
@@ -107,6 +115,8 @@ export function ActivityForm() {
   const [assistanceLevel, setAssistanceLevel] = useState("");
   const [fluidType, setFluidType] = useState("");
   const [foodType, setFoodType] = useState("");
+  const [bodyLocations, setBodyLocations] = useState<BodyLocation[]>([]);
+  const [showBodyMapDialog, setShowBodyMapDialog] = useState(false);
   const [selectedIncidentIssueKeys, setSelectedIncidentIssueKeys] = useState<
     string[]
   >([]);
@@ -155,10 +165,21 @@ export function ActivityForm() {
       ),
     [selectedIncidentIssueKeys, selectedSubtypeItems],
   );
+  const selectedIncidentBodyMapItems = useMemo(
+    () =>
+      selectedIncidentIssueItems.filter((item) =>
+        BODY_MAP_ENABLED_TYPES.includes(
+          item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
+        ),
+      ),
+    [selectedIncidentIssueItems],
+  );
   const isHydration = subtype === "hydration";
   const isNutrition = isNutritionSubtype(subtype);
   const isIncident = mainCategory === "incident";
   const showAssistance = category === "adl";
+  const showBodyLocationPicker =
+    isIncident && selectedIncidentBodyMapItems.length > 0;
 
   // Load clients on mount
   useEffect(() => {
@@ -194,6 +215,15 @@ export function ActivityForm() {
     loadRecentActivities();
   }, [selectedClientId, recentExpanded]);
 
+  useEffect(() => {
+    if (!showBodyLocationPicker && bodyLocations.length > 0) {
+      setBodyLocations([]);
+    }
+    if (!showBodyLocationPicker) {
+      setShowBodyMapDialog(false);
+    }
+  }, [bodyLocations.length, showBodyLocationPicker]);
+
   function resetAll() {
     setPhase("browse");
     setMainCategory(null);
@@ -205,6 +235,8 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
+    setBodyLocations([]);
+    setShowBodyMapDialog(false);
     setSelectedIncidentIssueKeys([]);
     setSelectedSubtypeLabel(null);
     setSubtypeDetailsPreset(null);
@@ -313,6 +345,8 @@ export function ActivityForm() {
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
+    setBodyLocations([]);
+    setShowBodyMapDialog(false);
     setSelectedIncidentIssueKeys([]);
     setAssistanceLevel("");
     setMessage(null);
@@ -531,6 +565,9 @@ export function ActivityForm() {
           subtype: item.subtype,
           category: item.category,
         }));
+      }
+      if (bodyLocations.length) {
+        details.body_locations = bodyLocations;
       }
 
       if (Object.keys(details).length) payload.details = details;
@@ -771,33 +808,69 @@ export function ActivityForm() {
           {showIncidentIssueType && (
             <>
               <label style={miniLabel}>Issue type</label>
-              <div style={optionGrid}>
+              <div style={issueTypeGrid}>
                 {selectedSubtypeItems.map((item) => {
                   const isSelected = selectedIncidentIssueKeys.includes(
                     incidentIssueKey(item),
                   );
+                  const supportsBodyMap = BODY_MAP_ENABLED_TYPES.includes(
+                    item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
+                  );
                   return (
-                    <button
+                    <div
                       key={`incident-issue-${item.category}-${item.subtype}-${item.label}`}
-                      type="button"
-                      onClick={() => pickSubtype(item)}
-                      style={{
-                        ...optionBtn,
-                        background: isSelected
-                          ? "rgba(108, 124, 255, 0.25)"
-                          : "rgba(15, 23, 42, 0.04)",
-                        borderColor: isSelected
-                          ? "#6C7CFF"
-                          : "rgba(15, 23, 42, 0.12)",
-                      }}
-                      aria-label={`${t("aria.pick_incident")} ${item.label}`}
-                      aria-pressed={isSelected}
+                      style={issueTypeCardWrap}
                     >
-                      {item.label}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => pickSubtype(item)}
+                        style={{
+                          ...optionBtn,
+                          ...issueTypeBtn,
+                          paddingRight:
+                            isSelected && supportsBodyMap ? 56 : optionBtn.padding,
+                          background: isSelected
+                            ? "rgba(108, 124, 255, 0.25)"
+                            : "rgba(15, 23, 42, 0.04)",
+                          borderColor: isSelected
+                            ? "#6C7CFF"
+                            : "rgba(15, 23, 42, 0.12)",
+                        }}
+                        aria-label={`${t("aria.pick_incident")} ${item.label}`}
+                        aria-pressed={isSelected}
+                      >
+                        {item.label}
+                      </button>
+                      {isSelected && supportsBodyMap && (
+                        <button
+                          type="button"
+                          style={bodyMapIconBtn}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setShowBodyMapDialog(true);
+                          }}
+                          aria-label={`Open body map for ${item.label}`}
+                          title={`Open body map for ${item.label}`}
+                        >
+                          <Accessibility size={16} strokeWidth={2.2} />
+                        </button>
+                      )}
+                    </div>
                   );
                 })}
               </div>
+              {showBodyLocationPicker && bodyLocations.length > 0 && (
+                <div style={bodyLocationChipSummary}>
+                  {bodyLocations.map((location) => (
+                    <span
+                      key={bodyLocationKey(location)}
+                      style={bodyLocationChip}
+                    >
+                      {bodyLocationLabel(location)}
+                    </span>
+                  ))}
+                </div>
+              )}
             </>
           )}
 
@@ -1043,6 +1116,41 @@ export function ActivityForm() {
           onSave={(actions) => setQuickActions(actions)}
           currentActions={quickActions}
         />
+      )}
+      {showBodyMapDialog && showBodyLocationPicker && (
+        <div style={dialogOverlay} role="dialog" aria-modal="true" aria-labelledby="body-map-title">
+          <button
+            type="button"
+            style={dialogBackdrop}
+            aria-label="Close body map dialog"
+            onClick={() => setShowBodyMapDialog(false)}
+          />
+          <div style={dialogCard}>
+            <div style={dialogHeader}>
+              <div>
+                <div id="body-map-title" style={dialogTitle}>
+                  Body location
+                </div>
+                <div style={dialogSubtitle}>
+                  Tap the area where it happened. You can select more than one.
+                </div>
+              </div>
+              <button
+                type="button"
+                style={dialogCloseBtn}
+                aria-label="Close body map dialog"
+                onClick={() => setShowBodyMapDialog(false)}
+              >
+                ×
+              </button>
+            </div>
+            <BodyLocationPicker
+              value={bodyLocations}
+              onChange={setBodyLocations}
+              embedded
+            />
+          </div>
+        </div>
       )}
     </div>
   );
@@ -1482,6 +1590,12 @@ const optionGrid: React.CSSProperties = {
   gap: 10,
 };
 
+const issueTypeGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+  gap: 10,
+};
+
 const optionBtn: React.CSSProperties = {
   padding: "12px 16px",
   borderRadius: 12,
@@ -1496,10 +1610,113 @@ const optionBtn: React.CSSProperties = {
   minHeight: 48,
 };
 
+const issueTypeCardWrap: React.CSSProperties = {
+  position: "relative",
+};
+
+const issueTypeBtn: React.CSSProperties = {
+  width: "100%",
+  minHeight: 64,
+};
+
+const bodyMapIconBtn: React.CSSProperties = {
+  position: "absolute",
+  top: 8,
+  right: 8,
+  width: 34,
+  height: 34,
+  borderRadius: "50%",
+  border: "1px solid rgba(108, 124, 255, 0.25)",
+  background: "rgba(255, 255, 255, 0.92)",
+  color: "#475569",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  boxShadow: "0 4px 10px rgba(15, 23, 42, 0.08)",
+};
+
 const helperText: React.CSSProperties = {
   fontSize: 13,
   color: "#6B7280",
   marginTop: 4,
+};
+
+const bodyLocationChipSummary: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+};
+
+const bodyLocationChip: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "8px 12px",
+  borderRadius: 999,
+  background: "rgba(108, 124, 255, 0.12)",
+  border: "1px solid rgba(108, 124, 255, 0.2)",
+  color: "#1A1A1A",
+  fontSize: 13,
+  fontWeight: 600,
+};
+
+const dialogOverlay: React.CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  zIndex: 60,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const dialogBackdrop: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  border: "none",
+  background: "rgba(15, 23, 42, 0.18)",
+};
+
+const dialogCard: React.CSSProperties = {
+  position: "relative",
+  width: "min(1220px, calc(100vw - 24px))",
+  maxHeight: "88vh",
+  overflowY: "auto",
+  borderRadius: 24,
+  background: "rgba(255, 255, 255, 0.98)",
+  boxShadow: "0 28px 60px rgba(15, 23, 42, 0.22)",
+  padding: 24,
+};
+
+const dialogHeader: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: 16,
+  marginBottom: 18,
+};
+
+const dialogTitle: React.CSSProperties = {
+  fontSize: 22,
+  fontWeight: 700,
+  color: "#111827",
+};
+
+const dialogSubtitle: React.CSSProperties = {
+  marginTop: 4,
+  fontSize: 13,
+  color: "#6B7280",
+};
+
+const dialogCloseBtn: React.CSSProperties = {
+  width: 36,
+  height: 36,
+  borderRadius: "50%",
+  border: "1px solid rgba(15, 23, 42, 0.08)",
+  background: "rgba(15, 23, 42, 0.04)",
+  color: "#111827",
+  fontSize: 22,
+  lineHeight: 1,
+  cursor: "pointer",
 };
 
 const resetBtn: React.CSSProperties = {

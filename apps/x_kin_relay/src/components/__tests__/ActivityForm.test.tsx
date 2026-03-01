@@ -167,6 +167,40 @@ describe("ActivityForm", () => {
     ).not.toBeInTheDocument();
   });
 
+  test("body-location picker only shows for enabled incident types and clears when not relevant", () => {
+    render(<ActivityForm />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select Incident categories/i }),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Pick incident Cough/i }),
+    );
+    expect(
+      screen.queryByRole("button", { name: /Open body map for Cough/i }),
+    ).not.toBeInTheDocument();
+
+    const fallButton = screen.getByRole("button", { name: /Pick incident Fall/i });
+    fireEvent.click(fallButton);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open body map for Fall/i }),
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Front Left Knee" }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Toggle Pain for Front: Left knee",
+      }),
+    );
+    expect(screen.getAllByText("Front: Left knee - Pain").length).toBeGreaterThan(0);
+
+    fireEvent.click(fallButton);
+    expect(
+      screen.queryByRole("button", { name: /Open body map for Fall/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Front: Left knee - Pain")).not.toBeInTheDocument();
+  });
+
   test("icon aria-label present in confirm phase", () => {
     render(<ActivityForm />);
     fireEvent.click(
