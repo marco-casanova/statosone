@@ -31,7 +31,9 @@ export type SafetySubtype =
   | "near_miss";
 export type ObservationSubtype =
   | "breathing_difficulty"
+  | "cough"
   | "cough_sputum"
+  | "phlegm_sputum"
   | "airway_obstruction"
   | "chest_pain"
   | "pale"
@@ -39,6 +41,9 @@ export type ObservationSubtype =
   | "loss_of_consciousness"
   | "seizure"
   | "drowsiness"
+  | "insomnia"
+  | "sleep_apnea"
+  | "restless_legs_syndrome"
   | "headache"
   | "stroke_like_signs"
   | "rash"
@@ -71,6 +76,9 @@ export type ObservationSubtype =
   | "challenging_behaviour"
   | "anxiety"
   | "hallucination"
+  | "delusion"
+  | "grief_sadness"
+  | "inappetence"
   | "medication_error"
   | "environment_hazard";
 export type AdlSubtype =
@@ -210,7 +218,9 @@ export const CATEGORY_TO_SUBTYPES: Record<
     label: "Observation subtype",
     values: [
       "breathing_difficulty",
+      "cough",
       "cough_sputum",
+      "phlegm_sputum",
       "airway_obstruction",
       "chest_pain",
       "pale",
@@ -218,6 +228,9 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "loss_of_consciousness",
       "seizure",
       "drowsiness",
+      "insomnia",
+      "sleep_apnea",
+      "restless_legs_syndrome",
       "headache",
       "stroke_like_signs",
       "rash",
@@ -250,6 +263,9 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "challenging_behaviour",
       "anxiety",
       "hallucination",
+      "delusion",
+      "grief_sadness",
+      "inappetence",
       "medication_error",
       "environment_hazard",
     ],
@@ -382,12 +398,11 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Under investigation", value: "investigation" },
   ],
   medication_error: [
-    { label: "Wrong dose", value: "wrong_dose" },
     { label: "Missed dose", value: "missed_dose" },
-    { label: "Wrong medication", value: "wrong_med" },
+    { label: "Overdose", value: "overdose" },
+    { label: "Wrong med", value: "wrong_med" },
     { label: "Wrong time", value: "wrong_time" },
     { label: "Wrong route", value: "wrong_route" },
-    { label: "Overdose", value: "overdose" },
     { label: "Refusal", value: "refusal" },
   ],
   missing_client: [
@@ -442,11 +457,23 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Severe", value: "severe" },
     { label: "Requires oxygen", value: "oxygen" },
   ],
+  cough: [
+    { label: "Dry", value: "dry" },
+    { label: "Wet / productive", value: "productive" },
+    { label: "Persistent", value: "persistent" },
+    { label: "Night-time", value: "night" },
+  ],
   cough_sputum: [
     { label: "Dry cough", value: "dry" },
     { label: "Productive - clear", value: "clear" },
     { label: "Productive - colored", value: "colored" },
     { label: "Blood-tinged", value: "blood" },
+  ],
+  phlegm_sputum: [
+    { label: "Clear", value: "clear" },
+    { label: "Yellow / green", value: "yellow_green" },
+    { label: "Thick / sticky", value: "thick" },
+    { label: "Blood-stained", value: "blood" },
   ],
   airway_obstruction: [
     { label: "Partial", value: "partial" },
@@ -489,6 +516,24 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Very drowsy", value: "very" },
     { label: "Difficult to rouse", value: "difficult" },
     { label: "Unrousable", value: "unrousable" },
+  ],
+  insomnia: [
+    { label: "Difficulty falling asleep", value: "sleep_onset" },
+    { label: "Frequent waking", value: "frequent_waking" },
+    { label: "Early waking", value: "early_waking" },
+    { label: "No sleep", value: "no_sleep" },
+  ],
+  sleep_apnea: [
+    { label: "Suspected episode", value: "suspected" },
+    { label: "Witnessed pause", value: "witnessed_pause" },
+    { label: "Snoring with pauses", value: "snoring_pauses" },
+    { label: "Needs review", value: "review" },
+  ],
+  restless_legs_syndrome: [
+    { label: "Mild", value: "mild" },
+    { label: "Moderate", value: "moderate" },
+    { label: "Severe", value: "severe" },
+    { label: "Night disturbance", value: "night" },
   ],
   headache: [
     { label: "Mild", value: "mild" },
@@ -636,11 +681,32 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Tactile", value: "tactile" },
     { label: "Distressing", value: "distressing" },
   ],
+  delusion: [
+    { label: "Paranoid", value: "paranoid" },
+    { label: "Fixed false belief", value: "fixed_belief" },
+    { label: "Distressing", value: "distressing" },
+    { label: "Needs review", value: "review" },
+  ],
+  grief_sadness: [
+    { label: "Low mood", value: "low_mood" },
+    { label: "Tearful", value: "tearful" },
+    { label: "Withdrawn", value: "withdrawn" },
+    { label: "Bereavement-related", value: "bereavement" },
+  ],
+  inappetence: [
+    { label: "Reduced appetite", value: "reduced" },
+    { label: "Refused food", value: "refused_food" },
+    { label: "Minimal intake", value: "minimal" },
+    { label: "Fluids only", value: "fluids_only" },
+  ],
   environment_hazard: [
     { label: "Furniture", value: "furniture" },
-    { label: "Lighting", value: "lighting" },
-    { label: "Access", value: "access" },
+    { label: "Poor lighting", value: "poor_lighting" },
+    { label: "Inadequate access", value: "inadequate_access" },
     { label: "Mould", value: "mould" },
+    { label: "Chemicals", value: "chemicals" },
+    { label: "Flooring", value: "flooring" },
+    { label: "Infestation", value: "infestation" },
   ],
 
   // ============================================
@@ -860,7 +926,9 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   near_miss: "Type",
   // Health Observation
   breathing_difficulty: "Severity",
+  cough: "Type",
   cough_sputum: "Type",
+  phlegm_sputum: "Type",
   airway_obstruction: "Status",
   chest_pain: "Severity",
   pale: "Severity",
@@ -868,6 +936,9 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   loss_of_consciousness: "Duration",
   seizure: "Type",
   drowsiness: "Severity",
+  insomnia: "Pattern",
+  sleep_apnea: "Episode",
+  restless_legs_syndrome: "Severity",
   headache: "Severity",
   stroke_like_signs: "Sign type",
   rash: "Extent",
@@ -898,6 +969,9 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   challenging_behaviour: "Type",
   anxiety: "Severity",
   hallucination: "Type",
+  delusion: "Type",
+  grief_sadness: "Mood",
+  inappetence: "Intake",
   environment_hazard: "Hazard type",
   // ADL
   hydration: "Amount",
@@ -1303,10 +1377,195 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
     iconCategory: "safety",
     groups: [
       {
-        label: "Safety incidents",
+        label: "Respiratory",
+        items: [
+          {
+            label: "Breathing difficulty",
+            category: "health_observation",
+            subtype: "breathing_difficulty",
+          },
+          { label: "Cough", category: "health_observation", subtype: "cough" },
+          {
+            label: "Obstruction",
+            category: "health_observation",
+            subtype: "airway_obstruction",
+          },
+          {
+            label: "Phlegm / sputum",
+            category: "health_observation",
+            subtype: "phlegm_sputum",
+          },
+        ],
+      },
+      {
+        label: "Skin change",
+        items: [
+          { label: "Burn", category: "health_observation", subtype: "burn" },
+          { label: "Rash", category: "health_observation", subtype: "rash" },
+          {
+            label: "Redness",
+            category: "health_observation",
+            subtype: "redness",
+          },
+          {
+            label: "Cut / wound",
+            category: "health_observation",
+            subtype: "cut",
+          },
+          { label: "Bruise", category: "health_observation", subtype: "bruise" },
+          {
+            label: "Paleness",
+            category: "health_observation",
+            subtype: "pale",
+          },
+          {
+            label: "Inflammation",
+            category: "health_observation",
+            subtype: "inflammation",
+          },
+          { label: "Bites", category: "health_observation", subtype: "bites" },
+          {
+            label: "Bed sore",
+            category: "health_observation",
+            subtype: "skin_breakdown",
+          },
+        ],
+      },
+      {
+        label: "Mobility",
         items: [
           { label: "Fall", category: "safety", subtype: "falls" },
           { label: "Near miss", category: "safety", subtype: "near_miss" },
+          {
+            label: "Weakness",
+            category: "health_observation",
+            subtype: "weakness",
+          },
+          {
+            label: "Unstable",
+            category: "health_observation",
+            subtype: "loss_of_balance",
+          },
+        ],
+      },
+      {
+        label: "Sleep disturbance",
+        items: [
+          {
+            label: "Insomnia",
+            category: "health_observation",
+            subtype: "insomnia",
+          },
+          {
+            label: "Drowsiness",
+            category: "health_observation",
+            subtype: "drowsiness",
+          },
+          {
+            label: "Sleep apnea",
+            category: "health_observation",
+            subtype: "sleep_apnea",
+          },
+          {
+            label: "Restless legs syndrome",
+            category: "health_observation",
+            subtype: "restless_legs_syndrome",
+          },
+        ],
+      },
+      {
+        label: "Gastrointestinal",
+        items: [
+          {
+            label: "Urine leak",
+            category: "health_observation",
+            subtype: "urine_leak",
+          },
+          {
+            label: "Bowel leak",
+            category: "health_observation",
+            subtype: "bowel_leak",
+          },
+          {
+            label: "Diarrhea",
+            category: "health_observation",
+            subtype: "diarrhoea",
+          },
+          {
+            label: "Vomiting",
+            category: "health_observation",
+            subtype: "vomiting",
+          },
+          {
+            label: "Inappetence",
+            category: "health_observation",
+            subtype: "inappetence",
+          },
+        ],
+      },
+      {
+        label: "Cognition / behaviour",
+        items: [
+          {
+            label: "Loss of consciousness",
+            category: "health_observation",
+            subtype: "loss_of_consciousness",
+          },
+          {
+            label: "Confusion",
+            category: "health_observation",
+            subtype: "confusion",
+          },
+          {
+            label: "Challenging behaviour",
+            category: "health_observation",
+            subtype: "challenging_behaviour",
+          },
+          {
+            label: "Anxiety",
+            category: "health_observation",
+            subtype: "anxiety",
+          },
+          {
+            label: "Hallucination",
+            category: "health_observation",
+            subtype: "hallucination",
+          },
+          {
+            label: "Delusion",
+            category: "health_observation",
+            subtype: "delusion",
+          },
+          {
+            label: "Grief / sadness",
+            category: "health_observation",
+            subtype: "grief_sadness",
+          },
+        ],
+      },
+      {
+        label: "Medication error",
+        items: [
+          {
+            label: "Medication error",
+            category: "safety",
+            subtype: "medication_error",
+          },
+        ],
+      },
+      {
+        label: "Environmental hazard",
+        items: [
+          {
+            label: "Environment hazard",
+            category: "health_observation",
+            subtype: "environment_hazard",
+          },
+        ],
+      },
+      {
+        label: "Other incidents",
+        items: [
           {
             label: "Safeguarding",
             category: "safety",
@@ -1323,25 +1582,20 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             subtype: "fire_disaster",
           },
           { label: "Poisoning", category: "safety", subtype: "poisoning" },
-        ],
-      },
-      {
-        label: "Injury / concern",
-        items: [
-          { label: "Abrasion", category: "health_observation", subtype: "abrasion" },
-          { label: "Laceration", category: "health_observation", subtype: "laceration" },
-          { label: "Bruise", category: "health_observation", subtype: "bruise" },
-          { label: "Cut", category: "health_observation", subtype: "cut" },
-          { label: "Abuse concern", category: "health_observation", subtype: "abuse" },
-        ],
-      },
-      {
-        label: "Environment / service",
-        items: [
           {
-            label: "Environment hazard",
+            label: "Abrasion",
             category: "health_observation",
-            subtype: "environment_hazard",
+            subtype: "abrasion",
+          },
+          {
+            label: "Laceration",
+            category: "health_observation",
+            subtype: "laceration",
+          },
+          {
+            label: "Abuse concern",
+            category: "health_observation",
+            subtype: "abuse",
           },
           {
             label: "Service visit issue",

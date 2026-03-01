@@ -130,6 +130,36 @@ describe("ActivityForm", () => {
     expect(screen.getAllByText("Abrasion").length).toBeGreaterThan(0);
   });
 
+  test("incident includes the new grouped subtype catalog and options", () => {
+    render(<ActivityForm />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select Incident categories/i }),
+    );
+
+    expect(
+      screen.getByRole("button", { name: /Pick incident Cough/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Pick incident Sleep apnea/i }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Pick incident Medication error/i }),
+    );
+    expect(screen.getByRole("button", { name: "Missed dose" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Overdose" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Wrong med" })).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Pick incident Environment hazard/i }),
+    );
+    expect(screen.getByRole("button", { name: "Chemicals" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Flooring" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Infestation" }),
+    ).toBeInTheDocument();
+  });
+
   test("icon aria-label present in confirm phase", () => {
     render(<ActivityForm />);
     fireEvent.click(
