@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Accessibility } from "lucide-react";
 import { supabase, hasSupabase } from "../lib/supabaseClient";
@@ -1258,41 +1259,50 @@ export function ActivityForm() {
           currentActions={quickActions}
         />
       )}
-      {showBodyMapDialog && showBodyLocationPicker && (
-        <div style={dialogOverlay} role="dialog" aria-modal="true" aria-labelledby="body-map-title">
-          <button
-            type="button"
-            style={dialogBackdrop}
-            aria-label="Close body map dialog"
-            onClick={() => setShowBodyMapDialog(false)}
-          />
-          <div style={dialogCard}>
-            <div style={dialogHeader}>
-              <div>
-                <div id="body-map-title" style={dialogTitle}>
-                  Body location
-                </div>
-                <div style={dialogSubtitle}>
-                  Tap the area where it happened. You can select more than one.
-                </div>
-              </div>
-              <button
-                type="button"
-                style={dialogCloseBtn}
-                aria-label="Close body map dialog"
-                onClick={() => setShowBodyMapDialog(false)}
-              >
-                ×
-              </button>
-            </div>
-            <BodyLocationPicker
-              value={bodyLocations}
-              onChange={setBodyLocations}
-              embedded
+      {typeof document !== "undefined" &&
+        showBodyMapDialog &&
+        showBodyLocationPicker &&
+        createPortal(
+          <div
+            style={dialogOverlay}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="body-map-title"
+          >
+            <button
+              type="button"
+              style={dialogBackdrop}
+              aria-label="Close body map dialog"
+              onClick={() => setShowBodyMapDialog(false)}
             />
-          </div>
-        </div>
-      )}
+            <div style={dialogCard}>
+              <div style={dialogHeader}>
+                <div>
+                  <div id="body-map-title" style={dialogTitle}>
+                    Body location
+                  </div>
+                  <div style={dialogSubtitle}>
+                    Tap the area where it happened. You can select more than one.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  style={dialogCloseBtn}
+                  aria-label="Close body map dialog"
+                  onClick={() => setShowBodyMapDialog(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <BodyLocationPicker
+                value={bodyLocations}
+                onChange={setBodyLocations}
+                embedded
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -1905,13 +1915,11 @@ const bodyLocationChip: React.CSSProperties = {
 const dialogOverlay: React.CSSProperties = {
   position: "fixed",
   inset: 0,
-  zIndex: 60,
+  zIndex: 120,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: 24,
-  overflowY: "auto",
-  overscrollBehavior: "contain",
+  padding: "5vh 5vw",
 };
 
 const dialogBackdrop: React.CSSProperties = {
@@ -1923,14 +1931,17 @@ const dialogBackdrop: React.CSSProperties = {
 
 const dialogCard: React.CSSProperties = {
   position: "relative",
-  width: "min(1220px, calc(100vw - 48px))",
-  maxHeight: "88vh",
+  width: "90vw",
+  height: "90vh",
+  maxWidth: "90vw",
+  maxHeight: "90vh",
   overflowY: "auto",
-  margin: "auto",
   borderRadius: 24,
   background: "rgba(255, 255, 255, 0.98)",
   boxShadow: "0 28px 60px rgba(15, 23, 42, 0.22)",
   padding: 24,
+  display: "flex",
+  flexDirection: "column",
 };
 
 const dialogHeader: React.CSSProperties = {
