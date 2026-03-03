@@ -39,8 +39,6 @@ export interface BodyLocation {
 }
 
 export const BODY_MAP_ENABLED_TYPES = [
-  "falls",
-  "near_miss",
   "pain",
   "rash",
   "cut",
@@ -58,7 +56,8 @@ export const BODY_MAP_ENABLED_TYPES = [
   "inflammation",
   "tender_joint",
   "spasm",
-  "weakness",
+  "numbness",
+  "restless_legs_syndrome",
 ] as const;
 
 export const BODY_REGIONS_BY_VIEW: Record<BodyMapView, BodyRegion[]> = {

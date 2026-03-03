@@ -118,6 +118,9 @@ export function ActivityForm() {
   const [foodType, setFoodType] = useState("");
   const [bodyLocations, setBodyLocations] = useState<BodyLocation[]>([]);
   const [showBodyMapDialog, setShowBodyMapDialog] = useState(false);
+  const [incidentDescription, setIncidentDescription] = useState("");
+  const [sleepStart, setSleepStart] = useState(nowLocal());
+  const [sleepEnd, setSleepEnd] = useState(nowLocal());
   const [selectedIncidentIssueKeys, setSelectedIncidentIssueKeys] = useState<
     string[]
   >([]);
@@ -164,6 +167,7 @@ export function ActivityForm() {
   const isHydration = subtype === "hydration";
   const isNutrition = isNutritionSubtype(subtype);
   const isIncident = mainCategory === "incident";
+  const isSleepPattern = mainCategory === "sleep_pattern";
   const filteredIncidentGroups = useMemo(() => {
     if (!isIncident || !selectedMainCategory) {
       return [];
@@ -297,6 +301,9 @@ export function ActivityForm() {
     setIncidentIssueFilter("");
     setSelectedSubtypeLabel(null);
     setSubtypeDetailsPreset(null);
+    setIncidentDescription("");
+    setSleepStart(nowLocal());
+    setSleepEnd(nowLocal());
     setMessage(null);
     setMessageTone(null);
     setRecentExpanded(false);
@@ -643,6 +650,13 @@ export function ActivityForm() {
       if (bodyLocations.length) {
         details.body_locations = bodyLocations;
       }
+      if (isSleepPattern && sleepStart && sleepEnd) {
+        details.sleep_start = new Date(sleepStart).toISOString();
+        details.sleep_end = new Date(sleepEnd).toISOString();
+      }
+      if (isIncident && incidentDescription.trim()) {
+        details.description = incidentDescription.trim();
+      }
 
       if (Object.keys(details).length) payload.details = details;
 
@@ -870,15 +884,6 @@ export function ActivityForm() {
 
           {clientSelector}
 
-          <label style={miniLabel}>{t("labels.observed_at")}</label>
-          <input
-            type="datetime-local"
-            value={observedAt}
-            onChange={(e) => setObservedAt(e.target.value)}
-            style={input}
-            aria-label={t("labels.observed_at")}
-          />
-
           {showIncidentIssueType && (
             <>
               <label style={miniLabel}>Issue type</label>
@@ -1016,6 +1021,23 @@ export function ActivityForm() {
             </>
           )}
 
+          {isIncident && selectedIncidentIssueItems.length > 0 && (
+            <>
+              <label style={miniLabel}>{t("labels.incident_description")}</label>
+              <textarea
+                value={incidentDescription}
+                onChange={(e) => setIncidentDescription(e.target.value)}
+                style={{ ...input, minHeight: 100, resize: "vertical", fontFamily: "inherit" }}
+                placeholder={t("placeholders.incident_description")}
+                aria-label={t("labels.incident_description")}
+                maxLength={500}
+              />
+              <div style={helperText}>
+                {incidentDescription.length}/500
+              </div>
+            </>
+          )}
+
           {showSubtypeSelector && (
             <div style={subtypeSelectorSection}>
               <div style={sectionLabel}>{subcategorySectionLabel}</div>
@@ -1078,31 +1100,7 @@ export function ActivityForm() {
             </div>
           )}
 
-          {showAssistance && (
-            <>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <label style={{ ...miniLabel, marginTop: 0 }}>
-                  {t("labels.assistance_level")}
-                </label>
-                <AssistanceTooltip />
-              </div>
-              <select
-                value={assistanceLevel}
-                onChange={(e) => setAssistanceLevel(e.target.value)}
-                style={input}
-                aria-label={t("labels.assistance_level")}
-              >
-                <option value="">{t("labels.select_level")}</option>
-                {ASSISTANCE_LEVELS.map((lvl) => (
-                  <option key={lvl.value} value={lvl.value}>
-                    {t(lvl.labelKey)}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-
-          {!isIncident && subtype && SUBTYPE_OPTIONS[subtype] && (
+          {!isIncident && !isSleepPattern && subtype && SUBTYPE_OPTIONS[subtype] && (
             <>
               <label style={miniLabel}>{getOptionLabel(subtype)}</label>
               {isHydration && (
@@ -1159,6 +1157,10 @@ export function ActivityForm() {
                 placeholder={t("placeholders.fluid_type")}
                 aria-label={t("labels.fluid_type_optional")}
               />
+              <div style={hydrationInfoBox}>
+                <span style={hydrationInfoIcon}>💡</span>
+                <span>{t("helpers.hydration_counts")}</span>
+              </div>
             </>
           )}
 
@@ -1187,6 +1189,61 @@ export function ActivityForm() {
                   </button>
                 ))}
               </div>
+            </>
+          )}
+
+          {isSleepPattern && (
+            <>
+              <div style={helperText}>{t("helpers.sleep_simple")}</div>
+              <label style={miniLabel}>{t("labels.sleep_start")}</label>
+              <input
+                type="datetime-local"
+                value={sleepStart}
+                onChange={(e) => setSleepStart(e.target.value)}
+                style={input}
+                aria-label={t("labels.sleep_start")}
+              />
+              <label style={miniLabel}>{t("labels.sleep_end")}</label>
+              <input
+                type="datetime-local"
+                value={sleepEnd}
+                onChange={(e) => setSleepEnd(e.target.value)}
+                style={input}
+                aria-label={t("labels.sleep_end")}
+              />
+            </>
+          )}
+
+          <label style={miniLabel}>{t("labels.observed_at")}</label>
+          <input
+            type="datetime-local"
+            value={observedAt}
+            onChange={(e) => setObservedAt(e.target.value)}
+            style={input}
+            aria-label={t("labels.observed_at")}
+          />
+
+          {showAssistance && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <label style={{ ...miniLabel, marginTop: 0 }}>
+                  {t("labels.assistance_level")}
+                </label>
+                <AssistanceTooltip />
+              </div>
+              <select
+                value={assistanceLevel}
+                onChange={(e) => setAssistanceLevel(e.target.value)}
+                style={input}
+                aria-label={t("labels.assistance_level")}
+              >
+                <option value="">{t("labels.select_level")}</option>
+                {ASSISTANCE_LEVELS.map((lvl) => (
+                  <option key={lvl.value} value={lvl.value}>
+                    {t(lvl.labelKey)}
+                  </option>
+                ))}
+              </select>
             </>
           )}
 
@@ -1369,6 +1426,7 @@ const MAIN_CATEGORY_COLORS: Record<
     bg: "rgba(251, 191, 36, 0.18)",
   },
   behavior_pattern: { color: "#475569", bg: "rgba(71, 85, 105, 0.18)" },
+  vital_signs: { color: "#EF4444", bg: "rgba(239, 68, 68, 0.18)" },
   incident: { color: "#14B8A6", bg: "rgba(20, 184, 166, 0.18)" },
 };
 
@@ -2019,6 +2077,25 @@ const chipBtn: React.CSSProperties = {
   fontSize: 13,
   fontWeight: 600,
   cursor: "pointer",
+};
+
+const hydrationInfoBox: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 10,
+  padding: "14px 16px",
+  borderRadius: 14,
+  background: "rgba(59, 130, 246, 0.08)",
+  border: "1px solid rgba(59, 130, 246, 0.18)",
+  fontSize: 13,
+  color: "#1E40AF",
+  lineHeight: 1.5,
+  marginTop: 4,
+};
+
+const hydrationInfoIcon: React.CSSProperties = {
+  flexShrink: 0,
+  fontSize: 16,
 };
 
 const recentSection: React.CSSProperties = {

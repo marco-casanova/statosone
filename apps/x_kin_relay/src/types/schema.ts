@@ -65,6 +65,7 @@ export type ObservationSubtype =
   | "pain"
   | "tender_joint"
   | "spasm"
+  | "numbness"
   | "abrasion"
   | "laceration"
   | "abuse"
@@ -278,6 +279,7 @@ export const CATEGORY_TO_SUBTYPES: Record<
       "delusion",
       "grief_sadness",
       "inappetence",
+      "numbness",
       "medication_error",
       "environment_hazard",
     ],
@@ -634,6 +636,7 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   inflammation: OBSERVATION_INTENSITY_OPTIONS,
   bites: OBSERVATION_INTENSITY_OPTIONS,
   itchiness: OBSERVATION_INTENSITY_OPTIONS,
+  numbness: OBSERVATION_INTENSITY_OPTIONS,
   abuse: [
     { label: "Suspected", value: "suspected" },
     { label: "Witnessed", value: "witnessed" },
@@ -809,8 +812,7 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Bath", value: "bath" },
     { label: "Shower", value: "shower" },
     { label: "Flannel wash", value: "flannel" },
-    { label: "Bed bath", value: "bed_bath" },
-    { label: "Refused", value: "refused" },
+    { label: "Bed wash", value: "bed_wash" },
   ],
   dressing_grooming: [
     { label: "Fully dressed", value: "full" },
@@ -973,6 +975,7 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   pain: "Finding",
   tender_joint: "Finding",
   spasm: "Finding",
+  numbness: "Severity",
   abrasion: "Severity",
   laceration: "Severity",
   abuse: "Type",
@@ -1041,6 +1044,7 @@ export type UiCareCategoryId =
   | "activity"
   | "medication_administration"
   | "behavior_pattern"
+  | "vital_signs"
   | "incident";
 
 export interface UiCareSubtypeItem {
@@ -1070,23 +1074,13 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
   {
     id: "sleep_pattern",
     label: "Sleep Pattern",
-    subtitle: "Bedtime, rest quality, interruptions",
+    subtitle: "Record sleep start & end times",
     iconCategory: "adl",
     groups: [
       {
         label: "Sleep",
         items: [
-          { label: "Sleep rest", category: "adl", subtype: "sleep_rest" },
-          {
-            label: "Drowsiness",
-            category: "health_observation",
-            subtype: "drowsiness",
-          },
-          {
-            label: "Restlessness",
-            category: "health_observation",
-            subtype: "restlessness",
-          },
+          { label: "Sleep period", category: "adl", subtype: "sleep_rest" },
         ],
       },
     ],
@@ -1094,14 +1088,14 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
   {
     id: "personal_care",
     label: "Personal Care",
-    subtitle: "Hygiene, dressing and toileting",
+    subtitle: "Body wash, dressing & toileting",
     iconCategory: "adl",
     groups: [
       {
         label: "Personal care",
         items: [
           {
-            label: "Bathing & hygiene",
+            label: "Body wash",
             category: "adl",
             subtype: "bathing_hygiene",
           },
@@ -1115,11 +1109,6 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             category: "adl",
             subtype: "toileting",
           },
-          {
-            label: "Feeding support",
-            category: "adl",
-            subtype: "feeding",
-          },
         ],
       },
     ],
@@ -1131,37 +1120,12 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
     iconCategory: "adl",
     groups: [
       {
-        label: "Fluid type",
+        label: "Hydration",
         items: [
           {
-            label: "Water",
+            label: "Fluid intake",
             category: "adl",
             subtype: "hydration",
-            detailsPreset: { fluid_type: "Water" },
-          },
-          {
-            label: "Tea / Coffee",
-            category: "adl",
-            subtype: "hydration",
-            detailsPreset: { fluid_type: "Tea/Coffee" },
-          },
-          {
-            label: "Juice",
-            category: "adl",
-            subtype: "hydration",
-            detailsPreset: { fluid_type: "Juice" },
-          },
-          {
-            label: "Soup / Broth",
-            category: "adl",
-            subtype: "hydration",
-            detailsPreset: { fluid_type: "Soup/Broth" },
-          },
-          {
-            label: "Other fluids",
-            category: "adl",
-            subtype: "hydration",
-            detailsPreset: { fluid_type: "Other" },
           },
         ],
       },
@@ -1174,37 +1138,12 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
     iconCategory: "adl",
     groups: [
       {
-        label: "Meal type",
+        label: "Nutrition",
         items: [
           {
-            label: "Breakfast",
+            label: "Meal intake",
             category: "adl",
             subtype: "nutrition_meal",
-            detailsPreset: { meal_type: "breakfast" },
-          },
-          {
-            label: "Lunch",
-            category: "adl",
-            subtype: "nutrition_meal",
-            detailsPreset: { meal_type: "lunch" },
-          },
-          {
-            label: "Dinner",
-            category: "adl",
-            subtype: "nutrition_meal",
-            detailsPreset: { meal_type: "dinner" },
-          },
-          {
-            label: "Snack",
-            category: "adl",
-            subtype: "nutrition_meal",
-            detailsPreset: { meal_type: "snack" },
-          },
-          {
-            label: "Supplement drink",
-            category: "adl",
-            subtype: "feeding",
-            detailsPreset: { meal_type: "supplement_drink" },
           },
         ],
       },
@@ -1224,16 +1163,6 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             label: "Ambulation / walk",
             category: "adl",
             subtype: "ambulation_walk",
-          },
-          {
-            label: "Mobility transfer (legacy)",
-            category: "adl",
-            subtype: "mobility_transfer",
-          },
-          {
-            label: "Loss of balance",
-            category: "health_observation",
-            subtype: "loss_of_balance",
           },
         ],
       },
@@ -1391,6 +1320,52 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
     ],
   },
   {
+    id: "vital_signs",
+    label: "Vital Signs",
+    subtitle: "Glucose, heart rate, respiration, O₂, BP",
+    iconCategory: "health_observation",
+    groups: [
+      {
+        label: "Vital signs",
+        items: [
+          {
+            label: "Blood glucose",
+            category: "health_observation",
+            subtype: "glucose_value",
+          },
+          {
+            label: "Heart rate",
+            category: "health_observation",
+            subtype: "vital_sign",
+            itemKey: "vital_sign_hr",
+            detailsPreset: { vital_type: "heart_rate" },
+          },
+          {
+            label: "Respiration rate",
+            category: "health_observation",
+            subtype: "vital_sign",
+            itemKey: "vital_sign_rr",
+            detailsPreset: { vital_type: "respiration_rate" },
+          },
+          {
+            label: "Oxygen saturation",
+            category: "health_observation",
+            subtype: "vital_sign",
+            itemKey: "vital_sign_spo2",
+            detailsPreset: { vital_type: "oxygen_saturation" },
+          },
+          {
+            label: "Blood pressure",
+            category: "health_observation",
+            subtype: "vital_sign",
+            itemKey: "vital_sign_bp",
+            detailsPreset: { vital_type: "blood_pressure" },
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: "incident",
     label: "Incident",
     subtitle: "Safety and acute events",
@@ -1423,7 +1398,7 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             subtype: "pale",
           },
           {
-            label: "Inflammation",
+            label: "Localised inflammation",
             category: "health_observation",
             subtype: "inflammation",
             itemKey: "skin_inflammation",
@@ -1452,32 +1427,44 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
         ],
       },
       {
-        label: "Area of discomfort",
+        label: "Discomfort",
         items: [
           {
             label: "Pain",
             category: "health_observation",
             subtype: "pain",
-            detailsPreset: { issue_group: "area_of_discomfort" },
+            detailsPreset: { issue_group: "discomfort" },
           },
           {
-            label: "Inflammation",
+            label: "General inflammation",
             category: "health_observation",
             subtype: "inflammation",
             itemKey: "discomfort_inflammation",
-            detailsPreset: { issue_group: "area_of_discomfort" },
+            detailsPreset: { issue_group: "discomfort" },
           },
           {
             label: "Tender joint",
             category: "health_observation",
             subtype: "tender_joint",
-            detailsPreset: { issue_group: "area_of_discomfort" },
+            detailsPreset: { issue_group: "discomfort" },
           },
           {
             label: "Spasm",
             category: "health_observation",
             subtype: "spasm",
-            detailsPreset: { issue_group: "area_of_discomfort" },
+            detailsPreset: { issue_group: "discomfort" },
+          },
+          {
+            label: "Numbness",
+            category: "health_observation",
+            subtype: "numbness",
+            detailsPreset: { issue_group: "discomfort" },
+          },
+          {
+            label: "Restless legs syndrome",
+            category: "health_observation",
+            subtype: "restless_legs_syndrome",
+            detailsPreset: { issue_group: "discomfort" },
           },
         ],
       },
@@ -1536,11 +1523,6 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             label: "Sleep apnea",
             category: "health_observation",
             subtype: "sleep_apnea",
-          },
-          {
-            label: "Restless legs syndrome",
-            category: "health_observation",
-            subtype: "restless_legs_syndrome",
           },
         ],
       },

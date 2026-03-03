@@ -242,16 +242,22 @@
         "observed_at": "Observed at",
         "assistance_level": "Assistance level",
         "select_level": "Select level",
-        "fluid_type_optional": "Fluid type (optional)",
-        "food_type_caregiver_input": "Food type (caregiver input)"
+        "fluid_type_optional": "Fluid type",
+        "food_type_caregiver_input": "Food description",
+        "incident_description": "Describe the incident",
+        "sleep_start": "Sleep start",
+        "sleep_end": "Sleep end"
       },
       "placeholders": {
-        "fluid_type": "Water, tea, juice, etc.",
-        "food_type": "Examples: pasta bolognesa, soup, chicken pasta..."
+        "fluid_type": "e.g. apple juice, fruit gelatin, soup, vanilla ice cream...",
+        "food_type": "e.g. pasta bolognesa, toasted bread, chicken pasta with sauce...",
+        "incident_description": "Describe the conditions that led to the incident..."
       },
       "helpers": {
         "hydration_multi": "Select multiple amounts to add them up.",
-        "total_ml": "Total: {value} ml"
+        "total_ml": "Total: {value} ml",
+        "hydration_counts": "Fluids such as soups, gelatins, ice cream, mousse, etc. are considered fluids and count toward hydration intake.",
+        "sleep_simple": "Record the sleep start and end time. Disturbances can be logged separately via Incidents."
       },
       "messages": {
         "pick_incident_type": "Pick incident type",
