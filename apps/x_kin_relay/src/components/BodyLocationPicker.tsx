@@ -1,6 +1,6 @@
 "use client";
 
-import React, { KeyboardEvent, useState } from "react";
+import React, { KeyboardEvent, useId, useState } from "react";
 import {
   BodyLocation,
   BodyMapView,
@@ -28,14 +28,22 @@ const BODY_SVG_STYLE = `
     stroke-linejoin: round;
   }
   .body-region {
-    fill: rgba(90, 120, 200, 0.10);
-    stroke: rgba(90, 120, 200, 0.18);
-    stroke-width: 1.5;
     cursor: pointer;
-    transition: fill 120ms ease, stroke 120ms ease;
   }
-  .body-region:hover {
+  .body-region-shape {
+    fill: rgba(90, 120, 200, 0.10);
+    stroke: none;
+    pointer-events: none;
+    transition: fill 120ms ease;
+  }
+  .body-region:hover .body-region-shape {
     fill: rgba(90, 120, 200, 0.18);
+  }
+  .body-region-hit {
+    fill: rgba(0, 0, 0, 0.001);
+    stroke: transparent;
+    stroke-width: 24;
+    vector-effect: non-scaling-stroke;
   }
 `;
 
@@ -198,6 +206,10 @@ function BodyMapSvg({
 }) {
   const spec = BODY_VIEW_SPECS[view];
   const transform = spec.mirror ? "translate(260,0) scale(-1,1)" : undefined;
+  const clipId = useId().replace(/:/g, "");
+  const regionClipId = spec.regionClip
+    ? `body-region-clip-${view}-${clipId}`
+    : undefined;
 
   return (
     <div style={mapPanel}>
@@ -213,6 +225,15 @@ function BodyMapSvg({
           style={bodySvg}
         >
           <style>{BODY_SVG_STYLE}</style>
+          {regionClipId && (
+            <defs>
+              <clipPath id={regionClipId} clipPathUnits="userSpaceOnUse">
+                {spec.regionClip?.map((shape, index) =>
+                  renderSvgShape(shape, `clip-${view}-${index}`),
+                )}
+              </clipPath>
+            </defs>
+          )}
           <g id={`view-${view.replace("_", "-")}`} transform={transform}>
             <g id="body-outline">
               {spec.outline.map((shape, index) =>
@@ -244,7 +265,6 @@ function BodyMapSvg({
                     tabIndex={0}
                     aria-label={regionAriaLabel(spec.title, regionDef)}
                     aria-pressed={isSelected}
-                    style={regionStyle(isSelected || isPending)}
                     onClick={() => onRegionPress(view, regionDef)}
                     onKeyDown={(event) =>
                       handleRegionKeyDown(event, () =>
@@ -253,7 +273,22 @@ function BodyMapSvg({
                     }
                   >
                     <title>{regionDef.title}</title>
-                    {renderSvgShape(regionDef.shape, `${regionDef.id}-shape`)}
+                    {renderSvgShape(
+                      regionDef.shape,
+                      `${regionDef.id}-hit`,
+                      "body-region-hit",
+                    )}
+                    {renderSvgShape(
+                      regionDef.shape,
+                      `${regionDef.id}-shape`,
+                      "body-region-shape",
+                      {
+                        clipPath: regionClipId
+                          ? `url(#${regionClipId})`
+                          : undefined,
+                        style: regionStyle(isSelected || isPending),
+                      },
+                    )}
                   </g>
                 );
               })}
@@ -265,7 +300,12 @@ function BodyMapSvg({
   );
 }
 
-function renderSvgShape(shape: SvgShape, key: string, className?: string) {
+function renderSvgShape(
+  shape: SvgShape,
+  key: string,
+  className?: string,
+  props?: React.SVGProps<SVGPathElement> & React.SVGProps<SVGEllipseElement>,
+) {
   if (shape.kind === "ellipse") {
     return (
       <ellipse
@@ -275,11 +315,12 @@ function renderSvgShape(shape: SvgShape, key: string, className?: string) {
         cy={shape.cy}
         rx={shape.rx}
         ry={shape.ry}
+        {...props}
       />
     );
   }
 
-  return <path key={key} className={className} d={shape.d} />;
+  return <path key={key} className={className} d={shape.d} {...props} />;
 }
 
 function handleRegionKeyDown(
@@ -302,13 +343,11 @@ function regionAriaLabel(title: string, regionDef: BodyRegionSvgDef) {
 
 function regionStyle(isActive: boolean): React.CSSProperties {
   if (!isActive) {
-    return { cursor: "pointer" };
+    return {};
   }
 
   return {
-    cursor: "pointer",
     fill: "rgba(239, 68, 68, 0.5)",
-    stroke: "#DC2626",
   };
 }
 

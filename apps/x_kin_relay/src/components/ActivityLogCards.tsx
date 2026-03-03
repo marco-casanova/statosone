@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "@/lib/supabaseClient";
 import { iconFor, a11yLabel } from "./activityIcons";
+import { getActivitySubtypeValues } from "./activitySubtypeValues";
 
 interface ActivityRow {
   id: string;
@@ -186,9 +187,7 @@ export function ActivityLogCards() {
           const subtype = subK ? a[subK] : null;
           const isOpen = expanded[a.id] || (autoOpen && !!a.details);
           const recName = recipientMap[a.recipient_id];
-          const subtypesAll = Object.keys(a)
-            .filter((k) => k.startsWith("subtype_") && a[k])
-            .map((k) => a[k]);
+          const subtypesAll = getActivitySubtypeValues(a);
           const icon = iconFor(
             a.category,
             subtypesAll[0] as string | undefined,

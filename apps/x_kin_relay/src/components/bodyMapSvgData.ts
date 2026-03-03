@@ -31,6 +31,7 @@ export interface BodyViewSpec {
   title: string;
   outline: SvgShape[];
   regions: BodyRegionSvgDef[];
+  regionClip?: SvgShape[];
   mirror?: boolean;
 }
 
@@ -700,13 +701,11 @@ const BACK_REGIONS: BodyRegionSvgDef[] = [
 
 // Side body: torso only (arm drawn separately, extended forward)
 const SIDE_BODY_SILHOUETTE = `
-M 118 28
-C 134 26 148 36 154 50
-C 160 64 162 78 158 90
-C 154 98 154 104 156 110
-C 160 118 156 124 150 128
-C 144 136 140 142 136 148
-C 140 154 146 160 152 164
+M 122 28
+C 140 28 152 40 158 58
+C 162 76 162 96 158 112
+C 154 126 150 138 148 148
+C 150 154 154 160 158 166
 C 160 172 166 186 168 204
 C 170 224 170 248 168 274
 C 166 296 166 316 168 338
@@ -736,31 +735,28 @@ C 82 94 86 74 92 58
 C 100 40 110 30 118 28
 Z`.replace(/\n/g, " ");
 
-// Arm: separate path, extended forward from the shoulder so it does NOT overlap the torso
+// Arm: separate path, shortened and offset from the torso for a cleaner side profile.
 const SIDE_ARM_SILHOUETTE = `
-M 168 164
-C 178 168 186 176 192 188
-C 198 204 204 226 208 252
-C 212 278 212 302 210 326
-C 208 344 206 362 206 380
-C 206 392 208 404 210 414
-C 212 422 210 430 204 434
-C 198 438 192 434 190 428
-C 188 420 188 410 190 398
-C 192 382 194 364 194 346
-C 194 322 192 298 190 274
-C 186 248 184 226 182 206
-C 180 192 178 182 176 174
-C 174 168 170 164 168 164
+M 160 170
+C 172 176 182 192 186 216
+C 190 244 192 278 192 316
+C 192 352 190 390 188 428
+C 186 456 186 476 188 492
+C 186 500 180 506 172 508
+C 164 508 160 502 160 490
+C 160 468 164 442 168 408
+C 170 370 172 332 172 292
+C 172 252 169 220 164 194
+C 162 184 161 176 160 170
 Z`.replace(/\n/g, " ");
 
 const SIDE_OUTLINE: SvgShape[] = [
+  // Arm first so the torso can overlap it slightly at the shoulder.
+  { kind: "path", d: SIDE_ARM_SILHOUETTE },
   // Main body profile (torso + legs, no arm)
   { kind: "path", d: SIDE_BODY_SILHOUETTE },
-  // Arm (separate, extended forward)
-  { kind: "path", d: SIDE_ARM_SILHOUETTE },
-  // Shoulder connection line
-  { kind: "path", d: "M 152 164 C 158 164 164 164 168 164" },
+  // Arm seam
+  { kind: "path", d: "M 162 180 C 168 212 170 250 170 292 C 170 334 169 372 167 408" },
   // Ear
   { kind: "path", d: "M 92 72 C 88 68 86 74 88 80 C 90 86 94 84 94 78" },
   // Navel hint
@@ -770,6 +766,11 @@ const SIDE_OUTLINE: SvgShape[] = [
   { kind: "path", d: "M 150 540 C 146 546 140 548 134 548" },
 ];
 
+const SIDE_REGION_CLIP: SvgShape[] = [
+  { kind: "path", d: SIDE_BODY_SILHOUETTE },
+  { kind: "path", d: SIDE_ARM_SILHOUETTE },
+];
+
 const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
   {
     id: "left-side-head",
@@ -777,7 +778,7 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side head",
     shape: {
       kind: "path",
-      d: "M 118 30 C 136 28 150 40 158 58 C 164 78 162 98 154 112 C 148 122 142 130 138 140 L 96 140 C 92 130 86 118 84 106 C 82 88 86 68 94 52 C 102 38 112 30 118 30 Z",
+      d: "M 122 30 C 140 30 152 42 158 60 C 162 78 162 98 158 112 C 154 124 150 134 148 140 L 96 140 C 90 128 86 116 84 104 C 82 86 86 68 94 52 C 102 38 112 30 122 30 Z",
     },
   },
   {
@@ -786,7 +787,7 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side neck",
     shape: {
       kind: "path",
-      d: "M 96 140 L 138 140 C 140 146 142 152 144 158 L 92 158 C 93 152 94 146 96 140 Z",
+      d: "M 96 140 L 148 140 C 150 146 152 152 154 158 L 92 158 C 93 152 94 146 96 140 Z",
     },
   },
   {
@@ -795,7 +796,7 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side shoulder",
     shape: {
       kind: "path",
-      d: "M 92 158 L 144 158 C 152 166 160 176 166 190 L 86 190 C 84 180 86 170 92 158 Z",
+      d: "M 92 158 L 154 158 C 160 164 166 176 170 192 L 174 210 L 156 210 L 90 194 C 84 182 85 170 92 158 Z",
     },
   },
   {
@@ -804,14 +805,14 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side upper arm",
     shape: {
       kind: "path",
-      d: "M 176 176 C 186 188 194 208 200 234 C 206 260 208 284 208 306 L 184 306 C 184 284 182 262 178 238 C 174 216 170 198 166 186 Z",
+      d: "M 160 172 C 170 178 178 194 182 218 C 186 242 188 270 188 300 L 172 300 C 172 270 170 242 166 218 C 163 198 161 184 160 172 Z",
     },
   },
   {
     id: "left-side-elbow",
     region: "elbow",
     title: "Left side elbow",
-    shape: { kind: "ellipse", cx: 198, cy: 318, rx: 14, ry: 14 },
+    shape: { kind: "ellipse", cx: 180, cy: 326, rx: 12, ry: 13 },
   },
   {
     id: "left-side-forearm",
@@ -819,7 +820,7 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side forearm",
     shape: {
       kind: "path",
-      d: "M 210 332 C 208 348 206 366 206 384 L 190 384 C 192 366 194 348 194 332 Z",
+      d: "M 172 300 C 174 332 174 368 172 404 L 188 404 C 190 368 190 332 188 300 Z",
     },
   },
   {
@@ -828,7 +829,7 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side wrist / hand",
     shape: {
       kind: "path",
-      d: "M 206 384 C 208 396 210 408 212 418 L 192 422 C 190 412 190 398 190 384 Z",
+      d: "M 172 404 C 170 426 168 446 168 468 L 188 468 C 188 446 188 426 188 404 Z",
     },
   },
   {
@@ -837,7 +838,7 @@ const LEFT_SIDE_REGIONS: BodyRegionSvgDef[] = [
     title: "Left side fingers",
     shape: {
       kind: "path",
-      d: "M 212 418 C 214 428 212 436 206 440 C 200 442 194 438 192 430 L 192 422 Z",
+      d: "M 168 468 C 166 482 166 494 170 504 C 176 508 184 506 188 498 C 190 490 190 478 188 468 Z",
     },
   },
   {
@@ -936,11 +937,13 @@ export const BODY_VIEW_SPECS: Record<BodyMapView, BodyViewSpec> = {
     title: "Left side",
     outline: SIDE_OUTLINE,
     regions: LEFT_SIDE_REGIONS,
+    regionClip: SIDE_REGION_CLIP,
   },
   right_side: {
     title: "Right side",
     outline: SIDE_OUTLINE,
     regions: RIGHT_SIDE_REGIONS,
+    regionClip: SIDE_REGION_CLIP,
     mirror: true,
   },
 };

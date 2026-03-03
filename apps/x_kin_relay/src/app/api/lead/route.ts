@@ -18,7 +18,8 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
 
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE;
+  const key =
+    process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE;
   if (!url || !key) {
     // Dev fallback: don’t fail hard if env not configured
     return NextResponse.json({ ok: true, stored: false });

@@ -67,4 +67,42 @@ describe("BodyLocationPicker", () => {
     expect(screen.queryByText("Front: Left knee")).not.toBeInTheDocument();
     expect(kneeButton).toHaveAttribute("aria-pressed", "false");
   });
+
+  test("side-view regions clip visual fills and use dedicated hit targets", () => {
+    const { container } = render(<Harness />);
+
+    expect(
+      container.querySelector("#left-side-head .body-region-shape"),
+    ).toHaveAttribute("clip-path");
+    expect(
+      container.querySelector("#right-side-head .body-region-shape"),
+    ).toHaveAttribute("clip-path");
+    expect(
+      container.querySelector("#left-side-head .body-region-hit"),
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector("#right-side-head .body-region-hit"),
+    ).toBeInTheDocument();
+  });
+
+  test("only the right-side view mirrors the full interactive svg group", () => {
+    const { container } = render(<Harness />);
+
+    expect(container.querySelector("#view-left-side")).not.toHaveAttribute(
+      "transform",
+    );
+    expect(container.querySelector("#view-right-side")).toHaveAttribute(
+      "transform",
+      "translate(260,0) scale(-1,1)",
+    );
+  });
+
+  test("region visuals do not apply a stroke", () => {
+    const { container } = render(<Harness />);
+
+    expect(container.querySelector("style")).toHaveTextContent(
+      ".body-region-shape",
+    );
+    expect(container.querySelector("style")).toHaveTextContent("stroke: none");
+  });
 });

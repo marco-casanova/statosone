@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Accessibility } from "lucide-react";
 import { supabase, hasSupabase } from "../lib/supabaseClient";
+import { insertKrActivity } from "../lib/krActivities";
 import {
   IncidentCategory,
   CATEGORY_TO_SUBTYPES,
@@ -673,17 +674,7 @@ export function ActivityForm() {
         caregiver_id: user.id,
       };
 
-      let { error } = await supabase
-        .from("kr_activities")
-        .insert(insertWithOwners);
-      if (
-        error &&
-        /column .* does not exist|created_by|caregiver_id/i.test(
-          error.message || "",
-        )
-      ) {
-        ({ error } = await supabase.from("kr_activities").insert(payload));
-      }
+      const { error } = await insertKrActivity(supabase, insertWithOwners);
       if (error) throw error;
       setMessage(t("messages.saved"));
       setMessageTone("success");

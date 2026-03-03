@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { Home, Menu, ChevronDown, Clock, Smile } from "lucide-react";
 import { supabase, hasSupabase } from "@/lib/supabaseClient";
+import { insertKrActivity } from "@/lib/krActivities";
 
 interface Client {
   id: string;
@@ -396,13 +397,7 @@ export default function TasksPage() {
       caregiver_id: user.id,
     };
 
-    let { error } = await supabase.from("kr_activities").insert(payloadWithOwners);
-    if (
-      error &&
-      /column .* does not exist|created_by|caregiver_id/i.test(error.message || "")
-    ) {
-      ({ error } = await supabase.from("kr_activities").insert(basePayload));
-    }
+    const { error } = await insertKrActivity(supabase, payloadWithOwners);
     if (!error) setExpandedCategory(null);
   };
 
