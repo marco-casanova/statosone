@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { ActivityForm } from "./ActivityForm";
 import { ActivityLogCards } from "./ActivityLogCards";
 import { DataManagement } from "./DataManagement";
-type DashboardTab = "overview" | "data";
+type DashboardTab = "overview" | "logs" | "data";
 
 export function Dashboard({ initialTab }: { initialTab?: string }) {
   const [tab, setTab] = useState<DashboardTab>(
@@ -11,7 +11,7 @@ export function Dashboard({ initialTab }: { initialTab?: string }) {
   );
 
   useEffect(() => {
-    if (initialTab && ["overview", "data"].includes(initialTab)) {
+    if (initialTab && ["overview", "logs", "data"].includes(initialTab)) {
       setTab(initialTab as DashboardTab);
     }
   }, [initialTab]);
@@ -31,6 +31,12 @@ export function Dashboard({ initialTab }: { initialTab?: string }) {
             Overview
           </button>
           <button
+            onClick={() => setTab("logs")}
+            style={tab === "logs" ? tabBtnActive : tabBtn}
+          >
+            Recent Tasks
+          </button>
+          <button
             onClick={() => setTab("data")}
             style={tab === "data" ? tabBtnActive : tabBtn}
           >
@@ -43,9 +49,10 @@ export function Dashboard({ initialTab }: { initialTab?: string }) {
       {tab === "overview" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
           <ActivityForm />
-          <ActivityLogCards />
         </div>
       )}
+
+      {tab === "logs" && <ActivityLogCards />}
 
       {tab === "data" && <DataManagement embedded />}
     </div>

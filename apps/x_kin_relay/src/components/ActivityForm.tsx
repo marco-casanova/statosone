@@ -274,7 +274,9 @@ export function ActivityForm() {
       return;
     }
     setOpenIncidentGroups((prev) => {
-      const available = new Set(filteredIncidentGroups.map((group) => group.label));
+      const available = new Set(
+        filteredIncidentGroups.map((group) => group.label),
+      );
       const retained = prev.filter((label) => available.has(label));
       if (retained.length > 0) {
         return retained;
@@ -458,7 +460,9 @@ export function ActivityForm() {
       const isSelected = selectedIncidentIssueKeys.includes(issueKey);
 
       if (isSelected) {
-        const nextKeys = selectedIncidentIssueKeys.filter((key) => key !== issueKey);
+        const nextKeys = selectedIncidentIssueKeys.filter(
+          (key) => key !== issueKey,
+        );
         setSelectedIncidentIssueKeys(nextKeys);
 
         if (
@@ -902,7 +906,9 @@ export function ActivityForm() {
                   filteredIncidentGroups.map((group) => {
                     const isOpen = openIncidentGroups.includes(group.label);
                     const selectedCount = group.items.filter((item) =>
-                      selectedIncidentIssueKeys.includes(incidentIssueKey(item)),
+                      selectedIncidentIssueKeys.includes(
+                        incidentIssueKey(item),
+                      ),
                     ).length;
                     const supportsBodyMap = group.items.some((item) =>
                       BODY_MAP_ENABLED_TYPES.includes(
@@ -918,7 +924,9 @@ export function ActivityForm() {
                           aria-expanded={isOpen}
                         >
                           <div style={incidentAccordionTitleWrap}>
-                            <span style={incidentAccordionTitle}>{group.label}</span>
+                            <span style={incidentAccordionTitle}>
+                              {group.label}
+                            </span>
                             {supportsBodyMap && (
                               <span style={incidentAccordionHint}>
                                 Body map available
@@ -940,18 +948,20 @@ export function ActivityForm() {
                           <div style={incidentAccordionBody}>
                             {supportsBodyMap && (
                               <div style={helperText}>
-                                Select an issue, then use the body icon to map the
-                                affected area.
+                                Select an issue, then use the body icon to map
+                                the affected area.
                               </div>
                             )}
                             <div style={issueTypeGrid}>
                               {group.items.map((item) => {
-                                const isSelected = selectedIncidentIssueKeys.includes(
-                                  incidentIssueKey(item),
-                                );
-                                const itemSupportsBodyMap = BODY_MAP_ENABLED_TYPES.includes(
-                                  item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
-                                );
+                                const isSelected =
+                                  selectedIncidentIssueKeys.includes(
+                                    incidentIssueKey(item),
+                                  );
+                                const itemSupportsBodyMap =
+                                  BODY_MAP_ENABLED_TYPES.includes(
+                                    item.subtype as (typeof BODY_MAP_ENABLED_TYPES)[number],
+                                  );
                                 return (
                                   <div
                                     key={`incident-issue-${incidentIssueKey(item)}`}
@@ -990,7 +1000,10 @@ export function ActivityForm() {
                                         aria-label={`Open body map for ${item.label}`}
                                         title={`Open body map for ${item.label}`}
                                       >
-                                        <Accessibility size={16} strokeWidth={2.2} />
+                                        <Accessibility
+                                          size={16}
+                                          strokeWidth={2.2}
+                                        />
                                       </button>
                                     )}
                                   </div>
@@ -1003,7 +1016,9 @@ export function ActivityForm() {
                     );
                   })
                 ) : (
-                  <div style={incidentEmptyState}>No issue types match this filter.</div>
+                  <div style={incidentEmptyState}>
+                    No issue types match this filter.
+                  </div>
                 )}
               </div>
               {showBodyLocationPicker && bodyLocations.length > 0 && (
@@ -1023,18 +1038,23 @@ export function ActivityForm() {
 
           {isIncident && selectedIncidentIssueItems.length > 0 && (
             <>
-              <label style={miniLabel}>{t("labels.incident_description")}</label>
+              <label style={miniLabel}>
+                {t("labels.incident_description")}
+              </label>
               <textarea
                 value={incidentDescription}
                 onChange={(e) => setIncidentDescription(e.target.value)}
-                style={{ ...input, minHeight: 100, resize: "vertical", fontFamily: "inherit" }}
+                style={{
+                  ...input,
+                  minHeight: 100,
+                  resize: "vertical",
+                  fontFamily: "inherit",
+                }}
                 placeholder={t("placeholders.incident_description")}
                 aria-label={t("labels.incident_description")}
                 maxLength={500}
               />
-              <div style={helperText}>
-                {incidentDescription.length}/500
-              </div>
+              <div style={helperText}>{incidentDescription.length}/500</div>
             </>
           )}
 
@@ -1068,7 +1088,10 @@ export function ActivityForm() {
                             <span
                               style={compactIconBadge(item.category)}
                               role="img"
-                              aria-label={a11yLabel(item.category, item.subtype)}
+                              aria-label={a11yLabel(
+                                item.category,
+                                item.subtype,
+                              )}
                             >
                               {iconFor(item.category, item.subtype, 20)}
                             </span>
@@ -1100,51 +1123,54 @@ export function ActivityForm() {
             </div>
           )}
 
-          {!isIncident && !isSleepPattern && subtype && SUBTYPE_OPTIONS[subtype] && (
-            <>
-              <label style={miniLabel}>{getOptionLabel(subtype)}</label>
-              {isHydration && (
-                <div style={helperText}>{t("helpers.hydration_multi")}</div>
-              )}
-              <div style={optionGrid}>
-                {SUBTYPE_OPTIONS[subtype].map((opt) => {
-                  const isSelected = isHydration
-                    ? hydrationValues.includes(Number(opt.value))
-                    : subtypeValue === opt.value;
-                  return (
-                    <button
-                      key={String(opt.value)}
-                      type="button"
-                      onClick={() => {
-                        if (isHydration) {
-                          toggleHydrationValue(Number(opt.value));
-                          return;
-                        }
-                        setSubtypeValue(opt.value);
-                      }}
-                      style={{
-                        ...optionBtn,
-                        background: isSelected
-                          ? "rgba(108, 124, 255, 0.25)"
-                          : "rgba(15, 23, 42, 0.04)",
-                        borderColor: isSelected
-                          ? "#6C7CFF"
-                          : "rgba(15, 23, 42, 0.12)",
-                      }}
-                      aria-pressed={isSelected}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
-              </div>
-              {isHydration && hydrationTotal > 0 && (
-                <div style={helperText}>
-                  {t("helpers.total_ml", { value: hydrationTotal })}
+          {!isIncident &&
+            !isSleepPattern &&
+            subtype &&
+            SUBTYPE_OPTIONS[subtype] && (
+              <>
+                <label style={miniLabel}>{getOptionLabel(subtype)}</label>
+                {isHydration && (
+                  <div style={helperText}>{t("helpers.hydration_multi")}</div>
+                )}
+                <div style={optionGrid}>
+                  {SUBTYPE_OPTIONS[subtype].map((opt) => {
+                    const isSelected = isHydration
+                      ? hydrationValues.includes(Number(opt.value))
+                      : subtypeValue === opt.value;
+                    return (
+                      <button
+                        key={String(opt.value)}
+                        type="button"
+                        onClick={() => {
+                          if (isHydration) {
+                            toggleHydrationValue(Number(opt.value));
+                            return;
+                          }
+                          setSubtypeValue(opt.value);
+                        }}
+                        style={{
+                          ...optionBtn,
+                          background: isSelected
+                            ? "rgba(108, 124, 255, 0.25)"
+                            : "rgba(15, 23, 42, 0.04)",
+                          borderColor: isSelected
+                            ? "#6C7CFF"
+                            : "rgba(15, 23, 42, 0.12)",
+                        }}
+                        aria-pressed={isSelected}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
-            </>
-          )}
+                {isHydration && hydrationTotal > 0 && (
+                  <div style={helperText}>
+                    {t("helpers.total_ml", { value: hydrationTotal })}
+                  </div>
+                )}
+              </>
+            )}
 
           {isHydration && (
             <>
@@ -1214,15 +1240,6 @@ export function ActivityForm() {
             </>
           )}
 
-          <label style={miniLabel}>{t("labels.observed_at")}</label>
-          <input
-            type="datetime-local"
-            value={observedAt}
-            onChange={(e) => setObservedAt(e.target.value)}
-            style={input}
-            aria-label={t("labels.observed_at")}
-          />
-
           {showAssistance && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -1247,32 +1264,14 @@ export function ActivityForm() {
             </>
           )}
 
-          <div style={recentSection}>
-            <div style={recentHeader}>
-              <div style={miniLabel}>{t("sections.recent_tasks")}</div>
-              <button
-                type="button"
-                style={linkBtn}
-                onClick={() => setRecentExpanded((v) => !v)}
-              >
-                {recentExpanded ? t("actions.collapse") : t("actions.expand")}
-              </button>
-            </div>
-            {recentLoading ? (
-              <div style={helperText}>{t("states.loading")}</div>
-            ) : recentActivities.length === 0 ? (
-              <div style={helperText}>{t("states.no_tasks")}</div>
-            ) : (
-              <div style={recentList}>
-                {recentActivities.map((a) => (
-                  <div key={a.id} style={recentItem}>
-                    <div style={recentTitle}>{primaryLabel(a)}</div>
-                    <div style={recentMeta}>{formattedTime(a.observed_at)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <label style={miniLabel}>{t("labels.observed_at")}</label>
+          <input
+            type="datetime-local"
+            value={observedAt}
+            onChange={(e) => setObservedAt(e.target.value)}
+            style={input}
+            aria-label={t("labels.observed_at")}
+          />
 
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
             <button
@@ -1339,7 +1338,8 @@ export function ActivityForm() {
                     Body location
                   </div>
                   <div style={dialogSubtitle}>
-                    Tap the area where it happened. You can select more than one.
+                    Tap the area where it happened. You can select more than
+                    one.
                   </div>
                 </div>
                 <button

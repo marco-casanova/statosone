@@ -814,12 +814,7 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Flannel wash", value: "flannel" },
     { label: "Bed wash", value: "bed_wash" },
   ],
-  dressing_grooming: [
-    { label: "Fully dressed", value: "full" },
-    { label: "Partial assistance", value: "partial" },
-    { label: "Full assistance", value: "full_assist" },
-    { label: "Refused", value: "refused" },
-  ],
+  dressing_grooming: [],
 
   // ============================================
   // ENVIRONMENT SUBTYPES
@@ -1009,7 +1004,7 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   transfer: "Assistance needed",
   ambulation_walk: "Duration",
   bathing_hygiene: "Type",
-  dressing_grooming: "Assistance",
+  dressing_grooming: "",
   // Environment
   home_hazard: "Hazard type",
   moving_handling: "Issue type",
