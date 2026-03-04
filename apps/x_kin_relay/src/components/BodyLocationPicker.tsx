@@ -54,17 +54,24 @@ function regionAriaLabel(view: DatasetView, part: string) {
   return `${DATASET_VIEW_LABELS[view]} ${humanizeToken(part)}`;
 }
 
-function regionDatasetKey(view: DatasetView, part: string) {
-  return `${view}:${part}`;
+function regionDatasetKey(view: DatasetView, part: string, instance = 0) {
+  return `${view}:${part}:${instance}`;
 }
 
 function locationDatasetKey(location: BodyLocation) {
-  return regionDatasetKey(toDatasetView(location.view), location.region);
+  return regionDatasetKey(
+    toDatasetView(location.view),
+    location.region,
+    location.instance ?? 0,
+  );
 }
 
 function regionDataFromElement(element: Element) {
   const view = element.getAttribute("data-view");
   const part = element.getAttribute("data-part");
+  const rawInstance = element.getAttribute("data-instance");
+  const parsedInstance = rawInstance ? Number.parseInt(rawInstance, 10) : 0;
+  const instance = Number.isFinite(parsedInstance) ? parsedInstance : 0;
 
   if (!isDatasetView(view) || !part) {
     return null;
@@ -74,7 +81,8 @@ function regionDataFromElement(element: Element) {
     datasetView: view,
     modelView: DATASET_TO_MODEL_VIEW[view],
     part: part as BodyRegion,
-    key: regionDatasetKey(view, part),
+    instance,
+    key: regionDatasetKey(view, part, instance),
   };
 }
 
@@ -95,8 +103,12 @@ export function BodyLocationPicker({
     [value],
   );
 
-  function toggleLocation(modelView: BodyMapView, part: BodyRegion) {
-    const nextKey = regionDatasetKey(toDatasetView(modelView), part);
+  function toggleLocation(
+    modelView: BodyMapView,
+    part: BodyRegion,
+    instance: number,
+  ) {
+    const nextKey = regionDatasetKey(toDatasetView(modelView), part, instance);
     const exists = value.some((location) => locationDatasetKey(location) === nextKey);
 
     if (exists) {
@@ -109,6 +121,7 @@ export function BodyLocationPicker({
       {
         view: modelView,
         region: part,
+        instance,
       },
     ]);
   }
@@ -127,7 +140,7 @@ export function BodyLocationPicker({
       return;
     }
 
-    toggleLocation(data.modelView, data.part);
+    toggleLocation(data.modelView, data.part, data.instance);
   }
 
   useEffect(() => {
@@ -137,32 +150,48 @@ export function BodyLocationPicker({
     }
 
     const regions = Array.from(host.querySelectorAll<SVGElement>(".region"));
-    const firstByKey = new Set<string>();
+    const countByBaseKey = new Map<string, number>();
+    const instanceByBaseKey = new Map<string, number>();
 
     for (const region of regions) {
-      const data = regionDataFromElement(region);
-      if (!data) {
+      const view = region.getAttribute("data-view");
+      const part = region.getAttribute("data-part");
+      if (!isDatasetView(view) || !part) {
         continue;
       }
+      const baseKey = `${view}:${part}`;
+      countByBaseKey.set(baseKey, (countByBaseKey.get(baseKey) || 0) + 1);
+    }
 
-      const isSelected = selectedKeys.has(data.key);
+    for (const region of regions) {
+      const view = region.getAttribute("data-view");
+      const part = region.getAttribute("data-part");
+      if (!isDatasetView(view) || !part) {
+        continue;
+      }
+      const baseKey = `${view}:${part}`;
+      const instance = instanceByBaseKey.get(baseKey) || 0;
+      const total = countByBaseKey.get(baseKey) || 1;
+      instanceByBaseKey.set(baseKey, instance + 1);
+      region.setAttribute("data-instance", String(instance));
+
+      const key = regionDatasetKey(view, part, instance);
+      const isSelected = selectedKeys.has(key);
+
       if (isSelected) {
         region.setAttribute("data-selected", "true");
       } else {
         region.removeAttribute("data-selected");
       }
       region.setAttribute("aria-pressed", isSelected ? "true" : "false");
-
-      if (!firstByKey.has(data.key)) {
-        firstByKey.add(data.key);
-        region.setAttribute("role", "button");
-        region.setAttribute("tabindex", "0");
-        region.setAttribute("aria-label", regionAriaLabel(data.datasetView, data.part));
-      } else {
-        region.removeAttribute("role");
-        region.removeAttribute("tabindex");
-        region.removeAttribute("aria-label");
-      }
+      region.setAttribute("role", "button");
+      region.setAttribute("tabindex", "0");
+      region.setAttribute(
+        "aria-label",
+        total > 1
+          ? `${regionAriaLabel(view, part)} ${instance + 1}`
+          : regionAriaLabel(view, part),
+      );
     }
   }, [selectedKeys]);
 

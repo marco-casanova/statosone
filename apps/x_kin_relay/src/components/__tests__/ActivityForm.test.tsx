@@ -212,7 +212,7 @@ describe("ActivityForm", () => {
       screen.getByRole("button", { name: /Open body map for Fall/i }),
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Front Knees" }));
+    fireEvent.click(screen.getByRole("button", { name: "Front Knees 1" }));
     expect(screen.getAllByText("Front: Knees").length).toBeGreaterThan(0);
 
     fireEvent.click(fallButton);

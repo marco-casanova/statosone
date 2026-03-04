@@ -27,16 +27,16 @@ describe("BodyLocationPicker", () => {
     expect(screen.getAllByText("Back: Spine").length).toBeGreaterThan(0);
   });
 
-  test("duplicate shapes for one part stay in sync", () => {
+  test("duplicate shapes for one part are selected independently", () => {
     const { container } = render(<Harness />);
 
-    const kneesButton = screen.getByRole("button", { name: "Front Knees" });
-    fireEvent.click(kneesButton);
+    const rightKneeButton = screen.getByRole("button", { name: "Front Knees 2" });
+    fireEvent.click(rightKneeButton);
 
     const selectedKnees = container.querySelectorAll(
       '.region[data-view="front"][data-part="knees"][data-selected="true"]',
     );
-    expect(selectedKnees.length).toBe(2);
+    expect(selectedKnees.length).toBe(1);
   });
 
   test("all body views can be selected", () => {

@@ -93,6 +93,7 @@ export type BodyRegion =
 export interface BodyLocation {
   region: BodyRegion;
   view: BodyMapView;
+  instance?: number;
   side?: BodySide;
   discomforts?: BodyDiscomfortOption[];
 }
@@ -392,7 +393,7 @@ export function discomfortsForRegion(region: BodyRegion) {
 }
 
 export function bodyLocationKey(location: BodyLocation) {
-  return `${location.view}:${location.region}:${location.side || "midline"}`;
+  return `${location.view}:${location.region}:${location.instance ?? 0}:${location.side || "midline"}`;
 }
 
 export function regionRequiresSide(region: BodyRegion) {
@@ -409,14 +410,18 @@ export function bodyDiscomfortLabel(option: BodyDiscomfortOption) {
 export function bodyLocationTitle(location: BodyLocation) {
   const viewLabel = BODY_VIEW_LABELS[location.view];
   const regionLabel = BODY_REGION_LABELS[location.region];
-  if (!location.side) return `${viewLabel}: ${regionLabel}`;
+  const instanceSuffix =
+    typeof location.instance === "number" && location.instance > 0
+      ? ` #${location.instance + 1}`
+      : "";
+  if (!location.side) return `${viewLabel}: ${regionLabel}${instanceSuffix}`;
   const sideLabel =
     location.side === "both"
       ? "Both"
       : location.side === "left"
         ? "Left"
         : "Right";
-  return `${viewLabel}: ${sideLabel} ${regionLabel.toLowerCase()}`;
+  return `${viewLabel}: ${sideLabel} ${regionLabel.toLowerCase()}${instanceSuffix}`;
 }
 
 export function bodyLocationLabel(location: BodyLocation) {

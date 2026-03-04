@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "@/lib/supabaseClient";
+import { Calendar, ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
 import { iconFor, a11yLabel } from "./activityIcons";
 import { getActivitySubtypeValues } from "./activitySubtypeValues";
 
@@ -20,6 +21,12 @@ interface RecipientRow {
   display_name: string;
 }
 
+interface CaregiverProfileRow {
+  id: string;
+  full_name?: string | null;
+  email?: string | null;
+}
+
 const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   safety: { color: "#F97316", bg: "rgba(249, 115, 22, 0.18)" },
   health_observation: { color: "#2DD4BF", bg: "rgba(45, 212, 191, 0.18)" },
@@ -30,20 +37,33 @@ const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
 };
 
 export function ActivityLogCards() {
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [calendarMonth, setCalendarMonth] = useState(startOfMonth(new Date()));
   const [activities, setActivities] = useState<ActivityRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [search, setSearch] = useState("");
   const [recipientMap, setRecipientMap] = useState<Record<string, string>>({});
+  const [caregiverMap, setCaregiverMap] = useState<Record<string, string>>({});
   const [autoOpen, setAutoOpen] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const suggestRef = useRef<HTMLDivElement | null>(null);
+  const calendarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (suggestRef.current && !suggestRef.current.contains(e.target as any)) {
         setSuggestOpen(false);
+      }
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(e.target as any)
+      ) {
+        setIsCalendarOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClick);
@@ -60,12 +80,16 @@ export function ActivityLogCards() {
         recipient_id: "demo-recipient",
         category: i % 2 ? "adl" : "safety",
         observed_at: new Date(now.getTime() - i * 3600_000).toISOString(),
-        recorded_by: "demo-user",
+        recorded_by: i % 2 ? "demo-caregiver-1" : "demo-caregiver-2",
         subtype_safety: i % 2 ? null : "fall_prevented",
         subtype_adl: i % 2 ? "meal" : null,
         details: { note: i % 2 ? "Completed meal" : "Risk mitigated" },
       }));
       setActivities(mock);
+      setCaregiverMap({
+        "demo-caregiver-1": "Alex Morgan",
+        "demo-caregiver-2": "jamie.carter@example.com",
+      });
       return;
     }
     setLoading(true);
@@ -98,9 +122,44 @@ export function ActivityLogCards() {
       });
   }, [activities]);
 
+  // Load caregivers (name first, otherwise email fallback) for activity attribution
+  useEffect(() => {
+    if (!hasSupabase || !supabase) return;
+    const caregiverIds = Array.from(
+      new Set(activities.map((a) => a.recorded_by).filter(Boolean)),
+    );
+    if (!caregiverIds.length) return;
+    supabase
+      .from("profiles")
+      .select("id,full_name,email")
+      .in("id", caregiverIds)
+      .then(({ data }) => {
+        const map: Record<string, string> = {};
+        (data as CaregiverProfileRow[] | null)?.forEach((row) => {
+          const preferred =
+            row.full_name?.trim() || row.email?.trim() || row.id;
+          map[row.id] = preferred;
+        });
+        setCaregiverMap((current) => ({ ...current, ...map }));
+      });
+  }, [activities]);
+
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem("kr-activity-log-view-mode");
+    if (saved === "grid" || saved === "list") {
+      setViewMode(saved);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("kr-activity-log-view-mode", viewMode);
+  }, [viewMode]);
 
   const subtypeKeyFor = (a: ActivityRow) => {
     const k = Object.keys(a).find(
@@ -110,16 +169,26 @@ export function ActivityLogCards() {
   };
 
   const filtered = useMemo(() => {
+    const dateFiltered = activities.filter((activity) => {
+      const activityDate = toDateKey(new Date(activity.observed_at));
+      if (!activityDate) return false;
+      if (startDate && activityDate < startDate) return false;
+      if (endDate && activityDate > endDate) return false;
+      return true;
+    });
+
     const term = search.trim().toLowerCase();
-    if (!term) return activities;
-    return activities.filter((a) => {
+    if (!term) return dateFiltered;
+    return dateFiltered.filter((a) => {
       const subK = subtypeKeyFor(a);
       const subtype = subK ? a[subK] : "";
       const recipient = recipientMap[a.recipient_id];
+      const caregiver = caregiverMap[a.recorded_by] || a.recorded_by;
       const hay = [
         a.category,
         subtype,
         recipient,
+        caregiver,
         a.details && JSON.stringify(a.details),
       ]
         .filter(Boolean)
@@ -127,7 +196,7 @@ export function ActivityLogCards() {
         .toLowerCase();
       return hay.includes(term);
     });
-  }, [activities, search, recipientMap]);
+  }, [activities, search, recipientMap, caregiverMap, startDate, endDate]);
 
   const suggestions = useMemo(() => {
     const pool = new Set<string>();
@@ -136,11 +205,26 @@ export function ActivityLogCards() {
       if (subK && a[subK]) pool.add(String(a[subK]));
       pool.add(a.category);
       if (recipientMap[a.recipient_id]) pool.add(recipientMap[a.recipient_id]);
+      if (caregiverMap[a.recorded_by]) pool.add(caregiverMap[a.recorded_by]);
     });
     const arr = Array.from(pool).sort();
     if (!search) return arr.slice(0, 15);
     return arr.filter((s) => s.toLowerCase().includes(search.toLowerCase()));
-  }, [activities, search, recipientMap]);
+  }, [activities, search, recipientMap, caregiverMap]);
+
+  const activityDaySet = useMemo(() => {
+    const days = new Set<string>();
+    activities.forEach((activity) => {
+      const key = toDateKey(new Date(activity.observed_at));
+      if (key) days.add(key);
+    });
+    return days;
+  }, [activities]);
+
+  const calendarCells = useMemo(
+    () => buildCalendarCells(calendarMonth),
+    [calendarMonth],
+  );
 
   function toggleExpand(id: string) {
     setExpanded((e) => ({ ...e, [id]: !e[id] }));
@@ -168,13 +252,200 @@ export function ActivityLogCards() {
       ? `repeat(${filtered.length},1fr)`
       : "repeat(auto-fill,minmax(240px,1fr))";
 
+  const hasDateFilter = Boolean(startDate || endDate);
+  const dateFilterLabel = hasDateFilter
+    ? startDate && endDate
+      ? startDate === endDate
+        ? `On ${formatDateKey(startDate)}`
+        : `${formatDateKey(startDate)} - ${formatDateKey(endDate)}`
+      : startDate
+        ? `From ${formatDateKey(startDate)}`
+        : `Until ${formatDateKey(endDate)}`
+    : "All dates";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+      <div style={topBar}>
+        <div style={dateFilterPill(hasDateFilter)}>{dateFilterLabel}</div>
+        <div style={topBarActions}>
+          <div
+            style={viewToggleGroup}
+            role="group"
+            aria-label="Change task view"
+          >
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              style={toggleBtn(viewMode === "grid")}
+              aria-label="Grid view"
+              aria-pressed={viewMode === "grid"}
+              title="Grid view"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              style={toggleBtn(viewMode === "list")}
+              aria-label="List view"
+              aria-pressed={viewMode === "list"}
+              title="List view"
+            >
+              <List size={16} />
+            </button>
+          </div>
+
+          <div ref={calendarRef} style={calendarWrap}>
+            <button
+              type="button"
+              onClick={() => setIsCalendarOpen((open) => !open)}
+              style={calendarToggleBtn(isCalendarOpen || hasDateFilter)}
+              aria-label="Date filter"
+              aria-pressed={isCalendarOpen}
+              title="Date filter"
+            >
+              <Calendar size={16} />
+            </button>
+
+            {isCalendarOpen && (
+              <div style={calendarPanel}>
+                <div style={calendarPanelTitle}>Filter by date</div>
+                <div style={calendarInputRow}>
+                  <label style={calendarLabel}>
+                    Start
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => {
+                        setStartDate(e.target.value);
+                        if (endDate && e.target.value && endDate < e.target.value) {
+                          setEndDate(e.target.value);
+                        }
+                      }}
+                      style={calendarInput}
+                    />
+                  </label>
+                  <label style={calendarLabel}>
+                    End
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => {
+                        setEndDate(e.target.value);
+                        if (startDate && e.target.value && startDate > e.target.value) {
+                          setStartDate(e.target.value);
+                        }
+                      }}
+                      style={calendarInput}
+                    />
+                  </label>
+                </div>
+
+                <div style={calendarQuickActions}>
+                  <button
+                    type="button"
+                    style={calendarActionBtn}
+                    onClick={() => {
+                      const today = toDateKey(new Date());
+                      setStartDate(today);
+                      setEndDate(today);
+                    }}
+                  >
+                    Today only
+                  </button>
+                  <button
+                    type="button"
+                    style={calendarActionBtn}
+                    onClick={() => {
+                      setStartDate("");
+                      setEndDate("");
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <div style={calendarMonthHeader}>
+                  <button
+                    type="button"
+                    style={monthNavBtn}
+                    aria-label="Previous month"
+                    onClick={() =>
+                      setCalendarMonth((current) => startOfMonth(addMonths(current, -1)))
+                    }
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <div style={calendarMonthLabel}>
+                    {monthYearLabel(calendarMonth)}
+                  </div>
+                  <button
+                    type="button"
+                    style={monthNavBtn}
+                    aria-label="Next month"
+                    onClick={() =>
+                      setCalendarMonth((current) => startOfMonth(addMonths(current, 1)))
+                    }
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+
+                <div style={weekHeaderGrid}>
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+                    <div key={day} style={weekHeaderCell}>
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={calendarDaysGrid}>
+                  {calendarCells.map((cell) => {
+                    const hasActivity = activityDaySet.has(cell.dateKey);
+                    const isInRange =
+                      Boolean(startDate && endDate) &&
+                      cell.dateKey >= startDate &&
+                      cell.dateKey <= endDate;
+                    const isSingleDay =
+                      Boolean(startDate && endDate && startDate === endDate) &&
+                      cell.dateKey === startDate;
+
+                    return (
+                      <button
+                        key={cell.key}
+                        type="button"
+                        style={calendarDayCell(
+                          cell.inCurrentMonth,
+                          hasActivity,
+                          isInRange,
+                          isSingleDay,
+                        )}
+                        onClick={() => {
+                          setStartDate(cell.dateKey);
+                          setEndDate(cell.dateKey);
+                        }}
+                        aria-label={`Select ${formatDateKey(cell.dateKey)}`}
+                      >
+                        {cell.day}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div style={calendarHint}>
+                  <span style={calendarHintDot} /> Green days have activities.
+                  Click a day to filter a single day.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       {error && <div style={errBox}>Error: {error}</div>}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: gridCols,
+          gridTemplateColumns: viewMode === "grid" ? gridCols : "1fr",
           gap: 16,
           width: "100%",
         }}
@@ -188,6 +459,7 @@ export function ActivityLogCards() {
           const isOpen = expanded[a.id] || (autoOpen && !!a.details);
           const recName = recipientMap[a.recipient_id];
           const subtypesAll = getActivitySubtypeValues(a);
+          const caregiverLabel = caregiverMap[a.recorded_by] || a.recorded_by;
           const icon = iconFor(
             a.category,
             subtypesAll[0] as string | undefined,
@@ -203,73 +475,103 @@ export function ActivityLogCards() {
                 ...card,
                 background: colors.bg,
                 borderColor: colors.color,
+                minHeight: viewMode === "list" ? 88 : card.minHeight,
               }}
               aria-label={`Activity card ${a.category}`}
             >
               <button
                 onClick={() => toggleExpand(a.id)}
-                style={cardInnerBtn}
+                style={viewMode === "list" ? listRowBtn : cardInnerBtn}
                 title="Toggle details"
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 4,
-                    flex: 1,
-                    textAlign: "left",
-                  }}
-                >
-                  <span
-                    style={cardIcon}
-                    role="img"
-                    aria-label={a11yLabel(
-                      a.category,
-                      subtypesAll[0] as string | undefined,
+                {viewMode === "list" ? (
+                  <div style={listRowContent}>
+                    <span
+                      style={listRowIcon}
+                      role="img"
+                      aria-label={a11yLabel(
+                        a.category,
+                        subtypesAll[0] as string | undefined,
+                      )}
+                    >
+                      {icon}
+                    </span>
+                    <div style={listPrimaryBlock}>
+                      <div style={listCategory}>{a.category}</div>
+                      <div style={listTitle}>{primaryLabel(a)}</div>
+                    </div>
+                    {recName && <div style={listMeta}>👤 {recName}</div>}
+                    {caregiverLabel && (
+                      <div style={listMeta}>Caregiver: {caregiverLabel}</div>
                     )}
-                  >
-                    {icon}
-                  </span>
+                    <div style={listTime}>{formattedTime(a.observed_at)}</div>
+                  </div>
+                ) : (
                   <div
                     style={{
-                      fontSize: 12,
-                      opacity: 0.85,
-                      letterSpacing: 0.5,
-                      textTransform: "uppercase",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 4,
+                      flex: 1,
+                      textAlign: "left",
                     }}
                   >
-                    {a.category}
-                  </div>
-                  <div
-                    style={{ fontWeight: 600, fontSize: 15, lineHeight: 1.25 }}
-                  >
-                    {primaryLabel(a)}
-                  </div>
-                  {recName && (
-                    <div style={{ fontSize: 11, opacity: 0.9 }}>
-                      👤 {recName}
-                    </div>
-                  )}
-                  <div style={{ fontSize: 11, opacity: 0.7 }}>
-                    {formattedTime(a.observed_at)}
-                  </div>
-                  {subtypesAll.length > 1 && (
+                    <span
+                      style={cardIcon}
+                      role="img"
+                      aria-label={a11yLabel(
+                        a.category,
+                        subtypesAll[0] as string | undefined,
+                      )}
+                    >
+                      {icon}
+                    </span>
                     <div
                       style={{
-                        display: "flex",
-                        gap: 4,
-                        flexWrap: "wrap",
-                        marginTop: 4,
+                        fontSize: 12,
+                        opacity: 0.85,
+                        letterSpacing: 0.5,
+                        textTransform: "uppercase",
                       }}
                     >
-                      {subtypesAll.map((s) => (
-                        <span key={s} style={chip}>
-                          {s}
-                        </span>
-                      ))}
+                      {a.category}
                     </div>
-                  )}
-                </div>
+                    <div
+                      style={{ fontWeight: 600, fontSize: 15, lineHeight: 1.25 }}
+                    >
+                      {primaryLabel(a)}
+                    </div>
+                    {recName && (
+                      <div style={{ fontSize: 11, opacity: 0.9 }}>
+                        👤 {recName}
+                      </div>
+                    )}
+                    {caregiverLabel && (
+                      <div style={{ fontSize: 11, opacity: 0.9 }}>
+                        Caregiver: {caregiverLabel}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 11, opacity: 0.7 }}>
+                      {formattedTime(a.observed_at)}
+                    </div>
+                    {subtypesAll.length > 1 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 4,
+                          flexWrap: "wrap",
+                          marginTop: 4,
+                        }}
+                      >
+                        {subtypesAll.map((s) => (
+                          <span key={s} style={chip}>
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div style={{ fontSize: 20, opacity: 0.6 }}>
                   {isOpen ? "−" : "+"}
                 </div>
@@ -289,6 +591,7 @@ export function ActivityLogCards() {
                   <div style={metaRow}>
                     <span>ID: {a.id}</span>
                     {subtype && <span>Subtype: {subtype}</span>}
+                    {caregiverLabel && <span>Caregiver: {caregiverLabel}</span>}
                   </div>
                 </div>
               )}
@@ -305,6 +608,68 @@ export function ActivityLogCards() {
       )}
     </div>
   );
+}
+
+interface CalendarCell {
+  key: string;
+  day: number;
+  inCurrentMonth: boolean;
+  dateKey: string;
+}
+
+function toDateKey(date: Date) {
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDateKey(value: string) {
+  if (!value) return "";
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return value;
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function startOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function addMonths(date: Date, delta: number) {
+  return new Date(date.getFullYear(), date.getMonth() + delta, 1);
+}
+
+function monthYearLabel(date: Date) {
+  return date.toLocaleDateString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function buildCalendarCells(month: Date): CalendarCell[] {
+  const year = month.getFullYear();
+  const monthIndex = month.getMonth();
+  const firstDay = new Date(year, monthIndex, 1);
+  const offset = (firstDay.getDay() + 6) % 7; // Monday-first grid
+  const firstVisible = new Date(year, monthIndex, 1 - offset);
+
+  return Array.from({ length: 42 }).map((_, index) => {
+    const day = new Date(firstVisible);
+    day.setDate(firstVisible.getDate() + index);
+    const dateKey = toDateKey(day);
+    return {
+      key: `${dateKey}-${index}`,
+      day: day.getDate(),
+      inCurrentMonth: day.getMonth() === monthIndex,
+      dateKey,
+    };
+  });
 }
 
 const searchBox: React.CSSProperties = {
@@ -436,4 +801,275 @@ const errBox: React.CSSProperties = {
   borderRadius: 12,
   fontSize: 13,
   color: "#EF4444",
+};
+
+const topBar: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const topBarActions: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const dateFilterPill = (active: boolean): React.CSSProperties => ({
+  fontSize: 12,
+  fontWeight: 600,
+  color: active ? "#166534" : "#374151",
+  background: active ? "rgba(34, 197, 94, 0.18)" : "rgba(255,255,255,0.72)",
+  border: active
+    ? "1px solid rgba(34, 197, 94, 0.35)"
+    : "1px solid rgba(0,0,0,0.12)",
+  borderRadius: 999,
+  padding: "7px 12px",
+  backdropFilter: "blur(8px)",
+});
+
+const viewToggleGroup: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  background: "rgba(255,255,255,0.75)",
+  border: "1px solid rgba(0,0,0,0.12)",
+  borderRadius: 12,
+  padding: 6,
+  backdropFilter: "blur(12px)",
+};
+
+const toggleBtn = (active: boolean): React.CSSProperties => ({
+  border: "none",
+  borderRadius: 8,
+  width: 34,
+  height: 34,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  color: active ? "#1A1A1A" : "#4B5563",
+  background: active ? "#F5D547" : "transparent",
+  boxShadow: active ? "0 2px 8px rgba(245,213,71,0.35)" : "none",
+  transition: "all 0.15s ease",
+});
+
+const calendarWrap: React.CSSProperties = {
+  position: "relative",
+};
+
+const calendarToggleBtn = (active: boolean): React.CSSProperties => ({
+  ...toggleBtn(active),
+  width: 36,
+  height: 36,
+});
+
+const calendarPanel: React.CSSProperties = {
+  position: "absolute",
+  top: "calc(100% + 8px)",
+  right: 0,
+  width: 328,
+  maxWidth: "90vw",
+  background: "rgba(255, 255, 255, 0.97)",
+  backdropFilter: "blur(14px)",
+  border: "1px solid rgba(0,0,0,0.12)",
+  borderRadius: 14,
+  boxShadow: "0 14px 34px rgba(0,0,0,0.16)",
+  padding: 12,
+  zIndex: 60,
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+};
+
+const calendarPanelTitle: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 700,
+  color: "#111827",
+};
+
+const calendarInputRow: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 8,
+};
+
+const calendarLabel: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  fontSize: 11,
+  color: "#4B5563",
+  fontWeight: 600,
+};
+
+const calendarInput: React.CSSProperties = {
+  width: "100%",
+  border: "1px solid rgba(0,0,0,0.14)",
+  borderRadius: 8,
+  padding: "7px 8px",
+  background: "#fff",
+  fontSize: 12,
+  color: "#111827",
+};
+
+const calendarQuickActions: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const calendarActionBtn: React.CSSProperties = {
+  border: "1px solid rgba(0,0,0,0.12)",
+  borderRadius: 8,
+  background: "rgba(255,255,255,0.9)",
+  color: "#1F2937",
+  fontSize: 12,
+  fontWeight: 600,
+  padding: "6px 9px",
+  cursor: "pointer",
+};
+
+const calendarMonthHeader: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 8,
+};
+
+const monthNavBtn: React.CSSProperties = {
+  border: "1px solid rgba(0,0,0,0.12)",
+  borderRadius: 8,
+  width: 28,
+  height: 28,
+  background: "#fff",
+  color: "#374151",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+};
+
+const calendarMonthLabel: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 700,
+  color: "#1F2937",
+  textTransform: "capitalize",
+};
+
+const weekHeaderGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(7, 1fr)",
+  gap: 6,
+};
+
+const weekHeaderCell: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 700,
+  color: "#6B7280",
+  textAlign: "center",
+};
+
+const calendarDaysGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(7, 1fr)",
+  gap: 6,
+};
+
+const calendarDayCell = (
+  inCurrentMonth: boolean,
+  hasActivity: boolean,
+  inRange: boolean,
+  singleDay: boolean,
+): React.CSSProperties => ({
+  border: singleDay
+    ? "1px solid rgba(234, 179, 8, 0.9)"
+    : "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 8,
+  height: 34,
+  background: singleDay
+    ? "rgba(245, 213, 71, 0.65)"
+    : inRange
+      ? "rgba(16, 185, 129, 0.28)"
+      : hasActivity
+        ? "rgba(34, 197, 94, 0.18)"
+        : "rgba(255,255,255,0.9)",
+  color: inCurrentMonth ? "#111827" : "#9CA3AF",
+  fontSize: 12,
+  fontWeight: singleDay ? 700 : 600,
+  cursor: "pointer",
+});
+
+const calendarHint: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  fontSize: 11,
+  color: "#4B5563",
+};
+
+const calendarHintDot: React.CSSProperties = {
+  width: 10,
+  height: 10,
+  borderRadius: 999,
+  background: "rgba(34, 197, 94, 0.55)",
+  border: "1px solid rgba(34, 197, 94, 0.8)",
+};
+
+const listRowBtn: React.CSSProperties = {
+  ...cardInnerBtn,
+  padding: "14px 16px",
+  alignItems: "center",
+};
+
+const listRowContent: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  flex: 1,
+  minWidth: 0,
+  flexWrap: "wrap",
+};
+
+const listRowIcon: React.CSSProperties = {
+  fontSize: 22,
+  lineHeight: 1,
+  flexShrink: 0,
+};
+
+const listPrimaryBlock: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  minWidth: 170,
+  flex: "1 1 220px",
+};
+
+const listCategory: React.CSSProperties = {
+  fontSize: 11,
+  opacity: 0.8,
+  letterSpacing: 0.5,
+  textTransform: "uppercase",
+};
+
+const listTitle: React.CSSProperties = {
+  fontWeight: 700,
+  fontSize: 17,
+  lineHeight: 1.2,
+};
+
+const listMeta: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.9,
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  maxWidth: 320,
+};
+
+const listTime: React.CSSProperties = {
+  fontSize: 12,
+  opacity: 0.72,
+  marginLeft: "auto",
 };
