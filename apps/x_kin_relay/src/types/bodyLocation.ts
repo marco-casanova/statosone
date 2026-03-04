@@ -29,7 +29,66 @@ export type BodyRegion =
   | "fingers"
   | "toes"
   | "upper_back"
-  | "lower_back";
+  | "lower_back"
+  | "forehead"
+  | "eyes"
+  | "nose"
+  | "cheeks"
+  | "mouth"
+  | "chin"
+  | "neck_throat"
+  | "ribs"
+  | "navel"
+  | "pelvis_groin"
+  | "shoulders"
+  | "biceps"
+  | "elbows"
+  | "forearms"
+  | "wrists"
+  | "palms"
+  | "thumbs"
+  | "thighs_front"
+  | "knees"
+  | "shins"
+  | "ankles"
+  | "top_of_feet"
+  | "back_of_head"
+  | "ears"
+  | "neck_nape"
+  | "shoulder_blades"
+  | "spine"
+  | "buttocks"
+  | "triceps"
+  | "back_of_elbows"
+  | "back_of_forearms"
+  | "back_of_hands"
+  | "hamstrings"
+  | "back_of_knees"
+  | "calves"
+  | "achilles_tendons"
+  | "heels"
+  | "left_temple_ear_jaw"
+  | "left_shoulder"
+  | "left_arm"
+  | "left_hand"
+  | "left_ribcage_flank"
+  | "left_hip"
+  | "left_thigh"
+  | "left_knee"
+  | "left_calf"
+  | "left_ankle"
+  | "left_foot"
+  | "right_temple_ear_jaw"
+  | "right_shoulder"
+  | "right_arm"
+  | "right_hand"
+  | "right_ribcage_flank"
+  | "right_hip"
+  | "right_thigh"
+  | "right_knee"
+  | "right_calf"
+  | "right_ankle"
+  | "right_foot";
 
 export interface BodyLocation {
   region: BodyRegion;
@@ -172,6 +231,65 @@ export const BODY_REGION_LABELS: Record<BodyRegion, string> = {
   toes: "Toes",
   upper_back: "Upper back",
   lower_back: "Lower back",
+  forehead: "Forehead",
+  eyes: "Eyes",
+  nose: "Nose",
+  cheeks: "Cheeks",
+  mouth: "Mouth",
+  chin: "Chin",
+  neck_throat: "Neck / throat",
+  ribs: "Ribs",
+  navel: "Navel",
+  pelvis_groin: "Pelvis / groin",
+  shoulders: "Shoulders",
+  biceps: "Biceps",
+  elbows: "Elbows",
+  forearms: "Forearms",
+  wrists: "Wrists",
+  palms: "Palms",
+  thumbs: "Thumbs",
+  thighs_front: "Thighs (front)",
+  knees: "Knees",
+  shins: "Shins",
+  ankles: "Ankles",
+  top_of_feet: "Top of feet",
+  back_of_head: "Back of head",
+  ears: "Ears",
+  neck_nape: "Neck (nape)",
+  shoulder_blades: "Shoulder blades",
+  spine: "Spine",
+  buttocks: "Buttocks",
+  triceps: "Triceps",
+  back_of_elbows: "Back of elbows",
+  back_of_forearms: "Back of forearms",
+  back_of_hands: "Back of hands",
+  hamstrings: "Hamstrings",
+  back_of_knees: "Back of knees",
+  calves: "Calves",
+  achilles_tendons: "Achilles tendons",
+  heels: "Heels",
+  left_temple_ear_jaw: "Left temple / ear / jaw",
+  left_shoulder: "Left shoulder",
+  left_arm: "Left arm",
+  left_hand: "Left hand",
+  left_ribcage_flank: "Left ribcage / flank",
+  left_hip: "Left hip",
+  left_thigh: "Left thigh",
+  left_knee: "Left knee",
+  left_calf: "Left calf",
+  left_ankle: "Left ankle",
+  left_foot: "Left foot",
+  right_temple_ear_jaw: "Right temple / ear / jaw",
+  right_shoulder: "Right shoulder",
+  right_arm: "Right arm",
+  right_hand: "Right hand",
+  right_ribcage_flank: "Right ribcage / flank",
+  right_hip: "Right hip",
+  right_thigh: "Right thigh",
+  right_knee: "Right knee",
+  right_calf: "Right calf",
+  right_ankle: "Right ankle",
+  right_foot: "Right foot",
 };
 
 export const BODY_DISCOMFORT_OPTIONS: Array<{

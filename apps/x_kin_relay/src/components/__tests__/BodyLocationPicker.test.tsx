@@ -12,97 +12,81 @@ describe("BodyLocationPicker", () => {
   test("selecting a region adds a body-location chip", () => {
     render(<Harness />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Front Left Knee" }));
+    fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
 
-    expect(screen.getAllByText("Front: Left knee").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Front: Forehead").length).toBeGreaterThan(0);
   });
 
   test("selecting another region keeps locations distinct", () => {
     render(<Harness />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Front Left Knee" }));
-    fireEvent.click(screen.getByRole("button", { name: "Front Right Knee" }));
+    fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
+    fireEvent.click(screen.getByRole("button", { name: "Back Spine" }));
 
-    expect(screen.getAllByText("Front: Left knee").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Front: Right knee").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Front: Forehead").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Back: Spine").length).toBeGreaterThan(0);
   });
 
-  test("fingers and toes can be selected as body regions", () => {
-    render(<Harness />);
+  test("duplicate shapes for one part stay in sync", () => {
+    const { container } = render(<Harness />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Front Left Fingers" }));
-    fireEvent.click(screen.getByRole("button", { name: "Left side Toes" }));
+    const kneesButton = screen.getByRole("button", { name: "Front Knees" });
+    fireEvent.click(kneesButton);
 
-    expect(screen.getAllByText("Front: Left fingers").length).toBeGreaterThan(
-      0,
+    const selectedKnees = container.querySelectorAll(
+      '.region[data-view="front"][data-part="knees"][data-selected="true"]',
     );
-    expect(screen.getAllByText("Left side: Toes").length).toBeGreaterThan(0);
+    expect(selectedKnees.length).toBe(2);
   });
 
-  test("all body views are labeled distinctly", () => {
+  test("all body views can be selected", () => {
     render(<Harness />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Front Head" }));
-    fireEvent.click(screen.getByRole("button", { name: "Back Head" }));
-    fireEvent.click(screen.getByRole("button", { name: "Left side Head" }));
-    fireEvent.click(screen.getByRole("button", { name: "Right side Head" }));
+    fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
+    fireEvent.click(screen.getByRole("button", { name: "Back Back Of Head" }));
+    fireEvent.click(screen.getByRole("button", { name: "Left side Left Knee" }));
+    fireEvent.click(screen.getByRole("button", { name: "Right side Right Knee" }));
 
-    expect(screen.getAllByText("Front: Head").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Back: Head").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Left side: Head").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Right side: Head").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Front: Forehead").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Back: Back of head").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Left side: Left knee").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Right side: Right knee").length).toBeGreaterThan(0);
   });
 
   test("clicking a selected region removes it", () => {
     render(<Harness />);
 
-    const kneeButton = screen.getByRole("button", {
-      name: "Front Left Knee",
+    const foreheadButton = screen.getByRole("button", { name: "Front Forehead" });
+    fireEvent.click(foreheadButton);
+    expect(screen.getAllByText("Front: Forehead").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
+    expect(screen.queryByText("Front: Forehead")).not.toBeInTheDocument();
+  });
+
+  test("keyboard interaction toggles a region", () => {
+    render(<Harness />);
+
+    const backHeadButton = screen.getByRole("button", { name: "Back Back Of Head" });
+
+    fireEvent.keyDown(backHeadButton, { key: "Enter" });
+    expect(screen.getAllByText("Back: Back of head").length).toBeGreaterThan(0);
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Back Back Of Head" }), {
+      key: "Enter",
     });
-    fireEvent.click(kneeButton);
-    expect(kneeButton).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByText("Front: Left knee").length).toBeGreaterThan(0);
-
-    fireEvent.click(kneeButton);
-    expect(screen.queryByText("Front: Left knee")).not.toBeInTheDocument();
-    expect(kneeButton).toHaveAttribute("aria-pressed", "false");
+    expect(screen.queryByText("Back: Back of head")).not.toBeInTheDocument();
   });
 
-  test("side-view regions clip visual fills and use dedicated hit targets", () => {
-    const { container } = render(<Harness />);
+  test("clear removes all selected regions", () => {
+    render(<Harness />);
 
-    expect(
-      container.querySelector("#left-side-head .body-region-shape"),
-    ).toHaveAttribute("clip-path");
-    expect(
-      container.querySelector("#right-side-head .body-region-shape"),
-    ).toHaveAttribute("clip-path");
-    expect(
-      container.querySelector("#left-side-head .body-region-hit"),
-    ).toBeInTheDocument();
-    expect(
-      container.querySelector("#right-side-head .body-region-hit"),
-    ).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
+    fireEvent.click(screen.getByRole("button", { name: "Back Spine" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
 
-  test("only the right-side view mirrors the full interactive svg group", () => {
-    const { container } = render(<Harness />);
-
-    expect(container.querySelector("#view-left-side")).not.toHaveAttribute(
-      "transform",
-    );
-    expect(container.querySelector("#view-right-side")).toHaveAttribute(
-      "transform",
-      "translate(260,0) scale(-1,1)",
-    );
-  });
-
-  test("region visuals do not apply a stroke", () => {
-    const { container } = render(<Harness />);
-
-    expect(container.querySelector("style")).toHaveTextContent(
-      ".body-region-shape",
-    );
-    expect(container.querySelector("style")).toHaveTextContent("stroke: none");
+    expect(screen.queryByText("Front: Forehead")).not.toBeInTheDocument();
+    expect(screen.queryByText("Back: Spine")).not.toBeInTheDocument();
+    expect(screen.getByText("None")).toBeInTheDocument();
   });
 });

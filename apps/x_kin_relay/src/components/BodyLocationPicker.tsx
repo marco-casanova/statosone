@@ -1,17 +1,13 @@
 "use client";
 
-import React, { KeyboardEvent, useId, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   BodyLocation,
   BodyMapView,
   BodyRegion,
-  BODY_REGION_LABELS,
-  BODY_VIEW_LABELS,
   bodyLocationKey,
   bodyLocationLabel,
-  regionRequiresSide,
 } from "../types/bodyLocation";
-import { SvgShape, BodyRegionSvgDef, BODY_VIEW_SPECS } from "./bodyMapSvgData";
 
 interface BodyLocationPickerProps {
   value: BodyLocation[];
@@ -19,87 +15,156 @@ interface BodyLocationPickerProps {
   embedded?: boolean;
 }
 
-const BODY_SVG_STYLE = `
-  .body-outline {
-    fill: none;
-    stroke: #1f2937;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .body-region {
-    cursor: pointer;
-  }
-  .body-region-shape {
-    fill: rgba(90, 120, 200, 0.10);
-    stroke: none;
-    pointer-events: none;
-    transition: fill 120ms ease;
-  }
-  .body-region:hover .body-region-shape {
-    fill: rgba(90, 120, 200, 0.18);
-  }
-  .body-region-hit {
-    fill: rgba(0, 0, 0, 0.001);
-    stroke: transparent;
-    stroke-width: 24;
-    vector-effect: non-scaling-stroke;
-  }
-`;
+type DatasetView = "front" | "back" | "left" | "right";
 
-const BODY_VIEW_ORDER: BodyMapView[] = [
-  "front",
-  "back",
-  "left_side",
-  "right_side",
-];
+const DATASET_VIEW_LABELS: Record<DatasetView, string> = {
+  front: "Front",
+  back: "Back",
+  left: "Left side",
+  right: "Right side",
+};
+
+const DATASET_TO_MODEL_VIEW: Record<DatasetView, BodyMapView> = {
+  front: "front",
+  back: "back",
+  left: "left_side",
+  right: "right_side",
+};
+
+function toDatasetView(view: BodyMapView): DatasetView {
+  if (view === "front" || view === "back") {
+    return view;
+  }
+  return view === "left_side" ? "left" : "right";
+}
+
+function isDatasetView(value: string | null): value is DatasetView {
+  return value === "front" || value === "back" || value === "left" || value === "right";
+}
+
+function humanizeToken(value: string) {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((token) => token.charAt(0).toUpperCase() + token.slice(1))
+    .join(" ");
+}
+
+function regionAriaLabel(view: DatasetView, part: string) {
+  return `${DATASET_VIEW_LABELS[view]} ${humanizeToken(part)}`;
+}
+
+function regionDatasetKey(view: DatasetView, part: string) {
+  return `${view}:${part}`;
+}
+
+function locationDatasetKey(location: BodyLocation) {
+  return regionDatasetKey(toDatasetView(location.view), location.region);
+}
+
+function regionDataFromElement(element: Element) {
+  const view = element.getAttribute("data-view");
+  const part = element.getAttribute("data-part");
+
+  if (!isDatasetView(view) || !part) {
+    return null;
+  }
+
+  return {
+    datasetView: view,
+    modelView: DATASET_TO_MODEL_VIEW[view],
+    part: part as BodyRegion,
+    key: regionDatasetKey(view, part),
+  };
+}
 
 export function BodyLocationPicker({
   value,
   onChange,
   embedded = false,
 }: BodyLocationPickerProps) {
-  const [pendingSelection, setPendingSelection] = useState<{
-    region: BodyRegion;
-    view: BodyMapView;
-  } | null>(null);
+  const svgHostRef = useRef<HTMLDivElement>(null);
 
-  function addLocation(location: BodyLocation) {
-    const nextKey = bodyLocationKey(location);
-    if (value.some((entry) => bodyLocationKey(entry) === nextKey)) {
-      setPendingSelection(null);
-      return;
-    }
-    onChange([...value, location]);
-    setPendingSelection(null);
-  }
+  const selectedKeys = useMemo(
+    () => new Set(value.map((location) => locationDatasetKey(location))),
+    [value],
+  );
 
-  function removeLocation(location: BodyLocation) {
-    const nextKey = bodyLocationKey(location);
-    onChange(value.filter((entry) => bodyLocationKey(entry) !== nextKey));
-  }
+  const selectedSummary = useMemo(
+    () => value.map((location) => locationDatasetKey(location)).join(", "),
+    [value],
+  );
 
-  function handleRegionPress(view: BodyMapView, regionDef: BodyRegionSvgDef) {
-    const selectedLocation = value.find(
-      (location) => isLocationSelectedForRegion(location, view, regionDef),
-    );
+  function toggleLocation(modelView: BodyMapView, part: BodyRegion) {
+    const nextKey = regionDatasetKey(toDatasetView(modelView), part);
+    const exists = value.some((location) => locationDatasetKey(location) === nextKey);
 
-    if (selectedLocation) {
-      removeLocation(selectedLocation);
+    if (exists) {
+      onChange(value.filter((location) => locationDatasetKey(location) !== nextKey));
       return;
     }
 
-    if (shouldPromptForSide(view, regionDef)) {
-      setPendingSelection({ region: regionDef.region, view });
+    onChange([
+      ...value,
+      {
+        view: modelView,
+        region: part,
+      },
+    ]);
+  }
+
+  function activateRegion(target: EventTarget | null) {
+    if (!(target instanceof Element)) {
+      return;
+    }
+    const region = target.closest(".region");
+    if (!(region instanceof Element)) {
       return;
     }
 
-    addLocation({
-      region: regionDef.region,
-      view,
-      side: regionDef.side,
-    });
+    const data = regionDataFromElement(region);
+    if (!data) {
+      return;
+    }
+
+    toggleLocation(data.modelView, data.part);
   }
+
+  useEffect(() => {
+    const host = svgHostRef.current;
+    if (!host) {
+      return;
+    }
+
+    const regions = Array.from(host.querySelectorAll<SVGElement>(".region"));
+    const firstByKey = new Set<string>();
+
+    for (const region of regions) {
+      const data = regionDataFromElement(region);
+      if (!data) {
+        continue;
+      }
+
+      const isSelected = selectedKeys.has(data.key);
+      if (isSelected) {
+        region.setAttribute("data-selected", "true");
+      } else {
+        region.removeAttribute("data-selected");
+      }
+      region.setAttribute("aria-pressed", isSelected ? "true" : "false");
+
+      if (!firstByKey.has(data.key)) {
+        firstByKey.add(data.key);
+        region.setAttribute("role", "button");
+        region.setAttribute("tabindex", "0");
+        region.setAttribute("aria-label", regionAriaLabel(data.datasetView, data.part));
+      } else {
+        region.removeAttribute("role");
+        region.removeAttribute("tabindex");
+        region.removeAttribute("aria-label");
+      }
+    }
+  }, [selectedKeys]);
 
   return (
     <div style={pickerRoot}>
@@ -114,7 +179,13 @@ export function BodyLocationPicker({
                   type="button"
                   style={chipRemoveBtn}
                   aria-label={`Remove ${label}`}
-                  onClick={() => removeLocation(location)}
+                  onClick={() =>
+                    onChange(
+                      value.filter(
+                        (entry) => bodyLocationKey(entry) !== bodyLocationKey(location),
+                      ),
+                    )
+                  }
                 >
                   ×
                 </button>
@@ -129,249 +200,288 @@ export function BodyLocationPicker({
           <div>
             <div style={drawerTitle}>Body map</div>
             <div style={drawerSubtitle}>
-              Tap a region to select it. Tap a selected region again to remove
-              it.
+              Tap a region to select it. Tap a selected region again to remove it.
             </div>
           </div>
+          <button
+            type="button"
+            style={clearBtn}
+            onClick={() => onChange([])}
+            disabled={value.length === 0}
+          >
+            Clear
+          </button>
         </div>
 
-        {pendingSelection && (
-          <div style={lateralityCard}>
-            <div style={lateralityTitle}>
-              {BODY_REGION_LABELS[pendingSelection.region]} (
-              {BODY_VIEW_LABELS[pendingSelection.view].toLowerCase()}): choose
-              side
-            </div>
-            <div style={lateralityActions}>
-              {(["left", "right", "both"] as const).map((side) => (
-                <button
-                  key={side}
-                  type="button"
-                  style={lateralityBtn}
-                  onClick={() =>
-                    addLocation({
-                      region: pendingSelection.region,
-                      view: pendingSelection.view,
-                      side,
-                    })
-                  }
-                >
-                  {side === "both"
-                    ? "Both"
-                    : side === "left"
-                      ? "Left"
-                      : "Right"}
-                </button>
-              ))}
-              <button
-                type="button"
-                style={lateralityGhostBtn}
-                onClick={() => setPendingSelection(null)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div style={mapsRow}>
-          {BODY_VIEW_ORDER.map((view) => (
-            <BodyMapSvg
-              key={view}
-              view={view}
-              value={value}
-              pendingSelection={pendingSelection}
-              onRegionPress={handleRegionPress}
-            />
-          ))}
+        <div style={selectedRow}>
+          <div style={selectedLabel}>Selected:</div>
+          <div style={selectedValue}>{selectedSummary || "None"}</div>
         </div>
+
+        <div
+          ref={svgHostRef}
+          style={svgHost}
+          onClick={(event) => activateRegion(event.target)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" && event.key !== " ") {
+              return;
+            }
+            event.preventDefault();
+            activateRegion(event.target);
+          }}
+          dangerouslySetInnerHTML={{ __html: BODY_MAP_SVG }}
+        />
       </div>
     </div>
   );
 }
 
-function BodyMapSvg({
-  view,
-  value,
-  pendingSelection,
-  onRegionPress,
-}: {
-  view: BodyMapView;
-  value: BodyLocation[];
-  pendingSelection: {
-    region: BodyRegion;
-    view: BodyMapView;
-  } | null;
-  onRegionPress: (view: BodyMapView, regionDef: BodyRegionSvgDef) => void;
-}) {
-  const spec = BODY_VIEW_SPECS[view];
-  const transform = spec.mirror ? "translate(260,0) scale(-1,1)" : undefined;
-  const clipId = useId().replace(/:/g, "");
-  const regionClipId = spec.regionClip
-    ? `body-region-clip-${view}-${clipId}`
-    : undefined;
+const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="100%" style="border:1px solid #e5e7eb; border-radius:12px; background:#fff;">
+  <style>
+    .panel-title { font-size: 18px; fill: #111827; font-weight: 700; }
+    .hint { font-size: 12px; fill: #6b7280; }
+    .outline { fill: none; stroke: #0f172a; stroke-width: 2; pointer-events: none; opacity: .75; }
+    .ghost { fill: #f8fafc; stroke: #e5e7eb; }
+    .region { fill: rgba(0,0,0,0.001); stroke: rgba(0,0,0,0); cursor: pointer; }
+    .region:hover { fill: rgba(255,125,22,0.25); }
+    .region[data-selected="true"] { fill: rgba(255,125,22,0.45); stroke: rgba(255,125,22,0.8); stroke-width: 2; }
+    .divider { stroke: #e5e7eb; stroke-width: 2; }
+  </style>
 
-  return (
-    <div style={mapPanel}>
-      <div style={mapTitle}>{spec.title}</div>
-      <div>
-        <svg
-          width="260"
-          height="720"
-          viewBox="0 0 260 720"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label={`${spec.title} body map`}
-          style={bodySvg}
-        >
-          <style>{BODY_SVG_STYLE}</style>
-          {regionClipId && (
-            <defs>
-              <clipPath id={regionClipId} clipPathUnits="userSpaceOnUse">
-                {spec.regionClip?.map((shape, index) =>
-                  renderSvgShape(shape, `clip-${view}-${index}`),
-                )}
-              </clipPath>
-            </defs>
-          )}
-          <g id={`view-${view.replace("_", "-")}`} transform={transform}>
-            <g id="body-outline">
-              {spec.outline.map((shape, index) =>
-                renderSvgShape(
-                  shape,
-                  `outline-${view}-${index}`,
-                  "body-outline",
-                ),
-              )}
-            </g>
-            <g id="body-regions">
-              {spec.regions.map((regionDef) => {
-                const isSelected = value.some((location) =>
-                  isLocationSelectedForRegion(location, view, regionDef),
-                );
-                const isPending =
-                  pendingSelection?.region === regionDef.region &&
-                  pendingSelection.view === view &&
-                  (!regionDef.side || !pendingSelection);
-                return (
-                  <g
-                    key={regionDef.id}
-                    id={regionDef.id}
-                    className="body-region"
-                    data-region={regionDef.region}
-                    data-view={view}
-                    data-side={regionDef.side}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={regionAriaLabel(spec.title, regionDef)}
-                    aria-pressed={isSelected}
-                    onClick={() => onRegionPress(view, regionDef)}
-                    onKeyDown={(event) =>
-                      handleRegionKeyDown(event, () =>
-                        onRegionPress(view, regionDef),
-                      )
-                    }
-                  >
-                    <title>{regionDef.title}</title>
-                    {renderSvgShape(
-                      regionDef.shape,
-                      `${regionDef.id}-hit`,
-                      "body-region-hit",
-                    )}
-                    {renderSvgShape(
-                      regionDef.shape,
-                      `${regionDef.id}-shape`,
-                      "body-region-shape",
-                      {
-                        clipPath: regionClipId
-                          ? `url(#${regionClipId})`
-                          : undefined,
-                        style: regionStyle(isSelected || isPending),
-                      },
-                    )}
-                  </g>
-                );
-              })}
-            </g>
-          </g>
-        </svg>
-      </div>
-    </div>
-  );
-}
+  <rect class="ghost" x="20"  y="20" width="280" height="720" rx="16"></rect>
+  <rect class="ghost" x="320" y="20" width="280" height="720" rx="16"></rect>
+  <rect class="ghost" x="620" y="20" width="280" height="720" rx="16"></rect>
+  <rect class="ghost" x="920" y="20" width="260" height="720" rx="16"></rect>
 
-function renderSvgShape(
-  shape: SvgShape,
-  key: string,
-  className?: string,
-  props?: React.SVGProps<SVGPathElement> & React.SVGProps<SVGEllipseElement>,
-) {
-  if (shape.kind === "ellipse") {
-    return (
-      <ellipse
-        key={key}
-        className={className}
-        cx={shape.cx}
-        cy={shape.cy}
-        rx={shape.rx}
-        ry={shape.ry}
-        {...props}
-      />
-    );
-  }
+  <text class="panel-title" x="40"  y="52">Front</text>
+  <text class="panel-title" x="340" y="52">Back</text>
+  <text class="panel-title" x="640" y="52">Left side</text>
+  <text class="panel-title" x="940" y="52">Right side</text>
+  <text class="hint" x="40" y="74">Click to toggle selection</text>
 
-  return <path key={key} className={className} d={shape.d} {...props} />;
-}
+  <g id="front" transform="translate(20, 0)">
+    <g transform="translate(55, 95)">
+      <ellipse class="outline" cx="85" cy="65" rx="50" ry="60"></ellipse>
+      <rect class="outline" x="68" y="125" width="34" height="28" rx="10"></rect>
+      <rect class="outline" x="35" y="155" width="100" height="160" rx="40"></rect>
+      <rect class="outline" x="48" y="315" width="74" height="90" rx="30"></rect>
 
-function handleRegionKeyDown(
-  event: KeyboardEvent<SVGGElement>,
-  onActivate: () => void,
-) {
-  if (event.key !== "Enter" && event.key !== " ") {
-    return;
-  }
-  event.preventDefault();
-  onActivate();
-}
+      <rect class="outline" x="-5"  y="165" width="35" height="110" rx="18"></rect>
+      <rect class="outline" x="-5"  y="275" width="35" height="95"  rx="18"></rect>
+      <rect class="outline" x="-1"  y="370" width="27" height="16"  rx="8"></rect>
+      <rect class="outline" x="-6"  y="386" width="40" height="40"  rx="14"></rect>
 
-function regionAriaLabel(title: string, regionDef: BodyRegionSvgDef) {
-  if (regionDef.side) {
-    return `${title} ${regionDef.side === "left" ? "Left" : "Right"} ${BODY_REGION_LABELS[regionDef.region]}`;
-  }
-  return `${title} ${BODY_REGION_LABELS[regionDef.region]}`;
-}
+      <rect class="outline" x="140" y="165" width="35" height="110" rx="18"></rect>
+      <rect class="outline" x="140" y="275" width="35" height="95"  rx="18"></rect>
+      <rect class="outline" x="144" y="370" width="27" height="16"  rx="8"></rect>
+      <rect class="outline" x="137" y="386" width="40" height="40"  rx="14"></rect>
 
-function regionStyle(isActive: boolean): React.CSSProperties {
-  if (!isActive) {
-    return {};
-  }
+      <rect class="outline" x="44" y="405" width="36" height="140" rx="18"></rect>
+      <rect class="outline" x="90" y="405" width="36" height="140" rx="18"></rect>
+      <ellipse class="outline" cx="62" cy="548" rx="18" ry="12"></ellipse>
+      <ellipse class="outline" cx="108" cy="548" rx="18" ry="12"></ellipse>
+      <rect class="outline" x="44" y="560" width="36" height="95" rx="16"></rect>
+      <rect class="outline" x="90" y="560" width="36" height="95" rx="16"></rect>
+      <rect class="outline" x="38" y="655" width="48" height="22" rx="10"></rect>
+      <rect class="outline" x="84" y="655" width="48" height="22" rx="10"></rect>
 
-  return {
-    fill: "rgba(239, 68, 68, 0.5)",
-  };
-}
+      <rect class="region" data-view="front" data-part="forehead" x="45" y="18" width="80" height="30" rx="12"></rect>
+      <ellipse class="region" data-view="front" data-part="eyes" cx="85" cy="55" rx="40" ry="12"></ellipse>
+      <polygon class="region" data-view="front" data-part="nose" points="85,55 75,78 85,82 95,78"></polygon>
+      <ellipse class="region" data-view="front" data-part="cheeks" cx="85" cy="80" rx="46" ry="16"></ellipse>
+      <rect class="region" data-view="front" data-part="mouth" x="62" y="92" width="46" height="14" rx="7"></rect>
+      <rect class="region" data-view="front" data-part="chin" x="62" y="108" width="46" height="16" rx="8"></rect>
 
-function isLocationSelectedForRegion(
-  location: BodyLocation,
-  view: BodyMapView,
-  regionDef: BodyRegionSvgDef,
-) {
-  if (location.region !== regionDef.region || location.view !== view) {
-    return false;
-  }
-  if (!regionDef.side) {
-    return !location.side;
-  }
-  return location.side === regionDef.side || location.side === "both";
-}
+      <rect class="region" data-view="front" data-part="neck_throat" x="66" y="125" width="38" height="32" rx="10"></rect>
 
-function shouldPromptForSide(view: BodyMapView, regionDef: BodyRegionSvgDef) {
-  return (
-    (view === "front" || view === "back") &&
-    regionRequiresSide(regionDef.region) &&
-    !regionDef.side
-  );
-}
+      <rect class="region" data-view="front" data-part="chest"   x="40" y="160" width="90" height="55" rx="18"></rect>
+      <rect class="region" data-view="front" data-part="ribs"    x="35" y="215" width="100" height="45" rx="18"></rect>
+      <rect class="region" data-view="front" data-part="abdomen" x="40" y="260" width="90" height="70" rx="22"></rect>
+      <circle class="region" data-view="front" data-part="navel" cx="85" cy="300" r="10"></circle>
+
+      <rect class="region" data-view="front" data-part="pelvis_groin" x="48" y="315" width="74" height="90" rx="26"></rect>
+
+      <circle class="region" data-view="front" data-part="shoulders" cx="35" cy="175" r="22"></circle>
+      <circle class="region" data-view="front" data-part="shoulders" cx="135" cy="175" r="22"></circle>
+
+      <rect class="region" data-view="front" data-part="biceps" x="-5"  y="165" width="35" height="110" rx="18"></rect>
+      <rect class="region" data-view="front" data-part="biceps" x="140" y="165" width="35" height="110" rx="18"></rect>
+
+      <circle class="region" data-view="front" data-part="elbows" cx="12"  cy="275" r="16"></circle>
+      <circle class="region" data-view="front" data-part="elbows" cx="158" cy="275" r="16"></circle>
+
+      <rect class="region" data-view="front" data-part="forearms" x="-5"  y="275" width="35" height="95" rx="18"></rect>
+      <rect class="region" data-view="front" data-part="forearms" x="140" y="275" width="35" height="95" rx="18"></rect>
+
+      <rect class="region" data-view="front" data-part="wrists" x="-1"  y="370" width="27" height="18" rx="8"></rect>
+      <rect class="region" data-view="front" data-part="wrists" x="144" y="370" width="27" height="18" rx="8"></rect>
+
+      <rect class="region" data-view="front" data-part="palms" x="-6"  y="386" width="40" height="28" rx="12"></rect>
+      <rect class="region" data-view="front" data-part="palms" x="137" y="386" width="40" height="28" rx="12"></rect>
+
+      <rect class="region" data-view="front" data-part="fingers" x="-6"  y="414" width="40" height="12" rx="6"></rect>
+      <rect class="region" data-view="front" data-part="fingers" x="137" y="414" width="40" height="12" rx="6"></rect>
+
+      <rect class="region" data-view="front" data-part="thumbs" x="-12" y="392" width="12" height="18" rx="6"></rect>
+      <rect class="region" data-view="front" data-part="thumbs" x="177" y="392" width="12" height="18" rx="6"></rect>
+
+      <rect class="region" data-view="front" data-part="thighs_front" x="44" y="405" width="36" height="140" rx="18"></rect>
+      <rect class="region" data-view="front" data-part="thighs_front" x="90" y="405" width="36" height="140" rx="18"></rect>
+
+      <ellipse class="region" data-view="front" data-part="knees" cx="62"  cy="548" rx="18" ry="14"></ellipse>
+      <ellipse class="region" data-view="front" data-part="knees" cx="108" cy="548" rx="18" ry="14"></ellipse>
+
+      <rect class="region" data-view="front" data-part="shins" x="44" y="560" width="36" height="95" rx="16"></rect>
+      <rect class="region" data-view="front" data-part="shins" x="90" y="560" width="36" height="95" rx="16"></rect>
+
+      <rect class="region" data-view="front" data-part="ankles" x="44" y="652" width="36" height="18" rx="8"></rect>
+      <rect class="region" data-view="front" data-part="ankles" x="90" y="652" width="36" height="18" rx="8"></rect>
+
+      <rect class="region" data-view="front" data-part="top_of_feet" x="38" y="655" width="48" height="16" rx="8"></rect>
+      <rect class="region" data-view="front" data-part="top_of_feet" x="84" y="655" width="48" height="16" rx="8"></rect>
+
+      <rect class="region" data-view="front" data-part="toes" x="38" y="671" width="48" height="10" rx="5"></rect>
+      <rect class="region" data-view="front" data-part="toes" x="84" y="671" width="48" height="10" rx="5"></rect>
+    </g>
+  </g>
+
+  <g id="back" transform="translate(320, 0)">
+    <g transform="translate(55, 95)">
+      <ellipse class="outline" cx="85" cy="65" rx="50" ry="60"></ellipse>
+      <rect class="outline" x="68" y="125" width="34" height="28" rx="10"></rect>
+      <rect class="outline" x="35" y="155" width="100" height="160" rx="40"></rect>
+      <rect class="outline" x="48" y="315" width="74" height="90" rx="30"></rect>
+
+      <rect class="outline" x="-5"  y="165" width="35" height="110" rx="18"></rect>
+      <rect class="outline" x="-5"  y="275" width="35" height="95"  rx="18"></rect>
+      <rect class="outline" x="-1"  y="370" width="27" height="16"  rx="8"></rect>
+      <rect class="outline" x="-6"  y="386" width="40" height="40"  rx="14"></rect>
+
+      <rect class="outline" x="140" y="165" width="35" height="110" rx="18"></rect>
+      <rect class="outline" x="140" y="275" width="35" height="95"  rx="18"></rect>
+      <rect class="outline" x="144" y="370" width="27" height="16"  rx="8"></rect>
+      <rect class="outline" x="137" y="386" width="40" height="40"  rx="14"></rect>
+
+      <rect class="outline" x="44" y="405" width="36" height="140" rx="18"></rect>
+      <rect class="outline" x="90" y="405" width="36" height="140" rx="18"></rect>
+      <ellipse class="outline" cx="62" cy="548" rx="18" ry="12"></ellipse>
+      <ellipse class="outline" cx="108" cy="548" rx="18" ry="12"></ellipse>
+      <rect class="outline" x="44" y="560" width="36" height="95" rx="16"></rect>
+      <rect class="outline" x="90" y="560" width="36" height="95" rx="16"></rect>
+      <rect class="outline" x="38" y="655" width="48" height="22" rx="10"></rect>
+      <rect class="outline" x="84" y="655" width="48" height="22" rx="10"></rect>
+
+      <rect class="region" data-view="back" data-part="back_of_head" x="45" y="18" width="80" height="60" rx="18"></rect>
+      <rect class="region" data-view="back" data-part="ears" x="33" y="46" width="12" height="22" rx="6"></rect>
+      <rect class="region" data-view="back" data-part="ears" x="125" y="46" width="12" height="22" rx="6"></rect>
+      <rect class="region" data-view="back" data-part="neck_nape" x="66" y="125" width="38" height="32" rx="10"></rect>
+
+      <circle class="region" data-view="back" data-part="shoulders" cx="35"  cy="175" r="22"></circle>
+      <circle class="region" data-view="back" data-part="shoulders" cx="135" cy="175" r="22"></circle>
+      <ellipse class="region" data-view="back" data-part="shoulder_blades" cx="58"  cy="210" rx="28" ry="22"></ellipse>
+      <ellipse class="region" data-view="back" data-part="shoulder_blades" cx="112" cy="210" rx="28" ry="22"></ellipse>
+
+      <rect class="region" data-view="back" data-part="upper_back" x="40" y="160" width="90" height="80" rx="22"></rect>
+      <rect class="region" data-view="back" data-part="spine"     x="78" y="160" width="14" height="170" rx="7"></rect>
+      <rect class="region" data-view="back" data-part="lower_back" x="40" y="240" width="90" height="90" rx="22"></rect>
+
+      <rect class="region" data-view="back" data-part="buttocks" x="48" y="315" width="74" height="90" rx="26"></rect>
+
+      <rect class="region" data-view="back" data-part="triceps" x="-5"  y="165" width="35" height="110" rx="18"></rect>
+      <rect class="region" data-view="back" data-part="triceps" x="140" y="165" width="35" height="110" rx="18"></rect>
+      <circle class="region" data-view="back" data-part="back_of_elbows" cx="12"  cy="275" r="16"></circle>
+      <circle class="region" data-view="back" data-part="back_of_elbows" cx="158" cy="275" r="16"></circle>
+      <rect class="region" data-view="back" data-part="back_of_forearms" x="-5"  y="275" width="35" height="95" rx="18"></rect>
+      <rect class="region" data-view="back" data-part="back_of_forearms" x="140" y="275" width="35" height="95" rx="18"></rect>
+      <rect class="region" data-view="back" data-part="back_of_hands" x="-6"  y="386" width="40" height="40" rx="14"></rect>
+      <rect class="region" data-view="back" data-part="back_of_hands" x="137" y="386" width="40" height="40" rx="14"></rect>
+
+      <rect class="region" data-view="back" data-part="hamstrings" x="44" y="405" width="36" height="140" rx="18"></rect>
+      <rect class="region" data-view="back" data-part="hamstrings" x="90" y="405" width="36" height="140" rx="18"></rect>
+      <ellipse class="region" data-view="back" data-part="back_of_knees" cx="62"  cy="548" rx="18" ry="14"></ellipse>
+      <ellipse class="region" data-view="back" data-part="back_of_knees" cx="108" cy="548" rx="18" ry="14"></ellipse>
+      <rect class="region" data-view="back" data-part="calves" x="44" y="560" width="36" height="95" rx="16"></rect>
+      <rect class="region" data-view="back" data-part="calves" x="90" y="560" width="36" height="95" rx="16"></rect>
+
+      <rect class="region" data-view="back" data-part="achilles_tendons" x="44" y="652" width="36" height="18" rx="8"></rect>
+      <rect class="region" data-view="back" data-part="achilles_tendons" x="90" y="652" width="36" height="18" rx="8"></rect>
+      <rect class="region" data-view="back" data-part="heels" x="38" y="655" width="48" height="22" rx="10"></rect>
+      <rect class="region" data-view="back" data-part="heels" x="84" y="655" width="48" height="22" rx="10"></rect>
+    </g>
+  </g>
+
+  <g id="leftSide" transform="translate(620, 0)">
+    <g transform="translate(55, 95)">
+      <ellipse class="outline" cx="95" cy="65" rx="42" ry="60"></ellipse>
+      <rect class="outline" x="86" y="125" width="24" height="32" rx="10"></rect>
+      <rect class="outline" x="70" y="155" width="70" height="175" rx="35"></rect>
+      <rect class="outline" x="78" y="315" width="58" height="90" rx="28"></rect>
+
+      <rect class="outline" x="135" y="175" width="32" height="115" rx="16"></rect>
+      <rect class="outline" x="135" y="290" width="32" height="95" rx="16"></rect>
+      <rect class="outline" x="137" y="385" width="26" height="14" rx="7"></rect>
+      <rect class="outline" x="132" y="399" width="40" height="40" rx="14"></rect>
+
+      <rect class="outline" x="86" y="405" width="34" height="145" rx="17"></rect>
+      <ellipse class="outline" cx="103" cy="552" rx="17" ry="12"></ellipse>
+      <rect class="outline" x="86" y="565" width="34" height="95" rx="16"></rect>
+      <rect class="outline" x="82" y="660" width="52" height="22" rx="10"></rect>
+
+      <rect class="region" data-view="left" data-part="left_temple_ear_jaw" x="66" y="32" width="58" height="70" rx="18"></rect>
+
+      <circle class="region" data-view="left" data-part="left_shoulder" cx="140" cy="185" r="22"></circle>
+      <rect class="region" data-view="left" data-part="left_arm" x="135" y="175" width="32" height="115" rx="16"></rect>
+      <rect class="region" data-view="left" data-part="left_arm" x="135" y="290" width="32" height="95" rx="16"></rect>
+      <rect class="region" data-view="left" data-part="left_hand" x="132" y="399" width="40" height="40" rx="14"></rect>
+
+      <rect class="region" data-view="left" data-part="left_ribcage_flank" x="72" y="165" width="65" height="85" rx="22"></rect>
+      <rect class="region" data-view="left" data-part="left_hip" x="78" y="260" width="58" height="70" rx="22"></rect>
+
+      <rect class="region" data-view="left" data-part="left_thigh" x="86" y="405" width="34" height="145" rx="17"></rect>
+      <ellipse class="region" data-view="left" data-part="left_knee" cx="103" cy="552" rx="18" ry="14"></ellipse>
+      <rect class="region" data-view="left" data-part="left_calf" x="86" y="565" width="34" height="95" rx="16"></rect>
+
+      <rect class="region" data-view="left" data-part="left_ankle" x="86" y="655" width="34" height="18" rx="8"></rect>
+      <rect class="region" data-view="left" data-part="left_foot" x="82" y="660" width="52" height="22" rx="10"></rect>
+    </g>
+  </g>
+
+  <g id="rightSide" transform="translate(920, 0)">
+    <g transform="translate(240, 95) scale(-1,1)">
+      <ellipse class="outline" cx="95" cy="65" rx="42" ry="60"></ellipse>
+      <rect class="outline" x="86" y="125" width="24" height="32" rx="10"></rect>
+      <rect class="outline" x="70" y="155" width="70" height="175" rx="35"></rect>
+      <rect class="outline" x="78" y="315" width="58" height="90" rx="28"></rect>
+
+      <rect class="outline" x="135" y="175" width="32" height="115" rx="16"></rect>
+      <rect class="outline" x="135" y="290" width="32" height="95" rx="16"></rect>
+      <rect class="outline" x="137" y="385" width="26" height="14" rx="7"></rect>
+      <rect class="outline" x="132" y="399" width="40" height="40" rx="14"></rect>
+
+      <rect class="outline" x="86" y="405" width="34" height="145" rx="17"></rect>
+      <ellipse class="outline" cx="103" cy="552" rx="17" ry="12"></ellipse>
+      <rect class="outline" x="86" y="565" width="34" height="95" rx="16"></rect>
+      <rect class="outline" x="82" y="660" width="52" height="22" rx="10"></rect>
+
+      <rect class="region" data-view="right" data-part="right_temple_ear_jaw" x="66" y="32" width="58" height="70" rx="18"></rect>
+
+      <circle class="region" data-view="right" data-part="right_shoulder" cx="140" cy="185" r="22"></circle>
+      <rect class="region" data-view="right" data-part="right_arm" x="135" y="175" width="32" height="115" rx="16"></rect>
+      <rect class="region" data-view="right" data-part="right_arm" x="135" y="290" width="32" height="95" rx="16"></rect>
+      <rect class="region" data-view="right" data-part="right_hand" x="132" y="399" width="40" height="40" rx="14"></rect>
+
+      <rect class="region" data-view="right" data-part="right_ribcage_flank" x="72" y="165" width="65" height="85" rx="22"></rect>
+      <rect class="region" data-view="right" data-part="right_hip" x="78" y="260" width="58" height="70" rx="22"></rect>
+
+      <rect class="region" data-view="right" data-part="right_thigh" x="86" y="405" width="34" height="145" rx="17"></rect>
+      <ellipse class="region" data-view="right" data-part="right_knee" cx="103" cy="552" rx="18" ry="14"></ellipse>
+      <rect class="region" data-view="right" data-part="right_calf" x="86" y="565" width="34" height="95" rx="16"></rect>
+
+      <rect class="region" data-view="right" data-part="right_ankle" x="86" y="655" width="34" height="18" rx="8"></rect>
+      <rect class="region" data-view="right" data-part="right_foot" x="82" y="660" width="52" height="22" rx="10"></rect>
+    </g>
+  </g>
+</svg>`;
 
 const pickerRoot: React.CSSProperties = {
   display: "flex",
@@ -411,7 +521,13 @@ const chipRemoveBtn: React.CSSProperties = {
 const drawerPanel: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 0,
+  gap: 10,
+};
+
+const embeddedPanel: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
 };
 
 const drawerTopRow: React.CSSProperties = {
@@ -433,89 +549,37 @@ const drawerSubtitle: React.CSSProperties = {
   color: "#6B7280",
 };
 
-const embeddedPanel: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 0,
-};
-
-const lateralityCard: React.CSSProperties = {
-  marginTop: 18,
-  padding: 16,
-  borderRadius: 18,
-  background: "rgba(108, 124, 255, 0.08)",
-  border: "1px solid rgba(108, 124, 255, 0.14)",
-  display: "flex",
-  flexDirection: "column",
-  gap: 12,
-};
-
-const lateralityTitle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 700,
-  color: "#1F2937",
-};
-
-const lateralityActions: React.CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 8,
-};
-
-const lateralityBtn: React.CSSProperties = {
-  border: "none",
-  background: "#6C7CFF",
-  color: "#fff",
-  borderRadius: 12,
-  padding: "10px 14px",
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
-const lateralityGhostBtn: React.CSSProperties = {
-  border: "1px solid rgba(15, 23, 42, 0.08)",
+const clearBtn: React.CSSProperties = {
+  border: "1px solid rgba(15, 23, 42, 0.14)",
   background: "#fff",
-  color: "#374151",
-  borderRadius: 12,
-  padding: "10px 14px",
+  color: "#111827",
+  borderRadius: 10,
+  padding: "8px 12px",
   fontSize: 13,
-  fontWeight: 700,
+  fontWeight: 600,
   cursor: "pointer",
 };
 
-const mapsRow: React.CSSProperties = {
+const selectedRow: React.CSSProperties = {
   display: "flex",
-  flexWrap: "nowrap",
-  gap: 18,
-  alignItems: "flex-start",
-  marginTop: 20,
-  overflowX: "auto",
-  paddingBottom: 8,
+  alignItems: "center",
+  gap: 12,
+  flexWrap: "wrap",
 };
 
-const mapPanel: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-  flex: "0 0 260px",
-  width: 260,
+const selectedLabel: React.CSSProperties = {
+  color: "#6B7280",
+  fontSize: 14,
 };
 
-const mapTitle: React.CSSProperties = {
-  fontSize: 13,
+const selectedValue: React.CSSProperties = {
   fontWeight: 700,
-  color: "#374151",
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  color: "#111827",
+  fontSize: 14,
+  wordBreak: "break-word",
 };
 
-const bodySvg: React.CSSProperties = {
-  display: "block",
-  width: 260,
-  height: "auto",
-  borderRadius: 18,
-  background:
-    "linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98))",
-  border: "1px solid rgba(15, 23, 42, 0.06)",
+const svgHost: React.CSSProperties = {
+  width: "100%",
+  maxWidth: 1100,
 };
