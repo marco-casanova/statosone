@@ -28,9 +28,106 @@ import {
   loadQuickActions,
   saveQuickActions,
 } from "./QuickActionsManager";
+import {
+  EquipmentMultiSelect,
+  EquipmentItem,
+  EquipmentContext,
+} from "./EquipmentMultiSelect";
 
 type Phase = "browse" | "confirm";
 type MainCategory = UiCareCategoryId;
+
+/** Input field config for each vital sign type */
+interface VitalInputField {
+  key: string;
+  label: string;
+  placeholder: string;
+  unit: string;
+  min: number;
+  max: number;
+  step?: number;
+}
+
+interface VitalSignConfig {
+  label: string;
+  fields: VitalInputField[];
+}
+
+const VITAL_SIGN_INPUT_CONFIG: Record<string, VitalSignConfig> = {
+  glucose_value: {
+    label: "Blood glucose",
+    fields: [
+      {
+        key: "glucose",
+        label: "Blood glucose",
+        placeholder: "e.g. 110",
+        unit: "mg/dL",
+        min: 20,
+        max: 600,
+      },
+    ],
+  },
+  vital_sign_hr: {
+    label: "Heart rate",
+    fields: [
+      {
+        key: "heart_rate",
+        label: "Heart rate",
+        placeholder: "e.g. 72",
+        unit: "bpm",
+        min: 20,
+        max: 250,
+      },
+    ],
+  },
+  vital_sign_rr: {
+    label: "Respiration rate",
+    fields: [
+      {
+        key: "respiration_rate",
+        label: "Respiration rate",
+        placeholder: "e.g. 16",
+        unit: "breaths/min",
+        min: 4,
+        max: 60,
+      },
+    ],
+  },
+  vital_sign_spo2: {
+    label: "Oxygen saturation",
+    fields: [
+      {
+        key: "oxygen_saturation",
+        label: "SpO₂",
+        placeholder: "e.g. 98",
+        unit: "%",
+        min: 50,
+        max: 100,
+      },
+    ],
+  },
+  vital_sign_bp: {
+    label: "Blood pressure",
+    fields: [
+      {
+        key: "systolic",
+        label: "Systolic",
+        placeholder: "e.g. 120",
+        unit: "mmHg",
+        min: 50,
+        max: 300,
+      },
+      {
+        key: "diastolic",
+        label: "Diastolic",
+        placeholder: "e.g. 80",
+        unit: "mmHg",
+        min: 20,
+        max: 200,
+      },
+    ],
+  },
+};
 
 const FOOD_SUGGESTIONS = [
   "Pasta bolognesa y pan tostado",
@@ -139,6 +236,10 @@ export function ActivityForm() {
     null,
   );
   const [saving, setSaving] = useState(false);
+  const [vitalSignReadings, setVitalSignReadings] = useState<
+    Record<string, string>
+  >({});
+  const [equipmentItems, setEquipmentItems] = useState<EquipmentItem[]>([]);
 
   const [quickActions, setQuickActions] = useState<QuickAction[]>([]);
   const [showManager, setShowManager] = useState(false);
@@ -169,6 +270,35 @@ export function ActivityForm() {
   const isNutrition = isNutritionSubtype(subtype);
   const isIncident = mainCategory === "incident";
   const isSleepPattern = mainCategory === "sleep_pattern";
+  const isVitalSigns = mainCategory === "vital_signs";
+  const isMobility = mainCategory === "mobility";
+  const equipmentContext: EquipmentContext | null = isMobility
+    ? subtype === "ambulation_walk"
+      ? "ambulation"
+      : "transfer"
+    : null;
+
+  // Resolve the vital-sign config key from the current selection
+  const vitalConfigKey = useMemo(() => {
+    if (!isVitalSigns) return null;
+    if (subtype === "glucose_value") return "glucose_value";
+    const itemKey = selectedSubtypeItems.find(
+      (item) =>
+        item.subtype === subtype &&
+        item.category === category &&
+        item.label === selectedSubtypeLabel,
+    )?.itemKey;
+    return itemKey || null;
+  }, [
+    isVitalSigns,
+    subtype,
+    category,
+    selectedSubtypeLabel,
+    selectedSubtypeItems,
+  ]);
+  const activeVitalConfig = vitalConfigKey
+    ? VITAL_SIGN_INPUT_CONFIG[vitalConfigKey] || null
+    : null;
   const filteredIncidentGroups = useMemo(() => {
     if (!isIncident || !selectedMainCategory) {
       return [];
@@ -307,6 +437,8 @@ export function ActivityForm() {
     setIncidentDescription("");
     setSleepStart(nowLocal());
     setSleepEnd(nowLocal());
+    setVitalSignReadings({});
+    setEquipmentItems([]);
     setMessage(null);
     setMessageTone(null);
     setRecentExpanded(false);
@@ -322,6 +454,8 @@ export function ActivityForm() {
     setFoodType("");
     setSelectedSubtypeLabel(null);
     setSubtypeDetailsPreset(null);
+    setVitalSignReadings({});
+    setEquipmentItems([]);
     setMessage(null);
     setMessageTone(null);
   }
@@ -655,6 +789,24 @@ export function ActivityForm() {
       if (bodyLocations.length) {
         details.body_locations = bodyLocations;
       }
+      if (isMobility && equipmentItems.length > 0) {
+        details.equipment_used = equipmentItems.map((item) => ({
+          id: item.id,
+          label: item.label,
+          ...(item.isCustom ? { isCustom: true } : {}),
+        }));
+      }
+      // Vital sign numeric readings
+      if (isVitalSigns && Object.keys(vitalSignReadings).length > 0) {
+        const readings: Record<string, number> = {};
+        for (const [key, val] of Object.entries(vitalSignReadings)) {
+          const num = parseFloat(val);
+          if (!isNaN(num)) readings[key] = num;
+        }
+        if (Object.keys(readings).length > 0) {
+          details.readings = readings;
+        }
+      }
       if (isSleepPattern && sleepStart && sleepEnd) {
         details.sleep_start = new Date(sleepStart).toISOString();
         details.sleep_end = new Date(sleepEnd).toISOString();
@@ -687,9 +839,12 @@ export function ActivityForm() {
     }
   }
 
+  const hasVitalReading = isVitalSigns
+    ? Object.values(vitalSignReadings).some((v) => v.trim() !== "")
+    : true;
   const canConfirm = isIncident
     ? selectedIncidentIssueItems.length > 0 && !!category && !!subtype
-    : !!category && !!subtype;
+    : !!category && !!subtype && hasVitalReading;
 
   // Go back one step
   function goBack() {
@@ -1114,8 +1269,46 @@ export function ActivityForm() {
             </div>
           )}
 
+          {/* Vital-sign numeric inputs */}
+          {isVitalSigns && activeVitalConfig && (
+            <>
+              <label style={miniLabel}>{activeVitalConfig.label}</label>
+              <div style={vitalInputGrid}>
+                {activeVitalConfig.fields.map((field) => (
+                  <div key={field.key} style={vitalInputWrap}>
+                    {activeVitalConfig.fields.length > 1 && (
+                      <span style={vitalFieldLabel}>{field.label}</span>
+                    )}
+                    <div style={vitalInputRow}>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        value={vitalSignReadings[field.key] ?? ""}
+                        onChange={(e) =>
+                          setVitalSignReadings((prev) => ({
+                            ...prev,
+                            [field.key]: e.target.value,
+                          }))
+                        }
+                        placeholder={field.placeholder}
+                        min={field.min}
+                        max={field.max}
+                        step={field.step ?? 1}
+                        style={vitalInput}
+                        aria-label={`${field.label} (${field.unit})`}
+                      />
+                      <span style={vitalUnitLabel}>{field.unit}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           {!isIncident &&
             !isSleepPattern &&
+            !isVitalSigns &&
+            !isMobility &&
             subtype &&
             SUBTYPE_OPTIONS[subtype] && (
               <>
@@ -1231,7 +1424,7 @@ export function ActivityForm() {
             </>
           )}
 
-          {showAssistance && (
+          {showAssistance && !isMobility && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <label style={{ ...miniLabel, marginTop: 0 }}>
@@ -1252,6 +1445,18 @@ export function ActivityForm() {
                   </option>
                 ))}
               </select>
+            </>
+          )}
+
+          {isMobility && equipmentContext && (
+            <>
+              <label style={miniLabel}>Equipment used</label>
+              <EquipmentMultiSelect
+                context={equipmentContext}
+                value={equipmentItems}
+                onChange={setEquipmentItems}
+                placeholder="Search or type equipment…"
+              />
             </>
           )}
 
@@ -2140,4 +2345,47 @@ const recentTitle: React.CSSProperties = {
 const recentMeta: React.CSSProperties = {
   fontSize: 12,
   color: "#6B7280",
+};
+
+/* ────── Vital-sign input styles ────── */
+const vitalInputGrid: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 12,
+};
+
+const vitalInputWrap: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  flex: "1 1 140px",
+  minWidth: 140,
+};
+
+const vitalFieldLabel: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: "#6B7280",
+  textTransform: "uppercase",
+  letterSpacing: 0.6,
+};
+
+const vitalInputRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+};
+
+const vitalInput: React.CSSProperties = {
+  ...input,
+  flex: 1,
+  minWidth: 80,
+  MozAppearance: "textfield" as any,
+};
+
+const vitalUnitLabel: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 600,
+  color: "#4A4A4A",
+  whiteSpace: "nowrap",
 };
