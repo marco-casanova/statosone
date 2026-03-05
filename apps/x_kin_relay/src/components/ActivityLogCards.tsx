@@ -1,7 +1,15 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "@/lib/supabaseClient";
-import { Calendar, ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
+import {
+  Calendar,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  LayoutGrid,
+  List,
+  User,
+} from "lucide-react";
 import { iconFor, a11yLabel } from "./activityIcons";
 import { getActivitySubtypeValues } from "./activitySubtypeValues";
 
@@ -36,7 +44,15 @@ const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   engagement: { color: "#C084FC", bg: "rgba(192, 132, 252, 0.18)" },
 };
 
+interface ClientRow {
+  id: string;
+  display_name: string;
+}
+
 export function ActivityLogCards() {
+  const [clients, setClients] = useState<ClientRow[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [loadingClients, setLoadingClients] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
@@ -70,14 +86,45 @@ export function ActivityLogCards() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  async function load() {
+  // Load clients on mount
+  useEffect(() => {
+    async function loadClients() {
+      if (!hasSupabase || !supabase) {
+        const demo: ClientRow[] = [
+          { id: "demo-client-1", display_name: "Maria Schmidt" },
+          { id: "demo-client-2", display_name: "Hans Müller" },
+        ];
+        setClients(demo);
+        setSelectedClientId(demo[0].id);
+        return;
+      }
+      setLoadingClients(true);
+      const { data, error } = await supabase
+        .from("kr_clients")
+        .select("id, display_name")
+        .order("display_name");
+      if (!error && data) {
+        setClients(data);
+        if (data.length > 0) setSelectedClientId(data[0].id);
+      }
+      setLoadingClients(false);
+    }
+    loadClients();
+  }, []);
+
+  async function load(clientId?: string) {
+    const cid = clientId || selectedClientId;
+    if (!cid) {
+      setActivities([]);
+      return;
+    }
     if (!hasSupabase || !supabase) {
       // fallback mock data
       const now = new Date();
       const mock: ActivityRow[] = Array.from({ length: 8 }).map((_, i) => ({
         id: "mock-" + i,
         circle_id: "demo-circle",
-        recipient_id: "demo-recipient",
+        recipient_id: cid,
         category: i % 2 ? "adl" : "safety",
         observed_at: new Date(now.getTime() - i * 3600_000).toISOString(),
         recorded_by: i % 2 ? "demo-caregiver-1" : "demo-caregiver-2",
@@ -97,6 +144,7 @@ export function ActivityLogCards() {
     const { data, error } = await supabase
       .from("kr_activities")
       .select("*")
+      .eq("recipient_id", cid)
       .order("observed_at", { ascending: false })
       .limit(200);
     if (error) setError(error.message);
@@ -144,9 +192,10 @@ export function ActivityLogCards() {
       });
   }, [activities]);
 
+  // Reload activities when selected client changes
   useEffect(() => {
-    load();
-  }, []);
+    if (selectedClientId) load(selectedClientId);
+  }, [selectedClientId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -241,10 +290,12 @@ export function ActivityLogCards() {
   }
 
   function primaryLabel(a: ActivityRow) {
+    // Prefer saved subcategory label (human-readable, already translated)
+    if (a.details?.subcategory_label) return a.details.subcategory_label;
     const subK = subtypeKeyFor(a);
     const subtype = subK ? a[subK] : null;
-    if (subtype) return subtype;
-    return a.category;
+    if (subtype) return prettyKey(subtype);
+    return prettyKey(a.category);
   }
 
   const gridCols =
@@ -263,8 +314,34 @@ export function ActivityLogCards() {
         : `Until ${formatDateKey(endDate)}`
     : "All dates";
 
+  const selectedClient = clients.find((c) => c.id === selectedClientId);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+      {/* Client selector */}
+      <div style={clientSelectorRow}>
+        <User size={18} style={{ opacity: 0.7, flexShrink: 0 }} />
+        <select
+          value={selectedClientId}
+          onChange={(e) => setSelectedClientId(e.target.value)}
+          style={clientSelect}
+          aria-label="Select client"
+          disabled={loadingClients}
+        >
+          {loadingClients ? (
+            <option>Loading…</option>
+          ) : clients.length === 0 ? (
+            <option value="">No clients</option>
+          ) : (
+            clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.display_name || c.id}
+              </option>
+            ))
+          )}
+        </select>
+      </div>
+
       <div style={topBar}>
         <div style={dateFilterPill(hasDateFilter)}>{dateFilterLabel}</div>
         <div style={topBarActions}>
@@ -318,7 +395,11 @@ export function ActivityLogCards() {
                       value={startDate}
                       onChange={(e) => {
                         setStartDate(e.target.value);
-                        if (endDate && e.target.value && endDate < e.target.value) {
+                        if (
+                          endDate &&
+                          e.target.value &&
+                          endDate < e.target.value
+                        ) {
                           setEndDate(e.target.value);
                         }
                       }}
@@ -332,7 +413,11 @@ export function ActivityLogCards() {
                       value={endDate}
                       onChange={(e) => {
                         setEndDate(e.target.value);
-                        if (startDate && e.target.value && startDate > e.target.value) {
+                        if (
+                          startDate &&
+                          e.target.value &&
+                          startDate > e.target.value
+                        ) {
                           setStartDate(e.target.value);
                         }
                       }}
@@ -371,7 +456,9 @@ export function ActivityLogCards() {
                     style={monthNavBtn}
                     aria-label="Previous month"
                     onClick={() =>
-                      setCalendarMonth((current) => startOfMonth(addMonths(current, -1)))
+                      setCalendarMonth((current) =>
+                        startOfMonth(addMonths(current, -1)),
+                      )
                     }
                   >
                     <ChevronLeft size={14} />
@@ -384,7 +471,9 @@ export function ActivityLogCards() {
                     style={monthNavBtn}
                     aria-label="Next month"
                     onClick={() =>
-                      setCalendarMonth((current) => startOfMonth(addMonths(current, 1)))
+                      setCalendarMonth((current) =>
+                        startOfMonth(addMonths(current, 1)),
+                      )
                     }
                   >
                     <ChevronRight size={14} />
@@ -392,11 +481,13 @@ export function ActivityLogCards() {
                 </div>
 
                 <div style={weekHeaderGrid}>
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-                    <div key={day} style={weekHeaderCell}>
-                      {day}
-                    </div>
-                  ))}
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                    (day) => (
+                      <div key={day} style={weekHeaderCell}>
+                        {day}
+                      </div>
+                    ),
+                  )}
                 </div>
 
                 <div style={calendarDaysGrid}>
@@ -444,16 +535,19 @@ export function ActivityLogCards() {
       {error && <div style={errBox}>Error: {error}</div>}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: viewMode === "grid" ? gridCols : "1fr",
-          gap: 16,
+          display: "flex",
+          flexDirection: "column",
+          gap: viewMode === "grid" ? 14 : 10,
           width: "100%",
+          ...(viewMode === "grid"
+            ? {
+                display: "grid",
+                gridTemplateColumns: gridCols,
+              }
+            : {}),
         }}
       >
         {filtered.map((a) => {
-          const color =
-            CATEGORY_COLORS[a.category] ||
-            "linear-gradient(135deg,#475569,#1e293b)";
           const subK = subtypeKeyFor(a);
           const subtype = subK ? a[subK] : null;
           const isOpen = expanded[a.id] || (autoOpen && !!a.details);
@@ -468,114 +562,60 @@ export function ActivityLogCards() {
             color: "#4A7A72",
             bg: "rgba(136, 185, 176, 0.18)",
           };
+          const detailLines = extractDetailSummary(a.details);
+          const displayLabel = primaryLabel(a);
+          const sleepRange =
+            a.details?.sleep_start && a.details?.sleep_end
+              ? `${fmtTime(new Date(a.details.sleep_start))} a ${fmtTime(new Date(a.details.sleep_end))}`
+              : null;
           return (
             <div
               key={a.id}
               style={{
-                ...card,
+                ...logCard,
                 background: colors.bg,
-                borderColor: colors.color,
-                minHeight: viewMode === "list" ? 88 : card.minHeight,
+                borderLeft: `4px solid ${colors.color}`,
               }}
               aria-label={`Activity card ${a.category}`}
             >
+              {/* Main clickable area */}
               <button
                 onClick={() => toggleExpand(a.id)}
-                style={viewMode === "list" ? listRowBtn : cardInnerBtn}
+                style={logCardBtn}
                 title="Toggle details"
               >
-                {viewMode === "list" ? (
-                  <div style={listRowContent}>
-                    <span
-                      style={listRowIcon}
-                      role="img"
-                      aria-label={a11yLabel(
-                        a.category,
-                        subtypesAll[0] as string | undefined,
-                      )}
-                    >
-                      {icon}
-                    </span>
-                    <div style={listPrimaryBlock}>
-                      <div style={listCategory}>{a.category}</div>
-                      <div style={listTitle}>{primaryLabel(a)}</div>
-                    </div>
-                    {recName && <div style={listMeta}>👤 {recName}</div>}
-                    {caregiverLabel && (
-                      <div style={listMeta}>Caregiver: {caregiverLabel}</div>
+                {/* Top row: icon + label ... date + time */}
+                <div style={logCardTopRow}>
+                  <span
+                    style={logCardIconStyle}
+                    role="img"
+                    aria-label={a11yLabel(
+                      a.category,
+                      subtypesAll[0] as string | undefined,
                     )}
-                    <div style={listTime}>{formattedTime(a.observed_at)}</div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 4,
-                      flex: 1,
-                      textAlign: "left",
-                    }}
                   >
-                    <span
-                      style={cardIcon}
-                      role="img"
-                      aria-label={a11yLabel(
-                        a.category,
-                        subtypesAll[0] as string | undefined,
-                      )}
-                    >
-                      {icon}
+                    {icon}
+                  </span>
+                  <div style={logCardLabelStyle}>{displayLabel}</div>
+                  <div style={logCardDateTimeStyle}>
+                    <span>{fmtDate(a.observed_at)}</span>
+                    <span style={{ fontWeight: 700 }}>
+                      {sleepRange || fmtTime(new Date(a.observed_at))}
                     </span>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        opacity: 0.85,
-                        letterSpacing: 0.5,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {a.category}
-                    </div>
-                    <div
-                      style={{ fontWeight: 600, fontSize: 15, lineHeight: 1.25 }}
-                    >
-                      {primaryLabel(a)}
-                    </div>
-                    {recName && (
-                      <div style={{ fontSize: 11, opacity: 0.9 }}>
-                        👤 {recName}
-                      </div>
-                    )}
-                    {caregiverLabel && (
-                      <div style={{ fontSize: 11, opacity: 0.9 }}>
-                        Caregiver: {caregiverLabel}
-                      </div>
-                    )}
-                    <div style={{ fontSize: 11, opacity: 0.7 }}>
-                      {formattedTime(a.observed_at)}
-                    </div>
-                    {subtypesAll.length > 1 && (
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 4,
-                          flexWrap: "wrap",
-                          marginTop: 4,
-                        }}
-                      >
-                        {subtypesAll.map((s) => (
-                          <span key={s} style={chip}>
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                  </div>
+                </div>
+
+                {/* Detail lines below */}
+                {detailLines.length > 0 && (
+                  <div style={logCardDetailLines}>
+                    {detailLines.map((line, i) => (
+                      <div key={i}>{line}</div>
+                    ))}
                   </div>
                 )}
-                <div style={{ fontSize: 20, opacity: 0.6 }}>
-                  {isOpen ? "−" : "+"}
-                </div>
               </button>
+
+              {/* Expanded raw details */}
               {isOpen && (
                 <div style={detailsBox}>
                   {a.details && (
@@ -591,6 +631,7 @@ export function ActivityLogCards() {
                   <div style={metaRow}>
                     <span>ID: {a.id}</span>
                     {subtype && <span>Subtype: {subtype}</span>}
+                    {recName && <span>Client: {recName}</span>}
                     {caregiverLabel && <span>Caregiver: {caregiverLabel}</span>}
                   </div>
                 </div>
@@ -599,7 +640,18 @@ export function ActivityLogCards() {
           );
         })}
         {!loading && !filtered.length && (
-          <div style={{ fontSize: 12, opacity: 0.6 }}>No activities</div>
+          <div
+            style={{
+              fontSize: 13,
+              opacity: 0.5,
+              padding: "20px 0",
+              textAlign: "center",
+            }}
+          >
+            {selectedClientId
+              ? "No activities found for this client."
+              : "Select a client to view their activity logs."}
+          </div>
         )}
         {loading && <div style={{ fontSize: 12, opacity: 0.6 }}>Loading…</div>}
       </div>
@@ -650,6 +702,82 @@ function monthYearLabel(date: Date) {
     month: "long",
     year: "numeric",
   });
+}
+
+// ── Formatting helpers ──────────────────────────────────────────
+function prettyKey(key: string) {
+  return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${dd}.${mm}.${yy}`;
+}
+
+function fmtTime(d: Date): string {
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function extractDetailSummary(details: any): string[] {
+  if (!details) return [];
+  const lines: string[] = [];
+
+  // Hydration: "200ml orange juice…"
+  if (details.total && details.unit) {
+    let h = `${details.total}${details.unit}`;
+    if (details.fluid_type) h += ` ${details.fluid_type}`;
+    lines.push(h);
+  }
+
+  // Medication: "PARACETAMOL 500mg, 1 tab"
+  if (details.medication) {
+    let m = (details.medication.name || "").toUpperCase();
+    if (details.medication.dosage) m += ` ${details.medication.dosage}`;
+    if (details.medication.route) m += `,  ${details.medication.route}`;
+    if (m.trim()) lines.push(m);
+  }
+
+  // Vital sign readings
+  if (details.readings && typeof details.readings === "object") {
+    Object.entries(details.readings).forEach(([key, val]) => {
+      if (val) lines.push(`${prettyKey(key)}: ${val}`);
+    });
+  }
+
+  // Food type
+  if (details.food_type) lines.push(details.food_type);
+
+  // Equipment
+  if (details.equipment_used?.length) {
+    lines.push(details.equipment_used.map((e: any) => e.label).join(", "));
+  }
+
+  // Incident issues
+  if (details.issue_types?.length) {
+    lines.push(details.issue_types.map((i: any) => i.label).join(", "));
+  }
+
+  // Body locations
+  if (details.body_locations?.length) {
+    lines.push(
+      "Location: " +
+        details.body_locations.map((b: any) => b.label || b).join(", "),
+    );
+  }
+
+  // Generic value + label (non-hydration)
+  if (details.value && details.label && !details.total) {
+    lines.push(`${details.label}: ${details.value}${details.unit || ""}`);
+  }
+
+  // Description / note
+  if (details.description) lines.push(details.description);
+  if (details.note) lines.push(details.note);
+
+  return lines;
 }
 
 function buildCalendarCells(month: Date): CalendarCell[] {
@@ -725,38 +853,73 @@ const smallBtn: React.CSSProperties = {
   minHeight: 48,
   transition: "all 0.2s ease",
 };
-const card: React.CSSProperties = {
+// ── New log card styles (screenshot-matching) ─────────────────
+const logCard: React.CSSProperties = {
   position: "relative",
   display: "flex",
   flexDirection: "column",
-  borderRadius: 16,
+  borderRadius: 14,
   padding: 0,
   color: "#1A1A1A",
-  minHeight: 140,
-  boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
   overflow: "hidden",
-  border: "1px solid rgba(0,0,0,0.08)",
+  border: "1px solid rgba(0,0,0,0.06)",
   background: "rgba(255,255,255,0.85)",
   backdropFilter: "blur(12px)",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
 };
-const cardIcon: React.CSSProperties = {
-  fontSize: 24,
-  lineHeight: 1,
-  marginBottom: 2,
-};
-const cardInnerBtn: React.CSSProperties = {
+const logCardBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
   textAlign: "left",
-  padding: "16px 18px",
+  padding: "14px 18px",
   display: "flex",
-  gap: 14,
+  flexDirection: "column",
+  gap: 6,
   cursor: "pointer",
   color: "inherit",
   font: "inherit",
   width: "100%",
-  alignItems: "flex-start",
-  minHeight: 44,
+};
+const logCardTopRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  width: "100%",
+};
+const logCardIconStyle: React.CSSProperties = {
+  flexShrink: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  opacity: 0.85,
+};
+const logCardLabelStyle: React.CSSProperties = {
+  flex: 1,
+  fontWeight: 800,
+  fontSize: 15,
+  letterSpacing: 0.5,
+  textTransform: "uppercase",
+  lineHeight: 1.3,
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+const logCardDateTimeStyle: React.CSSProperties = {
+  display: "flex",
+  gap: 12,
+  alignItems: "center",
+  flexShrink: 0,
+  fontSize: 14,
+  fontWeight: 600,
+  color: "#374151",
+  whiteSpace: "nowrap",
+};
+const logCardDetailLines: React.CSSProperties = {
+  paddingLeft: 34,
+  fontSize: 14,
+  lineHeight: 1.5,
+  color: "#374151",
+  fontWeight: 500,
 };
 const detailsBox: React.CSSProperties = {
   background: "rgba(0,0,0,0.03)",
@@ -1018,58 +1181,27 @@ const calendarHintDot: React.CSSProperties = {
   border: "1px solid rgba(34, 197, 94, 0.8)",
 };
 
-const listRowBtn: React.CSSProperties = {
-  ...cardInnerBtn,
-  padding: "14px 16px",
-  alignItems: "center",
-};
-
-const listRowContent: React.CSSProperties = {
+const clientSelectorRow: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: 14,
+  gap: 10,
+  padding: "10px 16px",
+  background: "rgba(255, 255, 255, 0.92)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(0, 0, 0, 0.10)",
+  borderRadius: 14,
+};
+const clientSelect: React.CSSProperties = {
   flex: 1,
-  minWidth: 0,
-  flexWrap: "wrap",
-};
-
-const listRowIcon: React.CSSProperties = {
-  fontSize: 22,
-  lineHeight: 1,
-  flexShrink: 0,
-};
-
-const listPrimaryBlock: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  minWidth: 170,
-  flex: "1 1 220px",
-};
-
-const listCategory: React.CSSProperties = {
-  fontSize: 11,
-  opacity: 0.8,
-  letterSpacing: 0.5,
-  textTransform: "uppercase",
-};
-
-const listTitle: React.CSSProperties = {
+  border: "none",
+  background: "transparent",
+  fontSize: 16,
   fontWeight: 700,
-  fontSize: 17,
-  lineHeight: 1.2,
+  color: "#1A1A1A",
+  outline: "none",
+  cursor: "pointer",
+  appearance: "auto",
+  padding: "4px 0",
 };
 
-const listMeta: React.CSSProperties = {
-  fontSize: 12,
-  opacity: 0.9,
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  maxWidth: 320,
-};
-
-const listTime: React.CSSProperties = {
-  fontSize: 12,
-  opacity: 0.72,
-  marginLeft: "auto",
-};
+// legacy list styles removed — now using logCard* styles
