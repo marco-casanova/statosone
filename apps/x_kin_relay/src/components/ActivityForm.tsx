@@ -33,6 +33,10 @@ import {
   EquipmentItem,
   EquipmentContext,
 } from "./EquipmentMultiSelect";
+import {
+  MedicationActivityPicker,
+  MedicationSelection,
+} from "./MedicationActivityPicker";
 
 type Phase = "browse" | "confirm";
 type MainCategory = UiCareCategoryId;
@@ -240,6 +244,8 @@ export function ActivityForm() {
     Record<string, string>
   >({});
   const [equipmentItems, setEquipmentItems] = useState<EquipmentItem[]>([]);
+  const [selectedMedication, setSelectedMedication] =
+    useState<MedicationSelection | null>(null);
 
   const [quickActions, setQuickActions] = useState<QuickAction[]>([]);
   const [showManager, setShowManager] = useState(false);
@@ -272,6 +278,7 @@ export function ActivityForm() {
   const isSleepPattern = mainCategory === "sleep_pattern";
   const isVitalSigns = mainCategory === "vital_signs";
   const isMobility = mainCategory === "mobility";
+  const isMedication = mainCategory === "medication_administration";
   const equipmentContext: EquipmentContext | null = isMobility
     ? subtype === "ambulation_walk"
       ? "ambulation"
@@ -439,6 +446,7 @@ export function ActivityForm() {
     setSleepEnd(nowLocal());
     setVitalSignReadings({});
     setEquipmentItems([]);
+    setSelectedMedication(null);
     setMessage(null);
     setMessageTone(null);
     setRecentExpanded(false);
@@ -456,6 +464,7 @@ export function ActivityForm() {
     setSubtypeDetailsPreset(null);
     setVitalSignReadings({});
     setEquipmentItems([]);
+    setSelectedMedication(null);
     setMessage(null);
     setMessageTone(null);
   }
@@ -795,6 +804,19 @@ export function ActivityForm() {
           label: item.label,
           ...(item.isCustom ? { isCustom: true } : {}),
         }));
+      }
+      if (isMedication && selectedMedication) {
+        details.medication = {
+          id: selectedMedication.id,
+          name: selectedMedication.name,
+          source: selectedMedication.source,
+          ...(selectedMedication.dosage
+            ? { dosage: selectedMedication.dosage }
+            : {}),
+          ...(selectedMedication.route
+            ? { route: selectedMedication.route }
+            : {}),
+        };
       }
       // Vital sign numeric readings
       if (isVitalSigns && Object.keys(vitalSignReadings).length > 0) {
@@ -1309,6 +1331,7 @@ export function ActivityForm() {
             !isSleepPattern &&
             !isVitalSigns &&
             !isMobility &&
+            !isMedication &&
             subtype &&
             SUBTYPE_OPTIONS[subtype] && (
               <>
@@ -1456,6 +1479,18 @@ export function ActivityForm() {
                 value={equipmentItems}
                 onChange={setEquipmentItems}
                 placeholder="Search or type equipment…"
+              />
+            </>
+          )}
+
+          {isMedication && (
+            <>
+              <label style={miniLabel}>Medication</label>
+              <MedicationActivityPicker
+                clientId={selectedClientId}
+                value={selectedMedication}
+                onChange={setSelectedMedication}
+                placeholder="Search medication or type name…"
               />
             </>
           )}
