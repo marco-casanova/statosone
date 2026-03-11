@@ -353,7 +353,9 @@ export function ActivityForm() {
       selectedIncidentIssueItems.flatMap((item) => {
         const issueKey = incidentIssueKey(item);
         const locations = bodyLocationsByIssueKey[issueKey] || [];
-        return locations.map((location) => `${item.label}: ${bodyLocationLabel(location)}`);
+        return locations.map(
+          (location) => `${item.label}: ${bodyLocationLabel(location)}`,
+        );
       }),
     [bodyLocationsByIssueKey, selectedIncidentIssueItems],
   );
@@ -1258,18 +1260,16 @@ export function ActivityForm() {
                   </div>
                 )}
               </div>
-              {showBodyLocationPicker && selectedBodyLocationSummary.length > 0 && (
-                <div style={bodyLocationChipSummary}>
-                  {selectedBodyLocationSummary.map((label) => (
-                    <span
-                      key={label}
-                      style={bodyLocationChip}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {showBodyLocationPicker &&
+                selectedBodyLocationSummary.length > 0 && (
+                  <div style={bodyLocationChipSummary}>
+                    {selectedBodyLocationSummary.map((label) => (
+                      <span key={label} style={bodyLocationChip}>
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                )}
             </>
           )}
 
@@ -1642,7 +1642,9 @@ export function ActivityForm() {
                     one.
                   </div>
                   {activeBodyMapIssueLabel && (
-                    <div style={helperText}>Issue: {activeBodyMapIssueLabel}</div>
+                    <div style={helperText}>
+                      Issue: {activeBodyMapIssueLabel}
+                    </div>
                   )}
                 </div>
                 <button

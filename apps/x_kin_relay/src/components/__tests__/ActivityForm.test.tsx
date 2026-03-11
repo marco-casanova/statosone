@@ -112,9 +112,7 @@ describe("ActivityForm", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /Select Hydration categories/i }),
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Select Juice/i }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: /Select Juice/i }));
     expect(screen.getByDisplayValue("Juice")).toBeInTheDocument();
   });
 
@@ -129,9 +127,12 @@ describe("ActivityForm", () => {
       name: /Pick incident Burn/i,
     });
     fireEvent.click(burnButton);
-    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
-      target: { value: "pain" },
-    });
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: /Filter issue types/i }),
+      {
+        target: { value: "pain" },
+      },
+    );
     const painButton = screen.getByRole("button", {
       name: /Pick incident Pain/i,
     });
@@ -168,24 +169,33 @@ describe("ActivityForm", () => {
       screen.getByRole("button", { name: /Pick incident Cough/i }),
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
-      target: { value: "wrong" },
-    });
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: /Filter issue types/i }),
+      {
+        target: { value: "wrong" },
+      },
+    );
     expect(medicationAccordion).toHaveAttribute("aria-expanded", "true");
     expect(
       screen.getByRole("button", { name: /Pick incident Wrong medication/i }),
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
-      target: { value: "bite" },
-    });
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: /Filter issue types/i }),
+      {
+        target: { value: "bite" },
+      },
+    );
     expect(
       screen.getByRole("button", { name: /Pick incident Bite\/sting/i }),
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("searchbox", { name: /Filter issue types/i }), {
-      target: { value: "itch" },
-    });
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: /Filter issue types/i }),
+      {
+        target: { value: "itch" },
+      },
+    );
     expect(
       screen.getByRole("button", { name: /Pick incident Itchiness/i }),
     ).toBeInTheDocument();
@@ -206,7 +216,9 @@ describe("ActivityForm", () => {
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Mobility/i }));
-    const fallButton = screen.getByRole("button", { name: /Pick incident Fall/i });
+    const fallButton = screen.getByRole("button", {
+      name: /Pick incident Fall/i,
+    });
     fireEvent.click(fallButton);
     fireEvent.click(
       screen.getByRole("button", { name: /Open body map for Fall/i }),
@@ -253,13 +265,15 @@ describe("ActivityForm", () => {
     );
 
     expect(
-      screen.getByText((text) =>
-        text.toLowerCase().includes("burn:") && text.includes("Front: Chest"),
+      screen.getByText(
+        (text) =>
+          text.toLowerCase().includes("burn:") && text.includes("Front: Chest"),
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText((text) =>
-        text.toLowerCase().includes("pain:") && text.includes("Front: Ribs"),
+      screen.getByText(
+        (text) =>
+          text.toLowerCase().includes("pain:") && text.includes("Front: Ribs"),
       ),
     ).toBeInTheDocument();
   });
