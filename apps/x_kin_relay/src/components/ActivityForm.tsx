@@ -17,7 +17,6 @@ import {
 import {
   BODY_MAP_ENABLED_TYPES,
   BodyLocation,
-  bodyLocationKey,
   bodyLocationLabel,
 } from "../types/bodyLocation";
 import { iconFor, a11yLabel } from "./activityIcons";
@@ -218,7 +217,12 @@ export function ActivityForm() {
   const [assistanceLevel, setAssistanceLevel] = useState("");
   const [fluidType, setFluidType] = useState("");
   const [foodType, setFoodType] = useState("");
-  const [bodyLocations, setBodyLocations] = useState<BodyLocation[]>([]);
+  const [bodyLocationsByIssueKey, setBodyLocationsByIssueKey] = useState<
+    Record<string, BodyLocation[]>
+  >({});
+  const [activeBodyMapIssueKey, setActiveBodyMapIssueKey] = useState<
+    string | null
+  >(null);
   const [showBodyMapDialog, setShowBodyMapDialog] = useState(false);
   const [incidentDescription, setIncidentDescription] = useState("");
   const [sleepStart, setSleepStart] = useState(nowLocal());
@@ -344,6 +348,31 @@ export function ActivityForm() {
       ),
     [selectedIncidentIssueItems],
   );
+  const selectedBodyLocationSummary = useMemo(
+    () =>
+      selectedIncidentIssueItems.flatMap((item) => {
+        const issueKey = incidentIssueKey(item);
+        const locations = bodyLocationsByIssueKey[issueKey] || [];
+        return locations.map((location) => `${item.label}: ${bodyLocationLabel(location)}`);
+      }),
+    [bodyLocationsByIssueKey, selectedIncidentIssueItems],
+  );
+  const activeBodyMapIssueLabel = useMemo(() => {
+    if (!activeBodyMapIssueKey) {
+      return null;
+    }
+    return (
+      selectedIncidentIssueItems.find(
+        (item) => incidentIssueKey(item) === activeBodyMapIssueKey,
+      )?.label || null
+    );
+  }, [activeBodyMapIssueKey, selectedIncidentIssueItems]);
+  const activeBodyLocations = useMemo(() => {
+    if (!activeBodyMapIssueKey) {
+      return [];
+    }
+    return bodyLocationsByIssueKey[activeBodyMapIssueKey] || [];
+  }, [activeBodyMapIssueKey, bodyLocationsByIssueKey]);
   const showAssistance = category === "adl";
   const showBodyLocationPicker =
     isIncident && selectedIncidentBodyMapItems.length > 0;
@@ -383,13 +412,38 @@ export function ActivityForm() {
   }, [selectedClientId, recentExpanded]);
 
   useEffect(() => {
-    if (!showBodyLocationPicker && bodyLocations.length > 0) {
-      setBodyLocations([]);
-    }
     if (!showBodyLocationPicker) {
+      if (Object.keys(bodyLocationsByIssueKey).length > 0) {
+        setBodyLocationsByIssueKey({});
+      }
+      setActiveBodyMapIssueKey(null);
       setShowBodyMapDialog(false);
     }
-  }, [bodyLocations.length, showBodyLocationPicker]);
+  }, [bodyLocationsByIssueKey, showBodyLocationPicker]);
+
+  useEffect(() => {
+    if (!isIncident) {
+      return;
+    }
+    const selectedKeys = new Set(selectedIncidentIssueKeys);
+    setBodyLocationsByIssueKey((prev) => {
+      const next: Record<string, BodyLocation[]> = {};
+      let changed = false;
+      for (const [key, locations] of Object.entries(prev)) {
+        if (selectedKeys.has(key)) {
+          next[key] = locations;
+        } else {
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+
+    if (activeBodyMapIssueKey && !selectedKeys.has(activeBodyMapIssueKey)) {
+      setActiveBodyMapIssueKey(null);
+      setShowBodyMapDialog(false);
+    }
+  }, [activeBodyMapIssueKey, isIncident, selectedIncidentIssueKeys]);
 
   useEffect(() => {
     if (!isIncident || !selectedMainCategory) {
@@ -434,7 +488,8 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
-    setBodyLocations([]);
+    setBodyLocationsByIssueKey({});
+    setActiveBodyMapIssueKey(null);
     setShowBodyMapDialog(false);
     setSelectedIncidentIssueKeys([]);
     setOpenIncidentGroups([]);
@@ -555,7 +610,8 @@ export function ActivityForm() {
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
-    setBodyLocations([]);
+    setBodyLocationsByIssueKey({});
+    setActiveBodyMapIssueKey(null);
     setShowBodyMapDialog(false);
     setSelectedIncidentIssueKeys([]);
     setOpenIncidentGroups([]);
@@ -608,6 +664,18 @@ export function ActivityForm() {
           (key) => key !== issueKey,
         );
         setSelectedIncidentIssueKeys(nextKeys);
+        setBodyLocationsByIssueKey((prev) => {
+          if (!(issueKey in prev)) {
+            return prev;
+          }
+          const next = { ...prev };
+          delete next[issueKey];
+          return next;
+        });
+        if (activeBodyMapIssueKey === issueKey) {
+          setActiveBodyMapIssueKey(null);
+          setShowBodyMapDialog(false);
+        }
 
         if (
           subtype === item.subtype &&
@@ -793,10 +861,8 @@ export function ActivityForm() {
           label: item.label,
           subtype: item.subtype,
           category: item.category,
+          body_locations: bodyLocationsByIssueKey[incidentIssueKey(item)] || [],
         }));
-      }
-      if (bodyLocations.length) {
-        details.body_locations = bodyLocations;
       }
       if (isMobility && equipmentItems.length > 0) {
         details.equipment_used = equipmentItems.map((item) => ({
@@ -1163,6 +1229,9 @@ export function ActivityForm() {
                                         style={bodyMapIconBtn}
                                         onClick={(event) => {
                                           event.stopPropagation();
+                                          setActiveBodyMapIssueKey(
+                                            incidentIssueKey(item),
+                                          );
                                           setShowBodyMapDialog(true);
                                         }}
                                         aria-label={`Open body map for ${item.label}`}
@@ -1189,14 +1258,14 @@ export function ActivityForm() {
                   </div>
                 )}
               </div>
-              {showBodyLocationPicker && bodyLocations.length > 0 && (
+              {showBodyLocationPicker && selectedBodyLocationSummary.length > 0 && (
                 <div style={bodyLocationChipSummary}>
-                  {bodyLocations.map((location) => (
+                  {selectedBodyLocationSummary.map((label) => (
                     <span
-                      key={bodyLocationKey(location)}
+                      key={label}
                       style={bodyLocationChip}
                     >
-                      {bodyLocationLabel(location)}
+                      {label}
                     </span>
                   ))}
                 </div>
@@ -1572,6 +1641,9 @@ export function ActivityForm() {
                     Tap the area where it happened. You can select more than
                     one.
                   </div>
+                  {activeBodyMapIssueLabel && (
+                    <div style={helperText}>Issue: {activeBodyMapIssueLabel}</div>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -1583,8 +1655,16 @@ export function ActivityForm() {
                 </button>
               </div>
               <BodyLocationPicker
-                value={bodyLocations}
-                onChange={setBodyLocations}
+                value={activeBodyLocations}
+                onChange={(nextLocations) => {
+                  if (!activeBodyMapIssueKey) {
+                    return;
+                  }
+                  setBodyLocationsByIssueKey((prev) => ({
+                    ...prev,
+                    [activeBodyMapIssueKey]: nextLocations,
+                  }));
+                }}
                 embedded
               />
             </div>

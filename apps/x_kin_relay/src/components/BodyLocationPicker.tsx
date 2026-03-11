@@ -39,7 +39,12 @@ function toDatasetView(view: BodyMapView): DatasetView {
 }
 
 function isDatasetView(value: string | null): value is DatasetView {
-  return value === "front" || value === "back" || value === "left" || value === "right";
+  return (
+    value === "front" ||
+    value === "back" ||
+    value === "left" ||
+    value === "right"
+  );
 }
 
 function humanizeToken(value: string) {
@@ -109,10 +114,14 @@ export function BodyLocationPicker({
     instance: number,
   ) {
     const nextKey = regionDatasetKey(toDatasetView(modelView), part, instance);
-    const exists = value.some((location) => locationDatasetKey(location) === nextKey);
+    const exists = value.some(
+      (location) => locationDatasetKey(location) === nextKey,
+    );
 
     if (exists) {
-      onChange(value.filter((location) => locationDatasetKey(location) !== nextKey));
+      onChange(
+        value.filter((location) => locationDatasetKey(location) !== nextKey),
+      );
       return;
     }
 
@@ -211,7 +220,8 @@ export function BodyLocationPicker({
                   onClick={() =>
                     onChange(
                       value.filter(
-                        (entry) => bodyLocationKey(entry) !== bodyLocationKey(location),
+                        (entry) =>
+                          bodyLocationKey(entry) !== bodyLocationKey(location),
                       ),
                     )
                   }
@@ -229,7 +239,8 @@ export function BodyLocationPicker({
           <div>
             <div style={drawerTitle}>Body map</div>
             <div style={drawerSubtitle}>
-              Tap a region to select it. Tap a selected region again to remove it.
+              Tap a region to select it. Tap a selected region again to remove
+              it.
             </div>
           </div>
           <button
@@ -289,7 +300,7 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
   <text class="hint" x="40" y="74">Click to toggle selection</text>
 
   <g id="front" transform="translate(20, 0)">
-    <g transform="translate(55, 95)">
+    <g transform="translate(55, 95) scale(0.88)">
       <ellipse class="outline" cx="85" cy="65" rx="50" ry="60"></ellipse>
       <rect class="outline" x="68" y="125" width="34" height="28" rx="10"></rect>
       <rect class="outline" x="35" y="155" width="100" height="160" rx="40"></rect>
@@ -375,7 +386,7 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
   </g>
 
   <g id="back" transform="translate(320, 0)">
-    <g transform="translate(55, 95)">
+    <g transform="translate(55, 95) scale(0.88)">
       <ellipse class="outline" cx="85" cy="65" rx="50" ry="60"></ellipse>
       <rect class="outline" x="68" y="125" width="34" height="28" rx="10"></rect>
       <rect class="outline" x="35" y="155" width="100" height="160" rx="40"></rect>
@@ -422,6 +433,8 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
       <circle class="region" data-view="back" data-part="back_of_elbows" cx="158" cy="275" r="16"></circle>
       <rect class="region" data-view="back" data-part="back_of_forearms" x="-5"  y="275" width="35" height="95" rx="18"></rect>
       <rect class="region" data-view="back" data-part="back_of_forearms" x="140" y="275" width="35" height="95" rx="18"></rect>
+      <rect class="region" data-view="back" data-part="wrists" x="-1"  y="370" width="27" height="18" rx="8"></rect>
+      <rect class="region" data-view="back" data-part="wrists" x="144" y="370" width="27" height="18" rx="8"></rect>
       <rect class="region" data-view="back" data-part="back_of_hands" x="-6"  y="386" width="40" height="40" rx="14"></rect>
       <rect class="region" data-view="back" data-part="back_of_hands" x="137" y="386" width="40" height="40" rx="14"></rect>
 
@@ -440,7 +453,7 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
   </g>
 
   <g id="leftSide" transform="translate(620, 0)">
-    <g transform="translate(55, 95)">
+    <g transform="translate(55, 95) scale(0.88)">
       <ellipse class="outline" cx="95" cy="65" rx="42" ry="60"></ellipse>
       <rect class="outline" x="86" y="125" width="24" height="32" rx="10"></rect>
       <rect class="outline" x="70" y="155" width="70" height="175" rx="35"></rect>
@@ -461,6 +474,7 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
       <circle class="region" data-view="left" data-part="left_shoulder" cx="140" cy="185" r="22"></circle>
       <rect class="region" data-view="left" data-part="left_arm" x="135" y="175" width="32" height="115" rx="16"></rect>
       <rect class="region" data-view="left" data-part="left_arm" x="135" y="290" width="32" height="95" rx="16"></rect>
+      <rect class="region" data-view="left" data-part="wrists" x="137" y="385" width="26" height="14" rx="7"></rect>
       <rect class="region" data-view="left" data-part="left_hand" x="132" y="399" width="40" height="40" rx="14"></rect>
 
       <rect class="region" data-view="left" data-part="left_ribcage_flank" x="72" y="165" width="65" height="85" rx="22"></rect>
@@ -476,7 +490,7 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
   </g>
 
   <g id="rightSide" transform="translate(920, 0)">
-    <g transform="translate(240, 95) scale(-1,1)">
+    <g transform="translate(240, 95) scale(-0.88,0.88)">
       <ellipse class="outline" cx="95" cy="65" rx="42" ry="60"></ellipse>
       <rect class="outline" x="86" y="125" width="24" height="32" rx="10"></rect>
       <rect class="outline" x="70" y="155" width="70" height="175" rx="35"></rect>
@@ -497,6 +511,7 @@ const BODY_MAP_SVG = String.raw`<svg id="bodyMap" viewBox="0 0 1200 760" width="
       <circle class="region" data-view="right" data-part="right_shoulder" cx="140" cy="185" r="22"></circle>
       <rect class="region" data-view="right" data-part="right_arm" x="135" y="175" width="32" height="115" rx="16"></rect>
       <rect class="region" data-view="right" data-part="right_arm" x="135" y="290" width="32" height="95" rx="16"></rect>
+      <rect class="region" data-view="right" data-part="wrists" x="137" y="385" width="26" height="14" rx="7"></rect>
       <rect class="region" data-view="right" data-part="right_hand" x="132" y="399" width="40" height="40" rx="14"></rect>
 
       <rect class="region" data-view="right" data-part="right_ribcage_flank" x="72" y="165" width="65" height="85" rx="22"></rect>

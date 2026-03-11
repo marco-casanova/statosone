@@ -222,6 +222,48 @@ describe("ActivityForm", () => {
     expect(screen.queryByText("Front: Knees")).not.toBeInTheDocument();
   });
 
+  test("incident body locations are tracked per selected issue type", () => {
+    render(<ActivityForm />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select Incident categories/i }),
+    );
+
+    const burnButton = screen.getByRole("button", {
+      name: /Pick incident Burn/i,
+    });
+    fireEvent.click(burnButton);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open body map for Burn/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Front Chest" }));
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Close body map dialog/i })[0],
+    );
+
+    const painButton = screen.getByRole("button", {
+      name: /Pick incident Pain/i,
+    });
+    fireEvent.click(painButton);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open body map for Pain/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Front Ribs" }));
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Close body map dialog/i })[0],
+    );
+
+    expect(
+      screen.getByText((text) =>
+        text.toLowerCase().includes("burn:") && text.includes("Front: Chest"),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText((text) =>
+        text.toLowerCase().includes("pain:") && text.includes("Front: Ribs"),
+      ),
+    ).toBeInTheDocument();
+  });
+
   test("icon aria-label present in confirm phase", () => {
     render(<ActivityForm />);
     fireEvent.click(

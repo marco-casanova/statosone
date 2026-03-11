@@ -52,158 +52,80 @@ export function TopNav() {
   // Check if we're on the app page or admin page
   const isOnAppPage = pathname.includes("/app");
   const isOnAdminPage = pathname.includes("/admin");
-  const isOnDataPage = pathname.includes("/data");
 
   function navigateToView(targetView: string) {
     // Always navigate to /app with the view param
     router.push(`/${locale}/app?view=${targetView}`);
   }
 
+  const navButtonBaseClass =
+    "inline-flex min-h-8 items-center justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-colors";
+  const navButtonClass = `${navButtonBaseClass} border-black/10 bg-black/10 text-[#1A1A1A] hover:bg-black/15`;
+  const navButtonActiveClass = `${navButtonBaseClass} border-[#F5D547] bg-[#F5D547] text-[#1A1A1A] shadow-sm`;
+  const navLinkClass = `${navButtonBaseClass} border-black/10 bg-black/5 text-[#4A4A4A] hover:bg-black/10`;
+
   return (
-    <header style={bar}>
-      <div style={left}>
-        <Link
-          href={`/${locale}/app`}
-          style={{ textDecoration: "none", color: "#1A1A1A" }}
-        >
-          <strong style={{ fontSize: 16, fontWeight: 700 }}>Kin Relay</strong>
-        </Link>
+    <header className="fixed inset-x-0 top-0 z-[70] border-b border-black/10 bg-[#88B9B0]/95 backdrop-blur-[10px]">
+      <div className="mx-auto flex w-full max-w-[95vw] flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <Link
+            href={`/${locale}/app`}
+            className="truncate text-base font-bold text-[#1A1A1A] no-underline"
+          >
+            Kin Relay
+          </Link>
+          {session && (
+            <nav className="flex max-w-full items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <button
+                onClick={() => navigateToView("dashboard")}
+                className={
+                  isOnAppPage && !isOnAdminPage && view !== "network"
+                    ? navButtonActiveClass
+                    : navButtonClass
+                }
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => navigateToView("network")}
+                className={
+                  isOnAppPage && view === "network"
+                    ? navButtonActiveClass
+                    : navButtonClass
+                }
+              >
+                Care Network
+              </button>
+              <Link
+                href={`/${locale}/admin`}
+                className={
+                  isOnAdminPage
+                    ? navButtonActiveClass
+                    : navLinkClass
+                }
+              >
+                Admin
+              </Link>
+            </nav>
+          )}
+        </div>
         {session && (
-          <nav style={nav}>
+          <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+            <span className="max-w-[11rem] truncate text-xs text-[#4A4A4A] sm:max-w-[14rem]">
+              {session.user.email}
+            </span>
             <button
-              onClick={() => navigateToView("dashboard")}
-              style={
-                isOnAppPage && !isOnAdminPage && view !== "network"
-                  ? tabActive
-                  : tab
-              }
+              onClick={handleLogout}
+              className="inline-flex min-h-8 items-center justify-center whitespace-nowrap rounded-md border border-black/10 bg-black/10 px-3 py-1 text-xs font-medium text-[#1A1A1A] transition-colors hover:bg-black/15"
             >
-              Dashboard
+              Logout
             </button>
-            <button
-              onClick={() => navigateToView("network")}
-              style={isOnAppPage && view === "network" ? tabActive : tab}
-            >
-              Care Network
-            </button>
-            <Link
-              href={`/${locale}/admin`}
-              style={isOnAdminPage ? { ...linkTab, ...linkTabActive } : linkTab}
-            >
-              Admin
-            </Link>
-          </nav>
+          </div>
+        )}
+        {!session && !checking && (
+          <div className="text-xs text-black/60">No session</div>
         )}
       </div>
-      {session && (
-        <div style={sessionBox}>
-          <span style={{ fontSize: 12, color: "#4A4A4A" }}>
-            {session.user.email}
-          </span>
-          <button onClick={handleLogout} style={logoutBtn}>
-            Logout
-          </button>
-        </div>
-      )}
-      {!session && !checking && (
-        <div style={{ fontSize: 12, opacity: 0.6 }}>No session</div>
-      )}
     </header>
   );
 }
-
-const bar: React.CSSProperties = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "8px 16px",
-  backdropFilter: "blur(10px)",
-  background: "rgba(136, 185, 176, 0.95)",
-  borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
-  zIndex: 70,
-};
-const left: React.CSSProperties = {
-  display: "flex",
-  gap: 16,
-  alignItems: "center",
-};
-const nav: React.CSSProperties = { display: "flex", gap: 8 };
-const tab: React.CSSProperties = {
-  background: "rgba(0, 0, 0, 0.1)",
-  color: "#1A1A1A",
-  border: "1px solid rgba(0, 0, 0, 0.1)",
-  padding: "6px 14px",
-  borderRadius: 20,
-  cursor: "pointer",
-  fontSize: 12,
-  fontWeight: 500,
-};
-const tabActive: React.CSSProperties = {
-  ...tab,
-  background: "#F5D547",
-  border: "1px solid #F5D547",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-};
-const linkTab: React.CSSProperties = {
-  background: "rgba(0, 0, 0, 0.05)",
-  color: "#4A4A4A",
-  border: "1px solid rgba(0, 0, 0, 0.1)",
-  padding: "6px 14px",
-  borderRadius: 20,
-  cursor: "pointer",
-  fontSize: 12,
-  fontWeight: 500,
-  textDecoration: "none",
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-};
-const linkTabActive: React.CSSProperties = {
-  background: "#F5D547",
-  color: "#1A1A1A",
-  border: "1px solid #F5D547",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-};
-const form: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  alignItems: "center",
-};
-const input: React.CSSProperties = {
-  background: "rgba(255, 255, 255, 0.9)",
-  border: "1px solid rgba(0, 0, 0, 0.1)",
-  padding: "6px 10px",
-  borderRadius: 6,
-  color: "#1A1A1A",
-  fontSize: 13,
-  width: 140,
-};
-const loginBtn: React.CSSProperties = {
-  background: "#F5D547",
-  color: "#1A1A1A",
-  border: "none",
-  padding: "6px 14px",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 13,
-  fontWeight: 600,
-};
-const sessionBox: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  alignItems: "center",
-};
-const logoutBtn: React.CSSProperties = {
-  background: "rgba(0, 0, 0, 0.1)",
-  color: "#1A1A1A",
-  border: "1px solid rgba(0, 0, 0, 0.1)",
-  padding: "4px 10px",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 12,
-  fontWeight: 500,
-};

@@ -3,6 +3,8 @@
    Healthcare App Theme (Light/Mobile First)
    ============================================ */
 
+@import "tailwindcss";
+
 /* Import KinRelay Theme */
 @import '../styles/kinrelay-theme.css';
 

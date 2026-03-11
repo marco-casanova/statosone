@@ -16,10 +16,10 @@ export default function AppEntry() {
   const locale = pathname.split("/").filter(Boolean)[0] || "en";
   const view = params.get("view") || "home";
 
-  // Redirect to home page by default
+  // Redirect to dashboard view by default
   useEffect(() => {
     if (!params.get("view")) {
-      router.replace(`/${locale}/app/home`);
+      router.replace(`/${locale}/app?view=dashboard`);
     }
   }, [params, router, locale]);
 
@@ -33,15 +33,7 @@ export default function AppEntry() {
     return (
       <>
         <TopNav />
-        <div
-          style={{
-            padding: "80px 24px 60px",
-            maxWidth: "95vw",
-            margin: "0 auto",
-            background: "#88B9B0",
-            minHeight: "100vh",
-          }}
-        >
+        <div className="mx-auto min-h-screen w-full max-w-[95vw] bg-[#88B9B0] px-4 pb-12 pt-24 sm:px-6 sm:pt-28">
           <Explorer />
         </div>
       </>

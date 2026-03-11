@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "@/lib/supabaseClient";
 import {
   Calendar,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
@@ -22,11 +21,6 @@ interface ActivityRow {
   recorded_by: string;
   details?: any;
   [k: string]: any; // subtype_* keys, etc
-}
-
-interface RecipientRow {
-  id: string;
-  display_name: string;
 }
 
 interface CaregiverProfileRow {
@@ -62,19 +56,14 @@ export function ActivityLogCards() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [search, setSearch] = useState("");
   const [recipientMap, setRecipientMap] = useState<Record<string, string>>({});
   const [caregiverMap, setCaregiverMap] = useState<Record<string, string>>({});
-  const [autoOpen, setAutoOpen] = useState(false);
-  const [suggestOpen, setSuggestOpen] = useState(false);
-  const suggestRef = useRef<HTMLDivElement | null>(null);
+  const search = "";
+  const autoOpen = false;
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (suggestRef.current && !suggestRef.current.contains(e.target as any)) {
-        setSuggestOpen(false);
-      }
       if (
         calendarRef.current &&
         !calendarRef.current.contains(e.target as any)
@@ -247,20 +236,6 @@ export function ActivityLogCards() {
     });
   }, [activities, search, recipientMap, caregiverMap, startDate, endDate]);
 
-  const suggestions = useMemo(() => {
-    const pool = new Set<string>();
-    activities.forEach((a) => {
-      const subK = subtypeKeyFor(a);
-      if (subK && a[subK]) pool.add(String(a[subK]));
-      pool.add(a.category);
-      if (recipientMap[a.recipient_id]) pool.add(recipientMap[a.recipient_id]);
-      if (caregiverMap[a.recorded_by]) pool.add(caregiverMap[a.recorded_by]);
-    });
-    const arr = Array.from(pool).sort();
-    if (!search) return arr.slice(0, 15);
-    return arr.filter((s) => s.toLowerCase().includes(search.toLowerCase()));
-  }, [activities, search, recipientMap, caregiverMap]);
-
   const activityDaySet = useMemo(() => {
     const days = new Set<string>();
     activities.forEach((activity) => {
@@ -279,16 +254,6 @@ export function ActivityLogCards() {
     setExpanded((e) => ({ ...e, [id]: !e[id] }));
   }
 
-  function formattedTime(iso: string) {
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      month: "short",
-      day: "numeric",
-    });
-  }
-
   function primaryLabel(a: ActivityRow) {
     // Prefer saved subcategory label (human-readable, already translated)
     if (a.details?.subcategory_label) return a.details.subcategory_label;
@@ -297,11 +262,6 @@ export function ActivityLogCards() {
     if (subtype) return prettyKey(subtype);
     return prettyKey(a.category);
   }
-
-  const gridCols =
-    filtered.length < 3
-      ? `repeat(${filtered.length},1fr)`
-      : "repeat(auto-fill,minmax(240px,1fr))";
 
   const hasDateFilter = Boolean(startDate || endDate);
   const dateFilterLabel = hasDateFilter
@@ -313,18 +273,15 @@ export function ActivityLogCards() {
         ? `From ${formatDateKey(startDate)}`
         : `Until ${formatDateKey(endDate)}`
     : "All dates";
-
-  const selectedClient = clients.find((c) => c.id === selectedClientId);
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+    <div className="flex flex-1 flex-col gap-4">
       {/* Client selector */}
-      <div style={clientSelectorRow}>
-        <User size={18} style={{ opacity: 0.7, flexShrink: 0 }} />
+      <div className="flex items-center gap-2.5 rounded-[14px] border border-black/10 bg-white/90 px-3.5 py-2.5 backdrop-blur-[12px]">
+        <User size={18} className="shrink-0 opacity-70" />
         <select
           value={selectedClientId}
           onChange={(e) => setSelectedClientId(e.target.value)}
-          style={clientSelect}
+          className="min-w-0 flex-1 cursor-pointer appearance-auto bg-transparent py-1 text-base font-bold text-[#1A1A1A] outline-none"
           aria-label="Select client"
           disabled={loadingClients}
         >
@@ -342,18 +299,30 @@ export function ActivityLogCards() {
         </select>
       </div>
 
-      <div style={topBar}>
-        <div style={dateFilterPill(hasDateFilter)}>{dateFilterLabel}</div>
-        <div style={topBarActions}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className={`inline-flex w-fit max-w-full items-center rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-[8px] ${
+            hasDateFilter
+              ? "border-green-600/35 bg-green-500/20 text-green-800"
+              : "border-black/15 bg-white/70 text-slate-700"
+          }`}
+        >
+          {dateFilterLabel}
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <div
-            style={viewToggleGroup}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/75 p-1.5 backdrop-blur-[12px]"
             role="group"
             aria-label="Change task view"
           >
             <button
               type="button"
               onClick={() => setViewMode("grid")}
-              style={toggleBtn(viewMode === "grid")}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-lg transition-all ${
+                viewMode === "grid"
+                  ? "bg-[#F5D547] text-[#1A1A1A] shadow-[0_2px_8px_rgba(245,213,71,0.35)]"
+                  : "text-slate-600 hover:bg-black/5"
+              }`}
               aria-label="Grid view"
               aria-pressed={viewMode === "grid"}
               title="Grid view"
@@ -363,7 +332,11 @@ export function ActivityLogCards() {
             <button
               type="button"
               onClick={() => setViewMode("list")}
-              style={toggleBtn(viewMode === "list")}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-lg transition-all ${
+                viewMode === "list"
+                  ? "bg-[#F5D547] text-[#1A1A1A] shadow-[0_2px_8px_rgba(245,213,71,0.35)]"
+                  : "text-slate-600 hover:bg-black/5"
+              }`}
               aria-label="List view"
               aria-pressed={viewMode === "list"}
               title="List view"
@@ -372,11 +345,15 @@ export function ActivityLogCards() {
             </button>
           </div>
 
-          <div ref={calendarRef} style={calendarWrap}>
+          <div ref={calendarRef} className="relative">
             <button
               type="button"
               onClick={() => setIsCalendarOpen((open) => !open)}
-              style={calendarToggleBtn(isCalendarOpen || hasDateFilter)}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-lg transition-all ${
+                isCalendarOpen || hasDateFilter
+                  ? "bg-[#F5D547] text-[#1A1A1A] shadow-[0_2px_8px_rgba(245,213,71,0.35)]"
+                  : "text-slate-600 hover:bg-black/5"
+              }`}
               aria-label="Date filter"
               aria-pressed={isCalendarOpen}
               title="Date filter"
@@ -385,10 +362,12 @@ export function ActivityLogCards() {
             </button>
 
             {isCalendarOpen && (
-              <div style={calendarPanel}>
-                <div style={calendarPanelTitle}>Filter by date</div>
-                <div style={calendarInputRow}>
-                  <label style={calendarLabel}>
+              <div className="absolute left-0 top-[calc(100%+8px)] z-[60] flex w-[min(20.5rem,calc(100vw-2rem))] flex-col gap-2.5 rounded-[14px] border border-black/10 bg-white/95 p-3 shadow-[0_14px_34px_rgba(0,0,0,0.16)] backdrop-blur-[14px] sm:left-auto sm:right-0 sm:w-80">
+                <div className="text-sm font-bold text-slate-900">
+                  Filter by date
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
                     Start
                     <input
                       type="date"
@@ -403,10 +382,10 @@ export function ActivityLogCards() {
                           setEndDate(e.target.value);
                         }
                       }}
-                      style={calendarInput}
+                      className="w-full rounded-lg border border-black/15 bg-white px-2 py-1.5 text-xs text-slate-900"
                     />
                   </label>
-                  <label style={calendarLabel}>
+                  <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
                     End
                     <input
                       type="date"
@@ -421,15 +400,15 @@ export function ActivityLogCards() {
                           setStartDate(e.target.value);
                         }
                       }}
-                      style={calendarInput}
+                      className="w-full rounded-lg border border-black/15 bg-white px-2 py-1.5 text-xs text-slate-900"
                     />
                   </label>
                 </div>
 
-                <div style={calendarQuickActions}>
+                <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    style={calendarActionBtn}
+                    className="rounded-lg border border-black/15 bg-white/90 px-2.5 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-black/5"
                     onClick={() => {
                       const today = toDateKey(new Date());
                       setStartDate(today);
@@ -440,7 +419,7 @@ export function ActivityLogCards() {
                   </button>
                   <button
                     type="button"
-                    style={calendarActionBtn}
+                    className="rounded-lg border border-black/15 bg-white/90 px-2.5 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-black/5"
                     onClick={() => {
                       setStartDate("");
                       setEndDate("");
@@ -450,10 +429,10 @@ export function ActivityLogCards() {
                   </button>
                 </div>
 
-                <div style={calendarMonthHeader}>
+                <div className="flex items-center justify-between gap-2">
                   <button
                     type="button"
-                    style={monthNavBtn}
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-black/15 bg-white text-slate-700 transition-colors hover:bg-black/5"
                     aria-label="Previous month"
                     onClick={() =>
                       setCalendarMonth((current) =>
@@ -463,12 +442,12 @@ export function ActivityLogCards() {
                   >
                     <ChevronLeft size={14} />
                   </button>
-                  <div style={calendarMonthLabel}>
+                  <div className="text-xs font-bold capitalize text-slate-800">
                     {monthYearLabel(calendarMonth)}
                   </div>
                   <button
                     type="button"
-                    style={monthNavBtn}
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-black/15 bg-white text-slate-700 transition-colors hover:bg-black/5"
                     aria-label="Next month"
                     onClick={() =>
                       setCalendarMonth((current) =>
@@ -480,17 +459,20 @@ export function ActivityLogCards() {
                   </button>
                 </div>
 
-                <div style={weekHeaderGrid}>
+                <div className="grid grid-cols-7 gap-1.5">
                   {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
                     (day) => (
-                      <div key={day} style={weekHeaderCell}>
+                      <div
+                        key={day}
+                        className="text-center text-[10px] font-bold text-slate-500"
+                      >
                         {day}
                       </div>
                     ),
                   )}
                 </div>
 
-                <div style={calendarDaysGrid}>
+                <div className="grid grid-cols-7 gap-1.5">
                   {calendarCells.map((cell) => {
                     const hasActivity = activityDaySet.has(cell.dateKey);
                     const isInRange =
@@ -505,7 +487,7 @@ export function ActivityLogCards() {
                       <button
                         key={cell.key}
                         type="button"
-                        style={calendarDayCell(
+                        className={calendarDayCellClass(
                           cell.inCurrentMonth,
                           hasActivity,
                           isInRange,
@@ -523,8 +505,9 @@ export function ActivityLogCards() {
                   })}
                 </div>
 
-                <div style={calendarHint}>
-                  <span style={calendarHintDot} /> Green days have activities.
+                <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                  <span className="h-2.5 w-2.5 rounded-full border border-green-500/80 bg-green-500/55" />
+                  Green days have activities.
                   Click a day to filter a single day.
                 </div>
               </div>
@@ -532,20 +515,19 @@ export function ActivityLogCards() {
           </div>
         </div>
       </div>
-      {error && <div style={errBox}>Error: {error}</div>}
+
+      {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/15 px-3.5 py-2.5 text-sm text-red-600">
+          Error: {error}
+        </div>
+      )}
+
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: viewMode === "grid" ? 14 : 10,
-          width: "100%",
-          ...(viewMode === "grid"
-            ? {
-                display: "grid",
-                gridTemplateColumns: gridCols,
-              }
-            : {}),
-        }}
+        className={
+          viewMode === "grid"
+            ? "grid w-full grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+            : "flex w-full flex-col gap-2.5"
+        }
       >
         {filtered.map((a) => {
           const subK = subtypeKeyFor(a);
@@ -571,23 +553,21 @@ export function ActivityLogCards() {
           return (
             <div
               key={a.id}
-              style={{
-                ...logCard,
-                background: colors.bg,
-                borderLeft: `4px solid ${colors.color}`,
-              }}
+              className="relative flex flex-col overflow-hidden rounded-[14px] border border-black/5 bg-white/85 shadow-[0_2px_8px_rgba(0,0,0,0.06)] backdrop-blur-[12px]"
+              style={{ background: colors.bg, borderLeft: `4px solid ${colors.color}` }}
               aria-label={`Activity card ${a.category}`}
             >
               {/* Main clickable area */}
               <button
+                type="button"
                 onClick={() => toggleExpand(a.id)}
-                style={logCardBtn}
+                className="flex w-full cursor-pointer flex-col gap-1.5 border-0 bg-transparent px-3 py-3 text-left text-inherit sm:px-4 sm:py-3.5"
                 title="Toggle details"
               >
                 {/* Top row: icon + label ... date + time */}
-                <div style={logCardTopRow}>
+                <div className="flex w-full items-start gap-2.5">
                   <span
-                    style={logCardIconStyle}
+                    className="inline-flex shrink-0 items-center justify-center leading-none opacity-85"
                     role="img"
                     aria-label={a11yLabel(
                       a.category,
@@ -596,10 +576,12 @@ export function ActivityLogCards() {
                   >
                     {icon}
                   </span>
-                  <div style={logCardLabelStyle}>{displayLabel}</div>
-                  <div style={logCardDateTimeStyle}>
+                  <div className="min-w-0 flex-1 truncate text-sm font-extrabold uppercase tracking-[0.03em] sm:text-[15px]">
+                    {displayLabel}
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-0.5 text-xs font-semibold text-slate-700 sm:flex-row sm:items-center sm:gap-3 sm:text-sm">
                     <span>{fmtDate(a.observed_at)}</span>
-                    <span style={{ fontWeight: 700 }}>
+                    <span className="font-bold">
                       {sleepRange || fmtTime(new Date(a.observed_at))}
                     </span>
                   </div>
@@ -607,7 +589,7 @@ export function ActivityLogCards() {
 
                 {/* Detail lines below */}
                 {detailLines.length > 0 && (
-                  <div style={logCardDetailLines}>
+                  <div className="pl-7 text-sm font-medium leading-6 text-slate-700">
                     {detailLines.map((line, i) => (
                       <div key={i}>{line}</div>
                     ))}
@@ -617,18 +599,18 @@ export function ActivityLogCards() {
 
               {/* Expanded raw details */}
               {isOpen && (
-                <div style={detailsBox}>
+                <div className="flex flex-col gap-2 border-t border-black/5 bg-black/5 px-4 pb-4 pt-3">
                   {a.details && (
-                    <pre style={detailsPre}>
+                    <pre className="m-0 max-h-40 overflow-auto rounded-[10px] bg-black/5 p-2.5 text-xs leading-6 text-slate-700">
                       {JSON.stringify(a.details, null, 2)}
                     </pre>
                   )}
                   {!a.details && (
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>
+                    <div className="text-xs text-black/60">
                       No additional details.
                     </div>
                   )}
-                  <div style={metaRow}>
+                  <div className="flex flex-wrap gap-3 text-xs text-slate-500">
                     <span>ID: {a.id}</span>
                     {subtype && <span>Subtype: {subtype}</span>}
                     {recName && <span>Client: {recName}</span>}
@@ -640,23 +622,16 @@ export function ActivityLogCards() {
           );
         })}
         {!loading && !filtered.length && (
-          <div
-            style={{
-              fontSize: 13,
-              opacity: 0.5,
-              padding: "20px 0",
-              textAlign: "center",
-            }}
-          >
+          <div className="py-5 text-center text-sm text-black/55">
             {selectedClientId
               ? "No activities found for this client."
               : "Select a client to view their activity logs."}
           </div>
         )}
-        {loading && <div style={{ fontSize: 12, opacity: 0.6 }}>Loading…</div>}
+        {loading && <div className="text-xs text-black/60">Loading…</div>}
       </div>
       {!hasSupabase && (
-        <div style={{ fontSize: 11, opacity: 0.55 }}>Demo mode (mock data)</div>
+        <div className="text-[11px] text-black/55">Demo mode (mock data)</div>
       )}
     </div>
   );
@@ -800,408 +775,21 @@ function buildCalendarCells(month: Date): CalendarCell[] {
   });
 }
 
-const searchBox: React.CSSProperties = {
-  background: "rgba(255, 255, 255, 0.95)",
-  backdropFilter: "blur(16px)",
-  border: "2px solid rgba(0, 0, 0, 0.15)",
-  padding: "14px 18px",
-  borderRadius: 12,
-  color: "#1A1A1A",
-  minWidth: 280,
-  outline: "none",
-  fontSize: 15,
-  fontWeight: 500,
-  minHeight: 48,
-  transition: "all 0.2s ease",
-};
-const suggestList: React.CSSProperties = {
-  position: "absolute",
-  top: "105%",
-  left: 0,
-  background: "rgba(255, 255, 255, 0.98)",
-  backdropFilter: "blur(24px)",
-  border: "2px solid rgba(0, 0, 0, 0.1)",
-  borderRadius: 14,
-  padding: 8,
-  zIndex: 40,
-  width: "100%",
-  maxHeight: 280,
-  overflowY: "auto",
-  boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
-};
-const suggestItem: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 10,
-  cursor: "pointer",
-  fontSize: 15,
-  fontWeight: 500,
-  color: "#1A1A1A",
-};
-Object.assign(suggestItem, {
-  ["--hover-bg"]: "rgba(0,0,0,0.06)",
-});
-const smallBtn: React.CSSProperties = {
-  background: "rgba(255, 255, 255, 0.9)",
-  backdropFilter: "blur(12px)",
-  border: "2px solid rgba(0, 0, 0, 0.15)",
-  padding: "12px 18px",
-  borderRadius: 12,
-  color: "#1A1A1A",
-  fontSize: 14,
-  cursor: "pointer",
-  fontWeight: 600,
-  minHeight: 48,
-  transition: "all 0.2s ease",
-};
-// ── New log card styles (screenshot-matching) ─────────────────
-const logCard: React.CSSProperties = {
-  position: "relative",
-  display: "flex",
-  flexDirection: "column",
-  borderRadius: 14,
-  padding: 0,
-  color: "#1A1A1A",
-  overflow: "hidden",
-  border: "1px solid rgba(0,0,0,0.06)",
-  background: "rgba(255,255,255,0.85)",
-  backdropFilter: "blur(12px)",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-};
-const logCardBtn: React.CSSProperties = {
-  background: "transparent",
-  border: "none",
-  textAlign: "left",
-  padding: "14px 18px",
-  display: "flex",
-  flexDirection: "column",
-  gap: 6,
-  cursor: "pointer",
-  color: "inherit",
-  font: "inherit",
-  width: "100%",
-};
-const logCardTopRow: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  width: "100%",
-};
-const logCardIconStyle: React.CSSProperties = {
-  flexShrink: 0,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  opacity: 0.85,
-};
-const logCardLabelStyle: React.CSSProperties = {
-  flex: 1,
-  fontWeight: 800,
-  fontSize: 15,
-  letterSpacing: 0.5,
-  textTransform: "uppercase",
-  lineHeight: 1.3,
-  minWidth: 0,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-const logCardDateTimeStyle: React.CSSProperties = {
-  display: "flex",
-  gap: 12,
-  alignItems: "center",
-  flexShrink: 0,
-  fontSize: 14,
-  fontWeight: 600,
-  color: "#374151",
-  whiteSpace: "nowrap",
-};
-const logCardDetailLines: React.CSSProperties = {
-  paddingLeft: 34,
-  fontSize: 14,
-  lineHeight: 1.5,
-  color: "#374151",
-  fontWeight: 500,
-};
-const detailsBox: React.CSSProperties = {
-  background: "rgba(0,0,0,0.03)",
-  padding: "12px 16px 16px",
-  borderTop: "1px solid rgba(0,0,0,0.06)",
-  display: "flex",
-  flexDirection: "column",
-  gap: 8,
-};
-const detailsPre: React.CSSProperties = {
-  margin: 0,
-  fontSize: 12,
-  lineHeight: 1.5,
-  background: "rgba(0,0,0,0.04)",
-  padding: 10,
-  borderRadius: 10,
-  maxHeight: 160,
-  overflow: "auto",
-  color: "#374151",
-};
-const metaRow: React.CSSProperties = {
-  display: "flex",
-  gap: 12,
-  flexWrap: "wrap",
-  fontSize: 12,
-  color: "#6B7280",
-};
-const chip: React.CSSProperties = {
-  background: "rgba(0,0,0,0.06)",
-  color: "#374151",
-  padding: "3px 10px",
-  borderRadius: 999,
-  fontSize: 11,
-  fontWeight: 500,
-  letterSpacing: 0.3,
-  textTransform: "uppercase",
-};
-const errBox: React.CSSProperties = {
-  background: "rgba(239,68,68,0.15)",
-  border: "1px solid rgba(239,68,68,0.3)",
-  padding: "10px 14px",
-  borderRadius: 12,
-  fontSize: 13,
-  color: "#EF4444",
-};
-
-const topBar: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 10,
-  flexWrap: "wrap",
-};
-
-const topBarActions: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-};
-
-const dateFilterPill = (active: boolean): React.CSSProperties => ({
-  fontSize: 12,
-  fontWeight: 600,
-  color: active ? "#166534" : "#374151",
-  background: active ? "rgba(34, 197, 94, 0.18)" : "rgba(255,255,255,0.72)",
-  border: active
-    ? "1px solid rgba(34, 197, 94, 0.35)"
-    : "1px solid rgba(0,0,0,0.12)",
-  borderRadius: 999,
-  padding: "7px 12px",
-  backdropFilter: "blur(8px)",
-});
-
-const viewToggleGroup: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 6,
-  background: "rgba(255,255,255,0.75)",
-  border: "1px solid rgba(0,0,0,0.12)",
-  borderRadius: 12,
-  padding: 6,
-  backdropFilter: "blur(12px)",
-};
-
-const toggleBtn = (active: boolean): React.CSSProperties => ({
-  border: "none",
-  borderRadius: 8,
-  width: 34,
-  height: 34,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  color: active ? "#1A1A1A" : "#4B5563",
-  background: active ? "#F5D547" : "transparent",
-  boxShadow: active ? "0 2px 8px rgba(245,213,71,0.35)" : "none",
-  transition: "all 0.15s ease",
-});
-
-const calendarWrap: React.CSSProperties = {
-  position: "relative",
-};
-
-const calendarToggleBtn = (active: boolean): React.CSSProperties => ({
-  ...toggleBtn(active),
-  width: 36,
-  height: 36,
-});
-
-const calendarPanel: React.CSSProperties = {
-  position: "absolute",
-  top: "calc(100% + 8px)",
-  right: 0,
-  width: 328,
-  maxWidth: "90vw",
-  background: "rgba(255, 255, 255, 0.97)",
-  backdropFilter: "blur(14px)",
-  border: "1px solid rgba(0,0,0,0.12)",
-  borderRadius: 14,
-  boxShadow: "0 14px 34px rgba(0,0,0,0.16)",
-  padding: 12,
-  zIndex: 60,
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-};
-
-const calendarPanelTitle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 700,
-  color: "#111827",
-};
-
-const calendarInputRow: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 8,
-};
-
-const calendarLabel: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-  fontSize: 11,
-  color: "#4B5563",
-  fontWeight: 600,
-};
-
-const calendarInput: React.CSSProperties = {
-  width: "100%",
-  border: "1px solid rgba(0,0,0,0.14)",
-  borderRadius: 8,
-  padding: "7px 8px",
-  background: "#fff",
-  fontSize: 12,
-  color: "#111827",
-};
-
-const calendarQuickActions: React.CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-};
-
-const calendarActionBtn: React.CSSProperties = {
-  border: "1px solid rgba(0,0,0,0.12)",
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.9)",
-  color: "#1F2937",
-  fontSize: 12,
-  fontWeight: 600,
-  padding: "6px 9px",
-  cursor: "pointer",
-};
-
-const calendarMonthHeader: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 8,
-};
-
-const monthNavBtn: React.CSSProperties = {
-  border: "1px solid rgba(0,0,0,0.12)",
-  borderRadius: 8,
-  width: 28,
-  height: 28,
-  background: "#fff",
-  color: "#374151",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-};
-
-const calendarMonthLabel: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 700,
-  color: "#1F2937",
-  textTransform: "capitalize",
-};
-
-const weekHeaderGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  gap: 6,
-};
-
-const weekHeaderCell: React.CSSProperties = {
-  fontSize: 10,
-  fontWeight: 700,
-  color: "#6B7280",
-  textAlign: "center",
-};
-
-const calendarDaysGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  gap: 6,
-};
-
-const calendarDayCell = (
+function calendarDayCellClass(
   inCurrentMonth: boolean,
   hasActivity: boolean,
   inRange: boolean,
   singleDay: boolean,
-): React.CSSProperties => ({
-  border: singleDay
-    ? "1px solid rgba(234, 179, 8, 0.9)"
-    : "1px solid rgba(0,0,0,0.08)",
-  borderRadius: 8,
-  height: 34,
-  background: singleDay
-    ? "rgba(245, 213, 71, 0.65)"
+): string {
+  const stateClass = singleDay
+    ? "border-yellow-500/90 bg-[#F5D547]/65"
     : inRange
-      ? "rgba(16, 185, 129, 0.28)"
+      ? "border-black/10 bg-emerald-500/30"
       : hasActivity
-        ? "rgba(34, 197, 94, 0.18)"
-        : "rgba(255,255,255,0.9)",
-  color: inCurrentMonth ? "#111827" : "#9CA3AF",
-  fontSize: 12,
-  fontWeight: singleDay ? 700 : 600,
-  cursor: "pointer",
-});
+        ? "border-black/10 bg-green-500/20"
+        : "border-black/10 bg-white/90";
+  const monthClass = inCurrentMonth ? "text-slate-900" : "text-slate-400";
+  const weightClass = singleDay ? "font-bold" : "font-semibold";
 
-const calendarHint: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  fontSize: 11,
-  color: "#4B5563",
-};
-
-const calendarHintDot: React.CSSProperties = {
-  width: 10,
-  height: 10,
-  borderRadius: 999,
-  background: "rgba(34, 197, 94, 0.55)",
-  border: "1px solid rgba(34, 197, 94, 0.8)",
-};
-
-const clientSelectorRow: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "10px 16px",
-  background: "rgba(255, 255, 255, 0.92)",
-  backdropFilter: "blur(12px)",
-  border: "1px solid rgba(0, 0, 0, 0.10)",
-  borderRadius: 14,
-};
-const clientSelect: React.CSSProperties = {
-  flex: 1,
-  border: "none",
-  background: "transparent",
-  fontSize: 16,
-  fontWeight: 700,
-  color: "#1A1A1A",
-  outline: "none",
-  cursor: "pointer",
-  appearance: "auto",
-  padding: "4px 0",
-};
-
-// legacy list styles removed — now using logCard* styles
+  return `h-8 rounded-lg border text-xs ${stateClass} ${monthClass} ${weightClass} transition-colors`;
+}

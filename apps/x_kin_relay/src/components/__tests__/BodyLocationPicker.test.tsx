@@ -30,7 +30,9 @@ describe("BodyLocationPicker", () => {
   test("duplicate shapes for one part are selected independently", () => {
     const { container } = render(<Harness />);
 
-    const rightKneeButton = screen.getByRole("button", { name: "Front Knees 2" });
+    const rightKneeButton = screen.getByRole("button", {
+      name: "Front Knees 2",
+    });
     fireEvent.click(rightKneeButton);
 
     const selectedKnees = container.querySelectorAll(
@@ -44,19 +46,41 @@ describe("BodyLocationPicker", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
     fireEvent.click(screen.getByRole("button", { name: "Back Back Of Head" }));
-    fireEvent.click(screen.getByRole("button", { name: "Left side Left Knee" }));
-    fireEvent.click(screen.getByRole("button", { name: "Right side Right Knee" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Left side Left Knee" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Right side Right Knee" }),
+    );
 
     expect(screen.getAllByText("Front: Forehead").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Back: Back of head").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Left side: Left knee").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Right side: Right knee").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Left side: Left knee").length).toBeGreaterThan(
+      0,
+    );
+    expect(
+      screen.getAllByText("Right side: Right knee").length,
+    ).toBeGreaterThan(0);
+  });
+
+  test("wrist regions can be selected", () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Back Wrists 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Left side Wrists" }));
+    fireEvent.click(screen.getByRole("button", { name: "Right side Wrists" }));
+
+    expect(screen.getAllByText("Back: Wrists").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Left side: Wrists").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Right side: Wrists").length).toBeGreaterThan(0);
   });
 
   test("clicking a selected region removes it", () => {
     render(<Harness />);
 
-    const foreheadButton = screen.getByRole("button", { name: "Front Forehead" });
+    const foreheadButton = screen.getByRole("button", {
+      name: "Front Forehead",
+    });
     fireEvent.click(foreheadButton);
     expect(screen.getAllByText("Front: Forehead").length).toBeGreaterThan(0);
 
@@ -67,14 +91,19 @@ describe("BodyLocationPicker", () => {
   test("keyboard interaction toggles a region", () => {
     render(<Harness />);
 
-    const backHeadButton = screen.getByRole("button", { name: "Back Back Of Head" });
+    const backHeadButton = screen.getByRole("button", {
+      name: "Back Back Of Head",
+    });
 
     fireEvent.keyDown(backHeadButton, { key: "Enter" });
     expect(screen.getAllByText("Back: Back of head").length).toBeGreaterThan(0);
 
-    fireEvent.keyDown(screen.getByRole("button", { name: "Back Back Of Head" }), {
-      key: "Enter",
-    });
+    fireEvent.keyDown(
+      screen.getByRole("button", { name: "Back Back Of Head" }),
+      {
+        key: "Enter",
+      },
+    );
     expect(screen.queryByText("Back: Back of head")).not.toBeInTheDocument();
   });
 

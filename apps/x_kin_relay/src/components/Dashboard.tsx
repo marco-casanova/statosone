@@ -17,28 +17,43 @@ export function Dashboard({ initialTab }: { initialTab?: string }) {
   }, [initialTab]);
 
   return (
-    <div style={mainContainer}>
+    <div className="mx-auto min-h-screen w-full max-w-[95vw] bg-[#88B9B0] px-4 pb-12 pt-28 sm:px-6 sm:pt-32">
       {/* Header with title and tabs */}
-      <div style={headerRow}>
-        <h1 style={pageTitle} aria-label="Dashboard">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1
+          className="m-0 text-2xl font-bold text-[#1A1A1A] sm:text-3xl"
+          aria-label="Dashboard"
+        >
           Dashboard
         </h1>
-        <div style={tabsContainer}>
+        <div className="flex w-full flex-wrap gap-1 rounded-xl bg-black/10 p-1 sm:w-auto sm:flex-nowrap">
           <button
             onClick={() => setTab("overview")}
-            style={tab === "overview" ? tabBtnActive : tabBtn}
+            className={`min-h-9 flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:flex-none ${
+              tab === "overview"
+                ? "bg-[#F5D547] font-semibold text-[#1A1A1A]"
+                : "bg-transparent text-[#4A4A4A] hover:bg-black/5"
+            }`}
           >
             Overview
           </button>
           <button
             onClick={() => setTab("logs")}
-            style={tab === "logs" ? tabBtnActive : tabBtn}
+            className={`min-h-9 flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:flex-none ${
+              tab === "logs"
+                ? "bg-[#F5D547] font-semibold text-[#1A1A1A]"
+                : "bg-transparent text-[#4A4A4A] hover:bg-black/5"
+            }`}
           >
             Recent Tasks
           </button>
           <button
             onClick={() => setTab("data")}
-            style={tab === "data" ? tabBtnActive : tabBtn}
+            className={`min-h-9 flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:flex-none ${
+              tab === "data"
+                ? "bg-[#F5D547] font-semibold text-[#1A1A1A]"
+                : "bg-transparent text-[#4A4A4A] hover:bg-black/5"
+            }`}
           >
             Data Management
           </button>
@@ -47,7 +62,7 @@ export function Dashboard({ initialTab }: { initialTab?: string }) {
 
       {/* Content */}
       {tab === "overview" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+        <div className="flex flex-col gap-8">
           <ActivityForm />
         </div>
       )}
@@ -58,56 +73,3 @@ export function Dashboard({ initialTab }: { initialTab?: string }) {
     </div>
   );
 }
-
-// Styles
-const mainContainer: React.CSSProperties = {
-  padding: "100px 24px 60px",
-  width: "100%",
-  maxWidth: "95vw",
-  margin: "0 auto",
-  boxSizing: "border-box",
-  background: "#88B9B0",
-  minHeight: "100vh",
-};
-
-const headerRow: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 24,
-  marginBottom: 24,
-  flexWrap: "wrap",
-};
-
-const pageTitle: React.CSSProperties = {
-  margin: 0,
-  fontSize: "clamp(24px, 4vw, 32px)",
-  fontWeight: 700,
-  color: "#1A1A1A",
-};
-
-const tabsContainer: React.CSSProperties = {
-  display: "flex",
-  gap: 4,
-  background: "rgba(0, 0, 0, 0.1)",
-  padding: 4,
-  borderRadius: 10,
-};
-
-const tabBtn: React.CSSProperties = {
-  background: "transparent",
-  border: "none",
-  color: "#4A4A4A",
-  padding: "8px 16px",
-  borderRadius: 8,
-  fontSize: 14,
-  fontWeight: 500,
-  cursor: "pointer",
-  transition: "all 0.15s ease",
-};
-
-const tabBtnActive: React.CSSProperties = {
-  ...tabBtn,
-  background: "#F5D547",
-  color: "#1A1A1A",
-  fontWeight: 600,
-};

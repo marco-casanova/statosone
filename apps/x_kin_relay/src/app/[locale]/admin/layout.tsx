@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { createServerClient } from "@stratos/auth/server";
 
 /**
- * Admin Layout with server-side authentication + role guard
- * Redirects non-admin users to /app
+ * Admin Layout with server-side authentication guard
+ * Family/guardian users are allowed to access admin analytics.
  */
 export default async function AdminLayout({
   children,
@@ -29,15 +29,18 @@ export default async function AdminLayout({
     redirect(`/${locale}/login`);
   }
 
-  // Check for admin role
+  // Check for role and allow analytics access for household admins.
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", session.user.id)
     .single();
 
-  if (profile?.role !== "admin") {
-    // Not an admin, redirect to app
+  const allowedRoles = new Set(["admin", "family", "guardian"]);
+  const role = profile?.role?.toLowerCase();
+
+  if (role && !allowedRoles.has(role)) {
+    // Non-admin care roles should stay in the main app.
     redirect(`/${locale}/app`);
   }
 
