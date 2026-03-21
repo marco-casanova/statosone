@@ -302,7 +302,7 @@
           "desc": "Person completes task without help"
         },
         "supervision": {
-          "label": "Supervision",
+          "label": "Supervised",
           "desc": "Caregiver observes for safety (keep an eye)"
         },
         "prompted": {

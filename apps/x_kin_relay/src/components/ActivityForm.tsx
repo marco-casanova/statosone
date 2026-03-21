@@ -56,6 +56,13 @@ interface VitalSignConfig {
   fields: VitalInputField[];
 }
 
+type GeneralActivityModeGroupKey = "participation" | "setting";
+
+interface GeneralActivityModeSelection {
+  participation: string | null;
+  setting: string | null;
+}
+
 const VITAL_SIGN_INPUT_CONFIG: Record<string, VitalSignConfig> = {
   glucose_value: {
     label: "Blood glucose",
@@ -132,12 +139,33 @@ const VITAL_SIGN_INPUT_CONFIG: Record<string, VitalSignConfig> = {
   },
 };
 
-const FOOD_SUGGESTIONS = [
-  "Pasta bolognesa y pan tostado",
-  "Sopa",
-  "Pasta de pollo con salsa",
-  "Galleta con queso",
+const GENERAL_ACTIVITY_MODE_GROUPS: Array<{
+  key: GeneralActivityModeGroupKey;
+  label: string;
+  options: Array<{ label: string; value: string }>;
+}> = [
+  {
+    key: "participation",
+    label: "Participation",
+    options: [
+      { label: "Individual", value: "individual" },
+      { label: "Group", value: "group" },
+    ],
+  },
+  {
+    key: "setting",
+    label: "Location",
+    options: [
+      { label: "Indoor", value: "indoor" },
+      { label: "Outdoor", value: "outdoor" },
+    ],
+  },
 ];
+
+const EMPTY_GENERAL_ACTIVITY_MODES: GeneralActivityModeSelection = {
+  participation: null,
+  setting: null,
+};
 
 const ASSISTANCE_LEVELS = [
   {
@@ -217,6 +245,8 @@ export function ActivityForm() {
   const [assistanceLevel, setAssistanceLevel] = useState("");
   const [fluidType, setFluidType] = useState("");
   const [foodType, setFoodType] = useState("");
+  const [generalActivityModes, setGeneralActivityModes] =
+    useState<GeneralActivityModeSelection>({ ...EMPTY_GENERAL_ACTIVITY_MODES });
   const [bodyLocationsByIssueKey, setBodyLocationsByIssueKey] = useState<
     Record<string, BodyLocation[]>
   >({});
@@ -283,6 +313,7 @@ export function ActivityForm() {
   const isVitalSigns = mainCategory === "vital_signs";
   const isMobility = mainCategory === "mobility";
   const isMedication = mainCategory === "medication_administration";
+  const isGeneralActivity = subtype === "general_activity";
   const equipmentContext: EquipmentContext | null = isMobility
     ? subtype === "ambulation_walk"
       ? "ambulation"
@@ -375,7 +406,7 @@ export function ActivityForm() {
     }
     return bodyLocationsByIssueKey[activeBodyMapIssueKey] || [];
   }, [activeBodyMapIssueKey, bodyLocationsByIssueKey]);
-  const showAssistance = category === "adl";
+  const showAssistance = category === "adl" || isMedication;
   const showBodyLocationPicker =
     isIncident && selectedIncidentBodyMapItems.length > 0;
 
@@ -490,6 +521,7 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
+    setGeneralActivityModes({ ...EMPTY_GENERAL_ACTIVITY_MODES });
     setBodyLocationsByIssueKey({});
     setActiveBodyMapIssueKey(null);
     setShowBodyMapDialog(false);
@@ -517,6 +549,7 @@ export function ActivityForm() {
     setAssistanceLevel("");
     setFluidType("");
     setFoodType("");
+    setGeneralActivityModes({ ...EMPTY_GENERAL_ACTIVITY_MODES });
     setSelectedSubtypeLabel(null);
     setSubtypeDetailsPreset(null);
     setVitalSignReadings({});
@@ -534,6 +567,8 @@ export function ActivityForm() {
     const isSameHydrationSubtype =
       subtype === "hydration" && nextSubtype === "hydration";
     const isSameNutritionFamily = currentIsNutrition && nextIsNutrition;
+    const isSameGeneralActivity =
+      subtype === "general_activity" && nextSubtype === "general_activity";
     const subtypeChanged = nextSubtype !== subtype || nextCategory !== category;
     const preserveOptionSelection =
       !subtypeChanged || isSameNutritionFamily || isSameHydrationSubtype;
@@ -543,6 +578,9 @@ export function ActivityForm() {
     }
     if (!isSameNutritionFamily) {
       setFoodType("");
+    }
+    if (!isSameGeneralActivity) {
+      setGeneralActivityModes({ ...EMPTY_GENERAL_ACTIVITY_MODES });
     }
     if (!preserveOptionSelection) {
       setSubtypeValue(null);
@@ -754,6 +792,23 @@ export function ActivityForm() {
     );
   }
 
+  function toggleGeneralActivityMode(
+    groupKey: GeneralActivityModeGroupKey,
+    value: string,
+  ) {
+    setGeneralActivityModes((prev) =>
+      groupKey === "participation"
+        ? {
+            ...prev,
+            participation: prev.participation === value ? null : value,
+          }
+        : {
+            ...prev,
+            setting: prev.setting === value ? null : value,
+          },
+    );
+  }
+
   async function loadRecentActivities() {
     if (!selectedClientId) return;
     const now = new Date();
@@ -854,6 +909,30 @@ export function ActivityForm() {
       if (isNutrition && foodType.trim()) {
         details.food_type = foodType.trim();
       }
+      if (isGeneralActivity) {
+        const selectedModes = GENERAL_ACTIVITY_MODE_GROUPS.flatMap((group) => {
+          const selectedValue = generalActivityModes[group.key];
+          if (!selectedValue) {
+            return [];
+          }
+          const selectedOption = group.options.find(
+            (option) => option.value === selectedValue,
+          );
+          if (!selectedOption) {
+            return [];
+          }
+          return [
+            {
+              group: group.key,
+              value: selectedOption.value,
+              label: selectedOption.label,
+            },
+          ];
+        });
+        if (selectedModes.length > 0) {
+          details.activity_modes = selectedModes;
+        }
+      }
       if (selectedSubtypeLabel) {
         details.subcategory_label = selectedSubtypeLabel;
       }
@@ -932,9 +1011,14 @@ export function ActivityForm() {
   const hasVitalReading = isVitalSigns
     ? Object.values(vitalSignReadings).some((v) => v.trim() !== "")
     : true;
+  const hasGeneralActivityMode = isGeneralActivity
+    ? Boolean(
+        generalActivityModes.participation || generalActivityModes.setting,
+      )
+    : true;
   const canConfirm = isIncident
     ? selectedIncidentIssueItems.length > 0 && !!category && !!subtype
-    : !!category && !!subtype && hasVitalReading;
+    : !!category && !!subtype && hasVitalReading && hasGeneralActivityMode;
 
   // Go back one step
   function goBack() {
@@ -1396,11 +1480,55 @@ export function ActivityForm() {
             </>
           )}
 
+          {isGeneralActivity && (
+            <>
+              <label style={miniLabel}>{getOptionLabel(subtype)}</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {GENERAL_ACTIVITY_MODE_GROUPS.map((group) => (
+                  <div
+                    key={group.key}
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
+                    <div style={groupLabel}>{group.label}</div>
+                    <div style={optionGrid}>
+                      {group.options.map((opt) => {
+                        const isSelected =
+                          generalActivityModes[group.key] === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() =>
+                              toggleGeneralActivityMode(group.key, opt.value)
+                            }
+                            style={{
+                              ...optionBtn,
+                              background: isSelected
+                                ? "rgba(108, 124, 255, 0.25)"
+                                : "rgba(15, 23, 42, 0.04)",
+                              borderColor: isSelected
+                                ? "#6C7CFF"
+                                : "rgba(15, 23, 42, 0.12)",
+                            }}
+                            aria-pressed={isSelected}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           {!isIncident &&
             !isSleepPattern &&
             !isVitalSigns &&
             !isMobility &&
             !isMedication &&
+            !isGeneralActivity &&
             subtype &&
             SUBTYPE_OPTIONS[subtype] && (
               <>
@@ -1479,18 +1607,6 @@ export function ActivityForm() {
                 placeholder={t("placeholders.food_type")}
                 aria-label={t("labels.food_type_caregiver_input")}
               />
-              <div style={chipRow}>
-                {FOOD_SUGGESTIONS.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    style={chipBtn}
-                    onClick={() => setFoodType(suggestion)}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
             </>
           )}
 
@@ -1516,30 +1632,6 @@ export function ActivityForm() {
             </>
           )}
 
-          {showAssistance && !isMobility && (
-            <>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <label style={{ ...miniLabel, marginTop: 0 }}>
-                  {t("labels.assistance_level")}
-                </label>
-                <AssistanceTooltip />
-              </div>
-              <select
-                value={assistanceLevel}
-                onChange={(e) => setAssistanceLevel(e.target.value)}
-                style={input}
-                aria-label={t("labels.assistance_level")}
-              >
-                <option value="">{t("labels.select_level")}</option>
-                {ASSISTANCE_LEVELS.map((lvl) => (
-                  <option key={lvl.value} value={lvl.value}>
-                    {t(lvl.labelKey)}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-
           {isMobility && equipmentContext && (
             <>
               <label style={miniLabel}>Equipment used</label>
@@ -1561,6 +1653,30 @@ export function ActivityForm() {
                 onChange={setSelectedMedication}
                 placeholder="Search medication or type name…"
               />
+            </>
+          )}
+
+          {showAssistance && !isMobility && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <label style={{ ...miniLabel, marginTop: 0 }}>
+                  {t("labels.assistance_level")}
+                </label>
+                <AssistanceTooltip />
+              </div>
+              <select
+                value={assistanceLevel}
+                onChange={(e) => setAssistanceLevel(e.target.value)}
+                style={input}
+                aria-label={t("labels.assistance_level")}
+              >
+                <option value="">{t("labels.select_level")}</option>
+                {ASSISTANCE_LEVELS.map((lvl) => (
+                  <option key={lvl.value} value={lvl.value}>
+                    {t(lvl.labelKey)}
+                  </option>
+                ))}
+              </select>
             </>
           )}
 

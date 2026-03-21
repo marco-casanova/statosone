@@ -281,7 +281,7 @@
           "desc": "La persona completa la tarea sin ayuda"
         },
         "supervision": {
-          "label": "Supervisión",
+          "label": "Supervisado",
           "desc": "El cuidador observa por seguridad"
         },
         "prompted": {

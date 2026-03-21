@@ -764,19 +764,16 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   ],
   // Toileting / Continence
   toileting: [
-    { label: "Successful", value: "successful" },
-    { label: "Partial", value: "partial" },
-    { label: "Accident", value: "accident" },
-    { label: "Catheter emptied", value: "catheter" },
+    { label: "Incontinence pad changed", value: "pad_changed" },
+    { label: "Stoma bag changed", value: "stoma_bag_changed" },
+    { label: "Catheter bag changed", value: "catheter_bag_changed" },
   ],
   continence_bladder: [
-    { label: "Continent", value: "continent" },
     { label: "Occasional accident", value: "occasional" },
     { label: "Frequent accidents", value: "frequent" },
     { label: "Incontinent", value: "incontinent" },
   ],
   continence_bowel: [
-    { label: "Continent", value: "continent" },
     { label: "Occasional accident", value: "occasional" },
     { label: "Frequent accidents", value: "frequent" },
     { label: "Incontinent", value: "incontinent" },
@@ -994,7 +991,7 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   hydration: "Amount",
   nutrition_meal: "Portion eaten",
   feeding: "Portion eaten",
-  toileting: "Outcome",
+  toileting: "Type",
   continence_bladder: "Status",
   continence_bowel: "Status",
   sleep_rest: "Sleep quality",
@@ -1173,12 +1170,12 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
         label: "Continence",
         items: [
           {
-            label: "Bladder continence",
+            label: "Bladder control",
             category: "adl",
             subtype: "continence_bladder",
           },
           {
-            label: "Bowel continence",
+            label: "Bowel control",
             category: "adl",
             subtype: "continence_bowel",
           },
@@ -1238,39 +1235,23 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
   {
     id: "medication_administration",
     label: "Medication Administration",
-    subtitle: "Administered / refused / issues",
+    subtitle: "Medication given or handled by another carer",
     iconCategory: "service",
     groups: [
       {
         label: "Medication",
         items: [
           {
-            label: "Medication administered",
+            label: "Administered",
             category: "service",
             subtype: "other",
             detailsPreset: { medication_status: "administered" },
           },
           {
-            label: "Medication refused",
+            label: "Administered by other",
             category: "service",
             subtype: "other",
-            detailsPreset: { medication_status: "refused" },
-          },
-          {
-            label: "Medication unavailable",
-            category: "service",
-            subtype: "other",
-            detailsPreset: { medication_status: "not_available" },
-          },
-          {
-            label: "Medication error",
-            category: "safety",
-            subtype: "medication_error",
-          },
-          {
-            label: "Glucose value",
-            category: "health_observation",
-            subtype: "glucose_value",
+            detailsPreset: { medication_status: "administered_by_other" },
           },
         ],
       },

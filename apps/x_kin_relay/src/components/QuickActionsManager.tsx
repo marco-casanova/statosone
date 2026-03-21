@@ -63,7 +63,13 @@ const toQuickAction = (leaf: QuickActionLeaf): QuickAction => ({
 const DEFAULT_QUICK_ACTIONS: QuickAction[] = (() => {
   const preferred = [
     QUICK_ACTION_LEAVES.find(
-      (leaf) => leaf.mainCategoryId === "hydration" && leaf.label === "Water",
+      (leaf) => leaf.mainCategoryId === "hydration",
+    ),
+    QUICK_ACTION_LEAVES.find(
+      (leaf) => leaf.mainCategoryId === "nutrition",
+    ),
+    QUICK_ACTION_LEAVES.find(
+      (leaf) => leaf.mainCategoryId === "personal_care",
     ),
     QUICK_ACTION_LEAVES.find(
       (leaf) => leaf.mainCategoryId === "incident" && leaf.label === "Fall",

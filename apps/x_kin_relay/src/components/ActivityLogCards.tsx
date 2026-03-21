@@ -725,6 +725,19 @@ function extractDetailSummary(details: any): string[] {
   // Food type
   if (details.food_type) lines.push(details.food_type);
 
+  // Activity modes
+  if (details.activity_modes?.length) {
+    const activityModeLabels = details.activity_modes
+      .map((mode: any) => {
+        if (typeof mode === "string") return mode;
+        return mode?.label || mode?.value || null;
+      })
+      .filter(Boolean);
+    if (activityModeLabels.length > 0) {
+      lines.push(activityModeLabels.join(" • "));
+    }
+  }
+
   // Equipment
   if (details.equipment_used?.length) {
     lines.push(details.equipment_used.map((e: any) => e.label).join(", "));

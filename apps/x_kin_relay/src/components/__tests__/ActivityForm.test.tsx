@@ -23,7 +23,7 @@ vi.mock("next-intl", () => ({
       "labels.observed_at": "Observed at",
       "labels.assistance_level": "Assistance level",
       "labels.select_level": "Select level",
-      "labels.fluid_type_optional": "Fluid type (optional)",
+      "labels.fluid_type_optional": "Fluid type",
       "labels.food_type_caregiver_input": "Food type (caregiver input)",
       "placeholders.fluid_type": "Water, tea, juice, etc.",
       "placeholders.food_type": "Examples: pasta bolognesa, soup...",
@@ -47,7 +47,7 @@ vi.mock("next-intl", () => ({
       "assistance_levels.independent.label": "Independent",
       "assistance_levels.independent.desc":
         "Person completes task without help",
-      "assistance_levels.supervision.label": "Supervision",
+      "assistance_levels.supervision.label": "Supervised",
       "assistance_levels.supervision.desc":
         "Caregiver observes for safety (keep an eye)",
       "assistance_levels.prompted.label": "Prompted",
@@ -70,6 +70,35 @@ vi.mock("next-intl", () => ({
 vi.mock("../../lib/supabaseClient", () => ({
   supabase: null,
   hasSupabase: false,
+}));
+
+vi.mock("../MedicationActivityPicker", () => ({
+  MedicationActivityPicker: ({
+    value,
+    onChange,
+    placeholder,
+  }: {
+    value: { name?: string } | null;
+    onChange: (value: any) => void;
+    placeholder?: string;
+  }) => (
+    <input
+      aria-label="Medication"
+      placeholder={placeholder}
+      value={value?.name || ""}
+      onChange={(e) =>
+        onChange(
+          e.target.value
+            ? {
+                id: "mock-medication",
+                name: e.target.value,
+                source: "manual",
+              }
+            : null,
+        )
+      }
+    />
+  ),
 }));
 
 describe("ActivityForm", () => {
@@ -104,16 +133,32 @@ describe("ActivityForm", () => {
     });
     fireEvent.click(categoryBtn);
     expect(screen.getByRole("button", { name: /Save/i })).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Water")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Fluid type/i)).toHaveValue("");
   });
 
-  test("switching subcategory inside detail updates the preset", () => {
+  test("medication category keeps the new administered options and shows assistance", () => {
     render(<ActivityForm />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Select Hydration categories/i }),
+      screen.getByRole("button", {
+        name: /Select Medication Administration categories/i,
+      }),
     );
-    fireEvent.click(screen.getByRole("button", { name: /Select Juice/i }));
-    expect(screen.getByDisplayValue("Juice")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Select Administered" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Select Administered by other/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Select Medication refused/i }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select Administered by other/i }),
+    );
+    expect(
+      screen.getByRole("combobox", { name: /Assistance level/i }),
+    ).toBeInTheDocument();
   });
 
   test("incident category opens detail and still allows subtype switching", () => {
@@ -201,7 +246,7 @@ describe("ActivityForm", () => {
     ).toBeInTheDocument();
   });
 
-  test("body-location picker only shows for enabled incident types and clears when not relevant", () => {
+  test("body-location picker only shows for supported incident types and clears when deselected", () => {
     render(<ActivityForm />);
     fireEvent.click(
       screen.getByRole("button", { name: /Select Incident categories/i }),
@@ -220,18 +265,37 @@ describe("ActivityForm", () => {
       name: /Pick incident Fall/i,
     });
     fireEvent.click(fallButton);
-    fireEvent.click(
-      screen.getByRole("button", { name: /Open body map for Fall/i }),
-    );
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Front Knees 1" }));
-    expect(screen.getAllByText("Front: Knees").length).toBeGreaterThan(0);
-
-    fireEvent.click(fallButton);
     expect(
       screen.queryByRole("button", { name: /Open body map for Fall/i }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText("Front: Knees")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Skin change/i }));
+    const burnButton = screen.getByRole("button", {
+      name: /Pick incident Burn/i,
+    });
+    fireEvent.click(burnButton);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open body map for Burn/i }),
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Front Chest" }));
+    expect(
+      screen.getByText(
+        (text) =>
+          text.toLowerCase().includes("burn:") && text.includes("Front: Chest"),
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(burnButton);
+    expect(
+      screen.queryByRole("button", { name: /Open body map for Burn/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        (text) =>
+          text.toLowerCase().includes("burn:") && text.includes("Front: Chest"),
+      ),
+    ).not.toBeInTheDocument();
   });
 
   test("incident body locations are tracked per selected issue type", () => {
@@ -287,5 +351,28 @@ describe("ActivityForm", () => {
       name: /hydration \(adl\) icon/i,
     });
     expect(icons.length).toBeGreaterThan(0);
+  });
+
+  test("general activity supports participation and location at the same time", () => {
+    render(<ActivityForm />);
+    fireEvent.click(screen.getByRole("button", { name: /Select Activity categories/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Select General activity/i }),
+    );
+
+    const individualButton = screen.getByRole("button", { name: "Individual" });
+    const groupButton = screen.getByRole("button", { name: "Group" });
+    const outdoorButton = screen.getByRole("button", { name: "Outdoor" });
+
+    fireEvent.click(individualButton);
+    fireEvent.click(outdoorButton);
+
+    expect(individualButton).toHaveAttribute("aria-pressed", "true");
+    expect(outdoorButton).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(groupButton);
+    expect(individualButton).toHaveAttribute("aria-pressed", "false");
+    expect(groupButton).toHaveAttribute("aria-pressed", "true");
+    expect(outdoorButton).toHaveAttribute("aria-pressed", "true");
   });
 });

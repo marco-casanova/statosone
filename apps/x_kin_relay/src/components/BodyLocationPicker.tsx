@@ -103,11 +103,6 @@ export function BodyLocationPicker({
     [value],
   );
 
-  const selectedSummary = useMemo(
-    () => value.map((location) => locationDatasetKey(location)).join(", "),
-    [value],
-  );
-
   function toggleLocation(
     modelView: BodyMapView,
     part: BodyRegion,
@@ -235,29 +230,6 @@ export function BodyLocationPicker({
       )}
 
       <div style={embedded ? embeddedPanel : drawerPanel}>
-        <div style={drawerTopRow}>
-          <div>
-            <div style={drawerTitle}>Body map</div>
-            <div style={drawerSubtitle}>
-              Tap a region to select it. Tap a selected region again to remove
-              it.
-            </div>
-          </div>
-          <button
-            type="button"
-            style={clearBtn}
-            onClick={() => onChange([])}
-            disabled={value.length === 0}
-          >
-            Clear
-          </button>
-        </div>
-
-        <div style={selectedRow}>
-          <div style={selectedLabel}>Selected:</div>
-          <div style={selectedValue}>{selectedSummary || "None"}</div>
-        </div>
-
         <div
           ref={svgHostRef}
           style={svgHost}
@@ -585,42 +557,6 @@ const drawerTitle: React.CSSProperties = {
   fontSize: 20,
   fontWeight: 700,
   color: "#111827",
-};
-
-const drawerSubtitle: React.CSSProperties = {
-  marginTop: 4,
-  fontSize: 13,
-  color: "#6B7280",
-};
-
-const clearBtn: React.CSSProperties = {
-  border: "1px solid rgba(15, 23, 42, 0.14)",
-  background: "#fff",
-  color: "#111827",
-  borderRadius: 10,
-  padding: "8px 12px",
-  fontSize: 13,
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const selectedRow: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 12,
-  flexWrap: "wrap",
-};
-
-const selectedLabel: React.CSSProperties = {
-  color: "#6B7280",
-  fontSize: 14,
-};
-
-const selectedValue: React.CSSProperties = {
-  fontWeight: 700,
-  color: "#111827",
-  fontSize: 14,
-  wordBreak: "break-word",
 };
 
 const svgHost: React.CSSProperties = {

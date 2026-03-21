@@ -223,7 +223,7 @@ export function DataManagement({ embedded = false }: { embedded?: boolean }) {
   const NAV_SHORTCUTS = [
     {
       key: "quick-log",
-      label: "Quick Log",
+      label: "Main Log",
       icon: "📝",
       href: `/${locale}/app?view=dashboard`,
     },

@@ -107,15 +107,14 @@ describe("BodyLocationPicker", () => {
     expect(screen.queryByText("Back: Back of head")).not.toBeInTheDocument();
   });
 
-  test("clear removes all selected regions", () => {
+  test("removing a chip clears that selected region", () => {
     render(<Harness />);
 
     fireEvent.click(screen.getByRole("button", { name: "Front Forehead" }));
     fireEvent.click(screen.getByRole("button", { name: "Back Spine" }));
-    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove Front: Forehead" }));
 
     expect(screen.queryByText("Front: Forehead")).not.toBeInTheDocument();
-    expect(screen.queryByText("Back: Spine")).not.toBeInTheDocument();
-    expect(screen.getByText("None")).toBeInTheDocument();
+    expect(screen.getAllByText("Back: Spine").length).toBeGreaterThan(0);
   });
 });
