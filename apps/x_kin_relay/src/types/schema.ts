@@ -623,10 +623,8 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
   ],
   behaviour_change: [
     { label: "Agitation", value: "agitation" },
-    { label: "Confusion", value: "confusion" },
     { label: "Withdrawn", value: "withdrawn" },
     { label: "Aggression", value: "aggression" },
-    { label: "Anxiety", value: "anxiety" },
   ],
   redness: OBSERVATION_INTENSITY_OPTIONS,
   cut: OBSERVATION_INTENSITY_OPTIONS,
@@ -673,24 +671,14 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Severe discomfort", value: "severe" },
     { label: "Resolved", value: "resolved" },
   ],
-  confusion: [
-    { label: "Mild confusion", value: "mild" },
-    { label: "Disoriented", value: "disoriented" },
-    { label: "Sudden onset", value: "sudden" },
-    { label: "Needs review", value: "review" },
-  ],
+  confusion: [],
   challenging_behaviour: [
     { label: "Verbal", value: "verbal" },
     { label: "Physical", value: "physical" },
     { label: "Refusal", value: "refusal" },
     { label: "Escalated", value: "escalated" },
   ],
-  anxiety: [
-    { label: "Mild", value: "mild" },
-    { label: "Moderate", value: "moderate" },
-    { label: "Severe", value: "severe" },
-    { label: "Panic symptoms", value: "panic" },
-  ],
+  anxiety: [],
   hallucination: [
     { label: "Visual", value: "visual" },
     { label: "Auditory", value: "auditory" },
@@ -1244,9 +1232,14 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
         label: "Behavior",
         items: [
           {
-            label: "Behaviour change",
+            label: "Withdrawn",
             category: "health_observation",
             subtype: "behaviour_change",
+            itemKey: "behaviour_change_withdrawn",
+            detailsPreset: {
+              behaviour_change_type: "withdrawn",
+              skip_subtype_options: true,
+            },
           },
           {
             label: "Confusion",
@@ -1254,12 +1247,12 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             subtype: "confusion",
           },
           {
-            label: "Challenging behaviour",
+            label: "Aggression",
             category: "health_observation",
             subtype: "challenging_behaviour",
           },
           {
-            label: "Anxiety",
+            label: "Anxiety / Agitation",
             category: "health_observation",
             subtype: "anxiety",
           },

@@ -240,6 +240,7 @@ export function ActivityForm() {
   const [subtypeValue, setSubtypeValue] = useState<string | number | null>(
     null,
   );
+  const [multiSubtypeValues, setMultiSubtypeValues] = useState<string[]>([]);
   const [hydrationValues, setHydrationValues] = useState<number[]>([]);
   const [observedAt, setObservedAt] = useState(nowLocal());
   const [assistanceLevel, setAssistanceLevel] = useState("");
@@ -314,6 +315,7 @@ export function ActivityForm() {
   const isMobility = mainCategory === "mobility";
   const isMedication = mainCategory === "medication_administration";
   const isGeneralActivity = subtype === "general_activity";
+  const isHallucination = subtype === "hallucination";
   const equipmentContext: EquipmentContext | null = isMobility
     ? subtype === "ambulation_walk"
       ? "ambulation"
@@ -516,6 +518,7 @@ export function ActivityForm() {
     setCategory(null);
     setSubtype(null);
     setSubtypeValue(null);
+    setMultiSubtypeValues([]);
     setHydrationValues([]);
     setObservedAt(nowLocal());
     setAssistanceLevel("");
@@ -545,6 +548,7 @@ export function ActivityForm() {
     setCategory(null);
     setSubtype(null);
     setSubtypeValue(null);
+    setMultiSubtypeValues([]);
     setHydrationValues([]);
     setAssistanceLevel("");
     setFluidType("");
@@ -569,6 +573,8 @@ export function ActivityForm() {
     const isSameNutritionFamily = currentIsNutrition && nextIsNutrition;
     const isSameGeneralActivity =
       subtype === "general_activity" && nextSubtype === "general_activity";
+    const isSameHallucinationSubtype =
+      subtype === "hallucination" && nextSubtype === "hallucination";
     const subtypeChanged = nextSubtype !== subtype || nextCategory !== category;
     const preserveOptionSelection =
       !subtypeChanged || isSameNutritionFamily || isSameHydrationSubtype;
@@ -581,6 +587,9 @@ export function ActivityForm() {
     }
     if (!isSameGeneralActivity) {
       setGeneralActivityModes({ ...EMPTY_GENERAL_ACTIVITY_MODES });
+    }
+    if (!isSameHallucinationSubtype) {
+      setMultiSubtypeValues([]);
     }
     if (!preserveOptionSelection) {
       setSubtypeValue(null);
@@ -647,6 +656,7 @@ export function ActivityForm() {
       );
 
     setSubtypeValue(null);
+    setMultiSubtypeValues([]);
     setHydrationValues([]);
     setFluidType("");
     setFoodType("");
@@ -792,6 +802,12 @@ export function ActivityForm() {
     );
   }
 
+  function toggleMultiSubtypeValue(value: string) {
+    setMultiSubtypeValues((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+    );
+  }
+
   function toggleGeneralActivityMode(
     groupKey: GeneralActivityModeGroupKey,
     value: string,
@@ -898,6 +914,15 @@ export function ActivityForm() {
           details.unit = "ml";
         }
         if (fluidType.trim()) details.fluid_type = fluidType.trim();
+      } else if (isHallucination && subtype) {
+        const options = SUBTYPE_OPTIONS[subtype] || [];
+        const selectedOptions = options.filter(
+          (option) =>
+            typeof option.value === "string" &&
+            multiSubtypeValues.includes(option.value),
+        );
+        details.values = selectedOptions.map((option) => option.value);
+        details.labels = selectedOptions.map((option) => option.label);
       } else if (subtypeValue !== null && subtype) {
         const options = SUBTYPE_OPTIONS[subtype];
         const selectedOption = options?.find((o) => o.value === subtypeValue);
@@ -1542,7 +1567,10 @@ export function ActivityForm() {
                   {SUBTYPE_OPTIONS[subtype].map((opt) => {
                     const isSelected = isHydration
                       ? hydrationValues.includes(Number(opt.value))
-                      : subtypeValue === opt.value;
+                      : isHallucination
+                        ? typeof opt.value === "string" &&
+                          multiSubtypeValues.includes(opt.value)
+                        : subtypeValue === opt.value;
                     return (
                       <button
                         key={String(opt.value)}
@@ -1550,6 +1578,13 @@ export function ActivityForm() {
                         onClick={() => {
                           if (isHydration) {
                             toggleHydrationValue(Number(opt.value));
+                            return;
+                          }
+                          if (
+                            isHallucination &&
+                            typeof opt.value === "string"
+                          ) {
+                            toggleMultiSubtypeValue(opt.value);
                             return;
                           }
                           setSubtypeValue(opt.value);
