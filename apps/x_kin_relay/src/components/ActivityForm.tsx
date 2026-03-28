@@ -1483,7 +1483,9 @@ export function ActivityForm() {
           {isGeneralActivity && (
             <>
               <label style={miniLabel}>{getOptionLabel(subtype)}</label>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 12 }}
+              >
                 {GENERAL_ACTIVITY_MODE_GROUPS.map((group) => (
                   <div
                     key={group.key}
@@ -1530,7 +1532,7 @@ export function ActivityForm() {
             !isMedication &&
             !isGeneralActivity &&
             subtype &&
-            SUBTYPE_OPTIONS[subtype] && (
+            SUBTYPE_OPTIONS[subtype]?.length > 0 && (
               <>
                 <label style={miniLabel}>{getOptionLabel(subtype)}</label>
                 {isHydration && (
@@ -1833,7 +1835,7 @@ function primaryLabel(a: ActivityRow) {
 
 // Get label for subtype options based on subtype
 function getOptionLabel(subtype: string): string {
-  return SUBTYPE_OPTION_LABELS[subtype] || "Select option";
+  return SUBTYPE_OPTION_LABELS[subtype] ?? "Select option";
 }
 
 const MAIN_CATEGORY_COLORS: Record<

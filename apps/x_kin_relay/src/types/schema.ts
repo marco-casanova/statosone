@@ -768,16 +768,8 @@ export const SUBTYPE_OPTIONS: Record<string, SubtypeOption[]> = {
     { label: "Stoma bag changed", value: "stoma_bag_changed" },
     { label: "Catheter bag changed", value: "catheter_bag_changed" },
   ],
-  continence_bladder: [
-    { label: "Occasional accident", value: "occasional" },
-    { label: "Frequent accidents", value: "frequent" },
-    { label: "Incontinent", value: "incontinent" },
-  ],
-  continence_bowel: [
-    { label: "Occasional accident", value: "occasional" },
-    { label: "Frequent accidents", value: "frequent" },
-    { label: "Incontinent", value: "incontinent" },
-  ],
+  continence_bladder: [],
+  continence_bowel: [],
   // Sleep
   sleep_rest: [
     { label: "Good (7-8h)", value: "good" },
@@ -993,7 +985,7 @@ export const SUBTYPE_OPTION_LABELS: Record<string, string> = {
   feeding: "Portion eaten",
   toileting: "Type",
   continence_bladder: "Status",
-  continence_bowel: "Status",
+  continence_bowel: "",
   sleep_rest: "Sleep quality",
   vital_sign: "Type",
   weight_entry: "Weight range",
@@ -1178,21 +1170,6 @@ export const CARE_UI_CATEGORIES: UiCareCategory[] = [
             label: "Bowel control",
             category: "adl",
             subtype: "continence_bowel",
-          },
-          {
-            label: "Urine leak",
-            category: "health_observation",
-            subtype: "urine_leak",
-          },
-          {
-            label: "Bowel leak",
-            category: "health_observation",
-            subtype: "bowel_leak",
-          },
-          {
-            label: "Catheter bag change",
-            category: "health_observation",
-            subtype: "catheter_issue",
           },
         ],
       },
