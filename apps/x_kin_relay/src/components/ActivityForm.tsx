@@ -316,6 +316,9 @@ export function ActivityForm() {
   const isMedication = mainCategory === "medication_administration";
   const isGeneralActivity = subtype === "general_activity";
   const isHallucination = subtype === "hallucination";
+  const shouldHideSubtypeOptions = Boolean(
+    subtypeDetailsPreset?.skip_subtype_options,
+  );
   const equipmentContext: EquipmentContext | null = isMobility
     ? subtype === "ambulation_walk"
       ? "ambulation"
@@ -590,6 +593,9 @@ export function ActivityForm() {
     }
     if (!isSameHallucinationSubtype) {
       setMultiSubtypeValues([]);
+    }
+    if (item.detailsPreset?.skip_subtype_options) {
+      setSubtypeValue(null);
     }
     if (!preserveOptionSelection) {
       setSubtypeValue(null);
@@ -1556,6 +1562,7 @@ export function ActivityForm() {
             !isMobility &&
             !isMedication &&
             !isGeneralActivity &&
+            !shouldHideSubtypeOptions &&
             subtype &&
             SUBTYPE_OPTIONS[subtype]?.length > 0 && (
               <>
